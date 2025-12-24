@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mastering Real-Time Collaboration: Building a Global Serverless Document Platform | Tech Interview Blog</title>
+  <meta name="description" content="Learn how to build a globally distributed serverless platform for real-time document editing with CRDTs, multi-region deployment, and sub-50ms latency.">
+  <link rel="stylesheet" href="/style.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💻</text></svg>">
+</head>
+<body>
+<header><div class="container header-content">
+    <a href="/" class="logo">💻 Tech Interview Blog</a>
+    <nav><a href="/">Home</a><a href="/categories/">Categories</a><a href="https://reel-interview.github.io" target="_blank">Practice →</a></nav>
+  </div></header>
+<main><article class="article"><div class="container">
+  <a href="/categories/system-design/" style="color: var(--text-secondary); text-decoration: none; font-size: 0.875rem;">← System Design</a>
+  <div class="article-header">
+    <h1>Mastering Real-Time Collaboration: Building a Global Serverless Document Platform</h1>
+    <div class="article-meta"><span class="tag">System Design</span><span class="difficulty advanced">advanced</span><span class="tag">infra</span> <span class="tag">scale</span></div>
+  </div>
+  <p class="article-intro">In today's hyper-connected world, teams expect seamless collaboration across continents with zero latency. Building a globally distributed document editing platform that maintains sub-50ms response times while supporting offline work isn't just ambitious—it's essential for modern productivity tools. Let's explore how to architect this complex system using cutting-edge serverless technologies.</p>
+  <div class="article-content"><h2>The Foundation: CRDT-Based Conflict Resolution</h2>At the heart of any collaborative editing system lies the challenge of conflict resolution. When multiple users edit the same document simultaneously across different regions, how do we ensure everyone sees the same final result? The answer lies in Conflict-Free Replicated Data Types (CRDTs).</p><p>CRDTs enable operational transformation where each client tracks operations independently, allowing for automatic conflict resolution without central coordination. This mathematical approach ensures that regardless of the order in which operations arrive, all replicas eventually converge to the same state. Think of it like multiple authors working on different chapters of a book—each can write independently, yet the final manuscript remains coherent.<h2>Multi-Region Architecture: Active-Active Deployment</h2>To achieve global sub-50ms latency, we need an active-active deployment strategy across key AWS regions. By deploying Lambda functions in us-east-1, eu-west-1, and ap-southeast-1, we ensure users connect to the nearest endpoint, minimizing round-trip times.</p><p>The backbone of this architecture is DynamoDB Global Tables, which provides multi-master replication with conflict-free write patterns. Each region maintains its own copy of the data, with changes automatically synchronized across all regions. This approach eliminates the single point of failure and provides true geographic redundancy.</p><p>CloudFront Edge Locations serve as the first line of defense, caching hot documents and providing WebSocket support for real-time updates. This edge computing layer can handle document diff calculations locally, reducing the load on backend services.<h2>Real-Time Synchronization: The WebSocket Backbone</h2>Real-time collaboration requires bidirectional communication with minimal overhead. API Gateway with WebSocket protocol provides the perfect foundation for this interaction, enabling persistent connections between clients and servers.</p><p>EventBridge handles cross-region event propagation, ensuring that changes made in one region are immediately visible to users in other regions. This event-driven architecture allows for loose coupling between regions while maintaining consistency.</p><p>Each region maintains its own ElastiCache Redis cluster for caching hot document state, providing sub-millisecond access to frequently accessed data. This local caching strategy is crucial for maintaining performance during high-traffic periods.<h2>Offline Support: The Service Worker Revolution</h2>Modern collaboration tools must work seamlessly offline, and this is where Service Workers shine. By leveraging IndexedDB for local storage, we can queue operations when users are disconnected and automatically sync them when connectivity returns.</p><p>Delta synchronization is key to efficient offline support—rather than transmitting entire documents, we only send the changes (deltas). This approach minimizes bandwidth usage and speeds up synchronization, especially important for users on slow or unreliable connections.</p><p>The CRDT-based conflict resolution automatically handles merge conflicts when users reconnect, ensuring that offline work integrates smoothly with real-time changes made by other collaborators.<h2>Performance Optimization: Edge Computing and Smart Routing</h2>Achieving sub-50ms response times requires aggressive optimization at every layer. CloudFront Functions running at edge locations can handle document diff calculations locally, reducing the round-trip to backend services.</p><p>WebSocket connection pooling through multiplexing reduces connection overhead, allowing multiple documents to share the same connection. This approach is particularly efficient for users working with multiple documents simultaneously.</p><p>Route 53 latency-based routing automatically directs users to the nearest region, ensuring optimal performance regardless of geographic location. This intelligent routing is transparent to users but critical for maintaining consistent performance globally.<h2>Monitoring and Scaling: Ensuring Reliability at Scale</h2>A global platform requires sophisticated monitoring and scaling strategies. Lambda provisioned concurrency provides predictable performance by maintaining warm instances ready to handle traffic spikes.</p><p>CloudWatch custom metrics track collaboration-specific data points like concurrent users, document change rates, and synchronization latency. These metrics enable proactive scaling and performance tuning.</p><p>Circuit breakers provide regional isolation to prevent cascade failures—if one region experiences issues, traffic can be automatically rerouted to healthy regions, ensuring continuous service availability.<h2>Visual Overview</h2><pre><code class="language-mermaid">graph TD
+    A[Client Browser] --&gt;|WebSocket| B[CloudFront Edge]
+    B --&gt;|WebSocket| C[API Gateway WebSocket]
+    C --&gt; D[Lambda Auth]
+    C --&gt; E[Lambda Router]
+    E --&gt; F[Lambda Document Handler]
+    E --&gt; G[Lambda Sync Handler]
+    F --&gt; H[DynamoDB Global Table]
+    G --&gt; I[EventBridge Bus]
+    I --&gt; J[Cross-Region EventBridge]
+    J --&gt; K[Other Region Lambda]
+    F --&gt; L[ElastiCache Redis]
+    K --&gt; M[DynamoDB Replica]
+    A --&gt; N[Service Worker]
+    N --&gt; O[IndexedDB Storage]
+    P[Route 53] --&gt;|Latency Routing| B
+    Q[CloudWatch] --&gt;|Metrics| E</code></pre><h2>Wrapping Up</h2><p>Building a globally distributed collaborative document platform requires careful orchestration of multiple technologies and architectural patterns. By combining CRDTs for conflict resolution, active-active multi-region deployment, and edge computing optimizations, we can create a system that delivers sub-50ms response times while supporting offline work and automatic conflict resolution. The key is balancing consistency, performance, and reliability across geographic boundaries—challenges that become increasingly important as our world becomes more connected and collaborative.</p></div>
+  <div class="cta-box"><p>Ready to practice?</p><a href="https://reel-interview.github.io/channel/system-design" class="cta-button">Practice on Reel Interview →</a></div>
+</div></article></main>
+<footer><div class="container"><p>© 2025 Tech Interview Blog. Powered by <a href="https://reel-interview.github.io">Reel Interview</a></p></div></footer></body></html>
