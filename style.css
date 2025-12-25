@@ -219,6 +219,7 @@ nav a.nav-cta:hover { border-color: var(--accent); box-shadow: var(--shadow-glow
 .snippet-hook { font-weight: 600; color: var(--text); margin-bottom: 0.75rem; font-size: 1rem; }
 .snippet-body { color: var(--text-secondary); margin-bottom: 0.75rem; white-space: pre-line; }
 .snippet-cta { color: var(--accent); font-weight: 500; margin-bottom: 0.5rem; }
+.snippet-hashtags { color: var(--accent-secondary); font-size: 0.875rem; margin-bottom: 0.5rem; word-wrap: break-word; }
 .snippet-link { font-size: 0.8125rem; color: var(--text-muted); word-break: break-all; }
 
 /* CTA - Gradient */
