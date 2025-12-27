@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Mastering Distributed Order Processing with Saga Pattern in High-Frequency Trading | DevInsights</title>
-  <meta name="description" content="Learn how to implement Saga pattern for distributed order processing in high-frequency trading systems, including compensation strategies and event sourcing for reliable state recovery.">
+  <title>The Silent Killer: When Your Linux Processes Vanish into Uninterruptible Sleep | DevInsights</title>
+  <meta name="description" content="Learn how to debug and prevent Linux processes from getting stuck in uninterruptible sleep (D state), with real-world examples from Cloudflare's production issues.">
   <meta name="theme-color" content="#050505">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -34,73 +34,97 @@
     </nav>
   </div></header>
 <main><article class="article"><div class="container">
-  <a href="/categories/system-design/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← System Design</a>
+  <a href="/categories/networking-systems/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Networking & Systems</a>
   <div class="article-header">
-    <h1>Mastering Distributed Order Processing with Saga Pattern in High-Frequency Trading</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">System Design</span><span class="difficulty advanced">advanced</span><span class="tag">saga</span> <span class="tag">cqrs</span> <span class="tag">event-sourcing</span></div>
+    <h1>The Silent Killer: When Your Linux Processes Vanish into Uninterruptible Sleep</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Unix</span><span class="difficulty intermediate">intermediate</span><span class="tag">unix</span></div>
   </div>
-  <p class="article-intro">In the world of high-frequency trading, where millions of transactions occur every second, system reliability isn't just important—it's everything. A single failure in order processing can cascade into catastrophic losses, making robust distributed systems design the difference between success and failure in financial markets.</p>
+  <p class="article-intro">Picture this: It's 2 AM and your monitoring dashboard is screaming. Dozens of unrelated processes are stuck in uninterruptible sleep (D state), SSH access is impossible, and new Kubernetes containers refuse to spawn. This nightmare scenario happened to Cloudflare when they discovered that hung task warnings can be misleading - they often point to victims waiting for locks rather than the actual offender [1]. The D state is Linux's way of saying 'this process is waiting for something that absolutely cannot be interrupted,' but what happens when that 'something' never comes?</p>
   <div class="article-content">
-    <h2>The Critical Role of Saga Pattern in Trading Systems</h2>When designing distributed order processing systems for high-frequency trading platforms, traditional ACID transactions simply don't scale. The Saga pattern emerges as a powerful solution, allowing us to maintain data consistency across multiple services while handling the inevitable failures that occur in complex distributed environments. This pattern becomes particularly crucial when dealing with market data feeds that can fail mid-transaction, potentially leaving orders in inconsistent states.</p><p>The beauty of Saga lies in its ability to break down complex transactions into a series of smaller, manageable steps, each with its own compensating action. This approach ensures that even when failures occur, the system can gracefully rollback to a consistent state without leaving orphaned transactions or partial orders.<h2>Choreography vs Orchestration: Choosing the Right Approach</h2>When implementing Saga patterns, you have two primary coordination models: choreography and orchestration. For high-frequency trading systems, choreography-based Sagas often prove superior due to their decentralized nature and reduced single points of failure.</p><p>In a choreography approach, each service publishes events that trigger the next step in the saga, creating a loosely coupled system that can better handle the massive throughput requirements of trading platforms. This design allows individual components to fail without bringing down the entire order processing pipeline, a critical requirement when processing thousands of orders per second.<h2>Implementing Robust Compensation Strategies</h2>The heart of any Saga implementation lies in its compensation mechanisms. When a market data feed fails mid-transaction, the system must execute compensating actions that restore the system to its previous state. Here's how a typical order Saga might handle compensation:</p><p><pre><code class="language-typescript">// Saga orchestrator with compensation
-class OrderSaga {
-  async execute(order: Order) {
-    try {
-      await this.reserveInventory(order);
-      await this.processPayment(order);
-      await this.updatePosition(order);
-    } catch (error) {
-      await this.compensate(order);
-      throw error;
-    }
-  }
-  
-  private async compensate(order: Order) {
-    await Promise.allSettled([
-      this.releaseInventory(order),
-      this.refundPayment(order),
-      this.revertPosition(order)
-    ]);
-  }
-}</code></pre></p><p>Key considerations for compensation include idempotency, retry policies, and circuit breakers. Each compensating action must be designed to handle multiple executions without side effects, ensuring that even network failures don't lead to double-compensation or inconsistent states.<h2>Event Sourcing for State Recovery</h2>In trading systems where audit trails and state reconstruction are paramount, event sourcing becomes an essential companion to the Saga pattern. By persisting every state change as an immutable event, we gain the ability to reconstruct the system's state at any point in time, crucial for debugging failed transactions and regulatory compliance.</p><p>Event sourcing also enables sophisticated replay capabilities, allowing us to test new compensation strategies against historical data or recover from catastrophic failures by replaying events from a known good state. This approach proves invaluable when dealing with the complex failure scenarios that can arise in high-frequency trading environments.<h2>Handling Market Data Feed Failures</h2>Market data feed failures represent one of the most challenging scenarios in trading systems. When a feed fails mid-transaction, the Saga must determine whether to wait for recovery, abort the transaction, or proceed with cached data. The decision depends on factors like transaction criticality, market volatility, and the expected recovery time.</p><p>Implementing circuit breakers around market data feeds helps prevent cascade failures by automatically failing fast when the feed becomes unreliable. Combined with retry policies that implement exponential backoff, the system can gracefully handle temporary outages while maintaining overall system stability.<h2>Ensuring Idempotency and Consistency</h2>Idempotency becomes crucial when dealing with compensating actions that might be retried multiple times. Each compensation operation must be designed to produce the same result regardless of how many times it's executed. This typically involves checking the current state before applying changes and using unique identifiers to track completed operations.</p><p>Eventual consistency, while acceptable in many distributed systems, requires careful consideration in trading contexts. The system must ensure that no orders are left in ambiguous states, even if temporary inconsistencies occur during normal operation. This often involves implementing additional validation steps and reconciliation processes to detect and resolve inconsistencies.<h2>Monitoring and Observability</h2>Effective monitoring is non-negotiable in trading systems. Implement comprehensive observability for your Saga patterns, including metrics for success rates, compensation frequencies, and execution times. Set up alerts for unusual patterns that might indicate systemic issues or market anomalies.</p><p>Distributed tracing becomes essential for debugging complex transaction flows that span multiple services. By correlating logs and metrics across the entire saga lifecycle, you can quickly identify bottlenecks and failure points, ensuring the system meets the stringent performance requirements of high-frequency trading.<h2>System Flow</h2><div class="mermaid">flowchart TD
-  A[Order Received] --> B[Reserve Inventory]
-  B --> C[Process Payment]
-  C --> D[Update Position]
-  D --> E[Complete]
-  B --> F[Compensation: Release Inventory]
-  C --> G[Compensation: Refund Payment]
-  D --> H[Compensation: Revert Position]
-  F --> I[Rollback Complete]
-  G --> I
-  H --> I</div>
-    
-    <h2>Wrapping Up</h2>
-    <p>Mastering Saga patterns for distributed order processing in high-frequency trading systems requires careful consideration of coordination models, compensation strategies, and failure handling mechanisms. By implementing choreography-based sagas with robust event sourcing and comprehensive monitoring, you can build systems that maintain consistency even when facing the inevitable failures of complex distributed environments. The key is designing for failure from the start, ensuring that every transaction has a well-defined path to recovery.</p>
-  </div>
-  
-    <div class="related-articles">
-      <h3>Continue Reading</h3>
-      <div class="related-grid">
-        
-          <a href="/posts/sy-132/rate-limiting-roulette-how-to-win-at-1m-requests-without-crashing/" class="related-card">
-            <span class="related-title">Rate Limiting Roulette: How to Win at 1M+ Requests Without Crashing</span>
-            <span class="related-meta">advanced</span>
+    <figure class="article-image">
+      <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&amp;q=80" alt="Server rack with blinking lights representing system processes" loading="lazy">
+      <figcaption>When processes get stuck, your entire infrastructure can grind to a halt</figcaption>
+    </figure><h2>The Mystery of the D State</h2>Every Linux administrator has seen it: that ominous 'D' in the <code>ps</code> output that makes your heart skip a beat. Unlike other process states, <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span> processes can't be killed with SIGKILL - they're truly stuck in limbo, waiting for I/O operations that may never complete <a href="#source-2" class="citation" title="View source">2</a>. </p><p><pre><code class="language-bash"># Find the zombies in your system
+ps aux | awk '$8 ~ /D/ {print $2, $11}'</code></pre></p><p>But here's the plot twist: those <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span> processes you're seeing might not be the real culprits. As Cloudflare discovered, they're often victims waiting for resources held by other processes <a href="#source-1" class="citation" title="View source">1</a>. The actual offender might be running happily, completely unaware of the chaos it's causing.</p><p>💡 <strong>Insight</strong>: The <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span> is designed to prevent data corruption during critical I/O operations, but this safety mechanism can become a prison when the underlying storage system fails.<h2>The Usual Suspects: What Causes D State Nightmares?</h2>When processes enter <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span>, they're typically waiting on one of these common troublemakers:</p><p><strong>NFS Mount Issues</strong>
+Network filesystems are notorious for causing <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span> problems. A slow network connection, misconfigured timeout, or unreachable NFS server can leave processes waiting indefinitely <a href="#source-3" class="citation" title="View source">3</a>.</p><p><strong>Hardware Failures</strong>
+Faulty disks, failing controllers, or bad cables can cause I/O operations to hang. The kernel keeps waiting, but the hardware will never respond <a href="#source-4" class="citation" title="View source">4</a>.</p><p><strong>Kernel Bugs and Driver Issues</strong>
+Sometimes the problem isn't hardware but software. Buggy drivers or kernel panics can leave processes in an uninterruptible state <a href="#source-5" class="citation" title="View source">5</a>.</p><p>⚠️ <strong>Watch Out</strong>: Before you blame hardware, check your system logs. <code>dmesg | grep -i oom</code> can reveal if the OOM killer has been active, which might indicate memory pressure causing I/O blocking <a href="#source-6" class="citation" title="View source">6</a>.<figure class="article-image">
+      <img src="https://images.pexels.com/photos/5380642/pexels-photo-5380642.jpeg?w=800" alt="Developer debugging code on multiple monitors" loading="lazy">
+      <figcaption>Advanced debugging requires the right tools and mindset</figcaption>
+    </figure><h2>The Detective's Toolkit: Finding the Real Culprit</h2>When you're facing a <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span> crisis, you need to think like a detective. The obvious suspects (the <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span> processes) are often just red herrings.</p><p><pre><code class="language-bash"># Check what files a stuck process is waiting on
+lsof -p &lt;PID&gt;
+
+# Examine the kernel call trace
+cat /proc/&lt;PID&gt;/stack</code></pre></p><p>For advanced cases, you'll need specialized tools. <span class="glossary-term" data-tooltip="Berkeley Packet Filter - a technology that allows safe execution of kernel-level programs for advanced system monitoring">BPF</span> (Berkeley Packet Filter) and <span class="glossary-term" data-tooltip="A debugger for the Linux kernel that allows examining kernel state and debugging live systems">drgn</span> are essential for identifying the root cause when multiple processes appear stuck <a href="#source-1" class="citation" title="View source">1</a>. These tools let you examine kernel internals in ways that traditional debugging methods can't touch.</p><p>🔥 <strong>Hot Take</strong>: Most developers reach for <code>kill -9</code> first, but that's like trying to shoot a ghost. <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span> processes are already beyond the reach of signals - you need to solve the underlying I/O problem, not attack the symptoms.<h2>The Recovery Playbook</h2>When you're in the middle of a <span class="glossary-term" data-tooltip="Uninterruptible sleep - a process state where the process is waiting for I/O and cannot be killed by signals">D state</span> crisis, follow this systematic approach:</p><p><strong>Step 1: Assess the Damage</strong>
+<ul><li>Check system logs for hardware errors</li>
+<li>Monitor I/O queues and block device status</li>
+<li>Identify which processes are affected and which resources they're waiting on</li></p><p><strong>Step 2: Quick Fixes</strong>
+<li>Wait for hardware timeout (usually 30-120 seconds)</li>
+<li>Check and restart any failed storage services</li>
+<li>Verify network connectivity for NFS mounts</li></p><p><strong>Step 3: Advanced Recovery</strong>
+<li>Use <code>lsof</code> to identify blocked files and processes</li>
+<li>Examine <code>/proc/&lt;PID&gt;/stack</code> for kernel call traces</li>
+<li>Consider a system reboot as the last resort <a href="#source-7" class="citation" title="View source">7</a></li></ul>
+🎯 <strong>Key Point</strong>: Prevention is better than cure. Monitor I/O performance metrics, use proper timeout configurations for network storage, and implement health checks for critical storage systems <a href="#source-8" class="citation" title="View source">8</a>.
+    <div class="real-world-example">
+      <h3>🏢 Real-World Case Study</h3>
+      <div class="company">Cloudflare</div>
+      <p class="scenario">Cloudflare encountered dozens of unrelated processes stuck in uninterruptible sleep (D state) for minutes, preventing SSH access and stalling new Kubernetes container creation while existing traffic continued serving.</p>
+      <div class="lesson"><strong>Key Takeaway:</strong> Hung task warnings can be misleading - they often point to victims waiting for locks rather than the actual offender. Advanced debugging tools like BPF and drgn are essential for identifying the root cause when multiple processes appear stuck in D state.</div>
+    </div><h2>D State Process Lifecycle</h2><div class="mermaid">flowchart TD
+    A[Process enters I/O operation] --> B{I/O completes?}
+    B -->|Yes| C[Process returns to running state]
+    B -->|No| D[Process enters D state]
+    D --> E{Hardware timeout?}
+    E -->|Yes| C
+    E -->|No| F{Underlying issue resolved?}
+    F -->|Yes| C
+    F -->|No| G[Process remains stuck]
+    G --> H[System reboot required]
+    H --> C</div><div class="fun-fact"><span class="fun-fact-icon">💡</span><p><strong>Did you know?</strong> The D state was introduced in early Unix systems to prevent data corruption during critical I/O operations. The name 'uninterruptible sleep' comes from the fact that these processes cannot be woken up by signals - they're truly waiting for hardware to complete its operation.</p></div><div class="quick-ref"><h3>📌 Key Takeaways</h3><ul><li>Use `ps aux | awk '$8 ~ /D/ {print $2, $11}'` to find D state processes</li><li>Check `dmesg | grep -i oom` for OOM killer activity</li><li>Use `lsof -p &lt;PID&gt;` to identify blocked files</li><li>Monitor `/proc/&lt;PID&gt;/stack` for kernel call traces</li><li>BPF and drgn are essential for advanced debugging</li></ul></div><div class="sources"><h3>📚 References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://blog.cloudflare.com/searching-for-the-cause-of-hung-tasks-in-the-linux-kernel/" target="_blank" rel="noopener">Searching for the cause of hung tasks in the Linux kernel</a><span class="source-type">blog</span></li><li id="source-2"><span class="source-num">2</span><a href="https://man7.org/linux/man-pages/man5/proc.5.html" target="_blank" rel="noopener">Process states in Linux</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://www.kernel.org/doc/html/latest/block/index.html" target="_blank" rel="noopener">Linux I/O stack and debugging</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://en.wikipedia.org/wiki/Process_state" target="_blank" rel="noopener">Understanding uninterruptible sleep</a><span class="source-type">article</span></li><li id="source-5"><span class="source-num">5</span><a href="https://lwn.net/Articles/317814/" target="_blank" rel="noopener">Linux OOM Killer</a><span class="source-type">article</span></li><li id="source-6"><span class="source-num">6</span><a href="https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-block" target="_blank" rel="noopener">I/O Performance Monitoring</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://github.com/iovisor/bcc" target="_blank" rel="noopener">BPF Performance Tools</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://github.com/osandov/drgn" target="_blank" rel="noopener">drgn debugger</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://man7.org/linux/man-pages/man2/syscalls.2.html" target="_blank" rel="noopener">Linux System Call Reference</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://www.kernel.org/doc/html/latest/admin-guide/bug-hunting.html" target="_blank" rel="noopener">Kernel debugging techniques</a><span class="source-type">documentation</span></li></ul></div>
+    <div class="share-snippet">
+      <div class="share-snippet-header">
+        <span class="share-icon">📣</span>
+        <h3>Share This</h3>
+        <div class="share-buttons">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-510%2Fthe-silent-killer-when-your-linux-processes-vanish-into-uninterruptible-sleep%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
           </a>
-        
-          <a href="/posts/sy-139/token-bucket-tango-dancing-with-100m-api-requests-without-breaking-a-sweat/" class="related-card">
-            <span class="related-title">Token Bucket Tango - Dancing With 100M API Requests Without Breaking a Sweat</span>
-            <span class="related-meta">advanced</span>
+          <a href="https://twitter.com/intent/tweet?text=%F0%9F%94%A5%20Your%20Linux%20processes%20are%20vanishing%20into%20D%20state%20and%20you%20can't%20kill%20them.%20Here's%20why...%0A%0A%E2%80%A2%20Cloudflare's%20production%20nightmare%3A%20dozens%20stuck%20in%20D%20state%2C%20SSH%20impossible%0A%E2%80%A2%20The%20plot%20twist%3A%20D%20state%20processes%20are%20often%20VICTIMS%2C%20not%20culprits%0A%E2%80%A2%20Why%20kill%20-9%20won't%20work%20and%20what%20actually%20does%0A%E2%80%A2%20Advanced%20tools%20(BPF%2Fdrgn)%20that%20saved%20the%20day%0A%0ADiscover%20the%20debugging%20techniques%20that%20will%20save%20you%20from%20your%20next%202AM%20system%20emergency...%0A%0A%23Linux%20%23SystemAdministration%20%23DevOps%20%23Debugging%20%23CloudComputing%20%23Infrastructure%20%23TechTroubleshooting%20%23ProductionIssues%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-510%2Fthe-silent-killer-when-your-linux-processes-vanish-into-uninterruptible-sleep%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+            <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
           </a>
-        
-          <a href="/posts/sd-2/the-ring-master-how-netflix-survives-the-midnight-cache-apocalypse/" class="related-card">
-            <span class="related-title">The Ring Master: How Netflix Survives the Midnight Cache Apocalypse</span>
-            <span class="related-meta">advanced</span>
-          </a>
-        
+          <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="share-snippet-content" id="shareSnippet">
+        <p class="snippet-hook">🔥 Your Linux processes are vanishing into D state and you can't kill them. Here's why...</p>
+        <p class="snippet-body">• Cloudflare's production nightmare: dozens stuck in D state, SSH impossible<br>• The plot twist: D state processes are often VICTIMS, not culprits<br>• Why kill -9 won't work and what actually does<br>• Advanced tools (BPF/drgn) that saved the day</p>
+        <p class="snippet-cta">Discover the debugging techniques that will save you from your next 2AM system emergency...</p>
+        <p class="snippet-hashtags">#Linux #SystemAdministration #DevOps #Debugging #CloudComputing #Infrastructure #TechTroubleshooting #ProductionIssues</p>
+        <p class="snippet-link">🔗 https://openstackdaily.github.io/posts/q-510/the-silent-killer-when-your-linux-processes-vanish-into-uninterruptible-sleep/</p>
       </div>
     </div>
+    <script>
+    function copySnippet(btn) {
+      const snippet = document.getElementById('shareSnippet').innerText;
+      navigator.clipboard.writeText(snippet).then(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+        setTimeout(() => {
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+        }, 2000);
+      });
+    }
+    </script>
+    
+    <h2>Wrapping Up</h2>
+    <p>The D state is Linux's double-edged sword - it protects data integrity but can become a prison when things go wrong. The key insight is that visible D state processes are often symptoms, not causes. By understanding the underlying I/O stack and using advanced debugging tools like BPF and drgn, you can identify the real culprits and prevent these silent system killers from disrupting your infrastructure. Tomorrow, set up I/O monitoring and test your NFS timeout configurations - your future self will thank you.</p>
+  </div>
+  
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/system-design" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/unix" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
