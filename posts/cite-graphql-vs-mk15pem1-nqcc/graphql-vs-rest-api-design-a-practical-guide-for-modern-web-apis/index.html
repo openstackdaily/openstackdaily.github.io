@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The Silent Killer: When Your Linux Processes Vanish into Uninterruptible Sleep | DevInsights</title>
-  <meta name="description" content="Learn how to debug and prevent Linux processes from getting stuck in uninterruptible sleep (D state), with real-world examples from Cloudflare's production issues.">
+  <title>GraphQL vs REST API Design: A Practical Guide for Modern Web APIs | DevInsights</title>
+  <meta name="description" content="A practical comparison of GraphQL and REST API design, with patterns, tooling, and real-world guidance for building scalable web APIs.">
   <meta name="theme-color" content="#ffffff">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -35,63 +35,61 @@
     </nav>
   </div></header>
 <main><article class="article"><div class="container">
-  <a href="/categories/networking-systems/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Networking & Systems</a>
+  <a href="/categories/backend-development/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Backend Development</a>
   <div class="article-header">
-    <h1>The Silent Killer: When Your Linux Processes Vanish into Uninterruptible Sleep</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Unix</span><span class="difficulty intermediate">intermediate</span><span class="tag">unix</span></div>
+    <h1>GraphQL vs REST API Design: A Practical Guide for Modern Web APIs</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Backend</span><span class="difficulty intermediate">intermediate</span><span class="tag">GraphQL</span> <span class="tag">REST</span> <span class="tag">API Design</span></div>
   </div>
-  <p class="article-intro">Picture this: It's 2 AM and your monitoring dashboard is screaming. Dozens of unrelated processes are stuck in uninterruptible sleep (D state), SSH access is impossible, and new Kubernetes containers refuse to spawn. This nightmare scenario happened to Cloudflare when they discovered that hung task warnings can be misleading - they often point to victims waiting for locks rather than the actual offender <a href="#source-1" class="citation" title="View source">1</a>. The D state is Linux's way of saying 'this process is waiting for something that absolutely cannot be interrupted,' but what happens when that 'something' never comes?</p>
+  <p class="article-intro">In the modern web, API design choices shape developer productivity, performance, and how teams scale. REST emphasizes simplicity and standardization, while GraphQL emphasizes flexibility and efficiency in data retrieval. Understanding these trade-offs helps teams pick the right approach for their product and team dynamics <a href="#source-3" class="citation" title="View source">3</a>. GraphQL can be served over HTTP, and guidelines for GraphQL-over-HTTP are actively evolving to maximize interoperability in a world where HTTP remains the default transport <a href="#source-1" class="citation" title="View source">1</a>. Real-world services like AWS AppSync illustrate how GraphQL can thrive in serverless, real-time, and cached environments <a href="#source-2" class="citation" title="View source">2</a>.</p>
   <div class="article-content">
-    <figure class="article-image">
-      <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&amp;q=80" alt="Server rack with blinking lights representing system processes" loading="lazy">
-      <figcaption>When processes get stuck, your entire infrastructure can grind to a halt</figcaption>
-    </figure><h2>The Mystery of the D State</h2>Every Linux administrator has seen it: that ominous 'D' in the <code>ps</code> output that makes your heart skip a beat. Unlike other process states, D state processes can't be killed with SIGKILL - they're truly stuck in limbo, waiting for I/O operations that may never complete <a href="#source-2" class="citation" title="View source">2</a>. </p><p><pre><code class="language-bash"># Find the zombies in your system
-ps aux | awk '$8 ~ /D/ {print $2, $11}'</code></pre></p><p>But here's the plot twist: those D state processes you're seeing might not be the real culprits. As Cloudflare discovered, they're often victims waiting for resources held by other processes <a href="#source-1" class="citation" title="View source">1</a>. The actual offender might be running happily, completely unaware of the chaos it's causing.</p><p>💡 <strong>Insight</strong>: The D state is designed to prevent data corruption during critical I/O operations, but this safety mechanism can become a prison when the underlying storage system fails.<h2>The Usual Suspects: What Causes D State Nightmares?</h2>When processes enter D state, they're typically waiting on one of these common troublemakers:</p><p><strong>NFS Mount Issues</strong>
-Network filesystems are notorious for causing D state problems. A slow network connection, misconfigured timeout, or unreachable NFS server can leave processes waiting indefinitely <a href="#source-3" class="citation" title="View source">3</a>.</p><p><strong>Hardware Failures</strong>
-Faulty disks, failing controllers, or bad cables can cause I/O operations to hang. The kernel keeps waiting, but the hardware will never respond <a href="#source-4" class="citation" title="View source">4</a>.</p><p><strong>Kernel Bugs and Driver Issues</strong>
-Sometimes the problem isn't hardware but software. Buggy drivers or kernel panics can leave processes in an uninterruptible state <a href="#source-5" class="citation" title="View source">5</a>.</p><p>⚠️ <strong>Watch Out</strong>: Before you blame hardware, check your system logs. <code>dmesg | grep -i oom</code> can reveal if the OOM killer has been active, which might indicate memory pressure causing I/O blocking <a href="#source-6" class="citation" title="View source">6</a>.<figure class="article-image">
-      <img src="https://images.pexels.com/photos/5380642/pexels-photo-5380642.jpeg?w=800" alt="Developer debugging code on multiple monitors" loading="lazy">
-      <figcaption>Advanced debugging requires the right tools and mindset</figcaption>
-    </figure><h2>The Detective's Toolkit: Finding the Real Culprit</h2>When you're facing a D state crisis, you need to think like a detective. The obvious suspects (the D state processes) are often just red herrings.</p><p><pre><code class="language-bash"># Check what files a stuck process is waiting on
-lsof -p &lt;PID&gt;
-
-# Examine the kernel call trace
-cat /proc/&lt;PID&gt;/stack</code></pre></p><p>For advanced cases, you'll need specialized tools. BPF (Berkeley Packet Filter) and drgn are essential for identifying the root cause when multiple processes appear stuck <a href="#source-1" class="citation" title="View source">1</a>. These tools let you examine kernel internals in ways that traditional debugging methods can't touch.</p><p>🔥 <strong>Hot Take</strong>: Most developers reach for <code>kill -9</code> first, but that's like trying to shoot a ghost. D state processes are already beyond the reach of signals - you need to solve the underlying I/O problem, not attack the symptoms.<h2>The Recovery Playbook</h2>When you're in the middle of a D state crisis, follow this systematic approach:</p><p><strong>Step 1: Assess the Damage</strong>
-<ul><li>Check system logs for hardware errors</li>
-<li>Monitor I/O queues and block device status</li>
-<li>Identify which processes are affected and which resources they're waiting on</li></p><p><strong>Step 2: Quick Fixes</strong>
-<li>Wait for hardware timeout (usually 30-120 seconds)</li>
-<li>Check and restart any failed storage services</li>
-<li>Verify network connectivity for NFS mounts</li></p><p><strong>Step 3: Advanced Recovery</strong>
-<li>Use <code>lsof</code> to identify blocked files and processes</li>
-<li>Examine <code>/proc/&lt;PID&gt;/stack</code> for kernel call traces</li>
-<li>Consider a system reboot as the last resort <a href="#source-7" class="citation" title="View source">7</a></li></ul>
-🎯 <strong>Key Point</strong>: Prevention is better than cure. Monitor I/O performance metrics, use proper timeout configurations for network storage, and implement health checks for critical storage systems <a href="#source-8" class="citation" title="View source">8</a>.
-    <div class="real-world-example">
-      <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
-      <div class="company"><i data-lucide="briefcase"></i> Cloudflare</div>
-      <p class="scenario">Cloudflare encountered dozens of unrelated processes stuck in uninterruptible sleep (D state) for minutes, preventing SSH access and stalling new Kubernetes container creation while existing traffic continued serving.</p>
-      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Hung task warnings can be misleading - they often point to victims waiting for locks rather than the actual offender. Advanced debugging tools like BPF and drgn are essential for identifying the root cause when multiple processes appear stuck in D state.</div>
-    </div><h2>D State Process Lifecycle</h2><div class="mermaid">flowchart TD
-    A[Process enters I/O operation] --> B{I/O completes?}
-    B -->|Yes| C[Process returns to running state]
-    B -->|No| D[Process enters D state]
-    D --> E{Hardware timeout?}
-    E -->|Yes| C
-    E -->|No| F{Underlying issue resolved?}
-    F -->|Yes| C
-    F -->|No| G[Process remains stuck]
-    G --> H[System reboot required]
-    H --> C</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The D state was introduced in early Unix systems to prevent data corruption during critical I/O operations. The name 'uninterruptible sleep' comes from the fact that these processes cannot be woken up by signals - they're truly waiting for hardware to complete its operation.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Use `ps aux | awk '$8 ~ /D/ {print $2, $11}'` to find D state processes</li><li>Check `dmesg | grep -i oom` for OOM killer activity</li><li>Use `lsof -p &lt;PID&gt;` to identify blocked files</li><li>Monitor `/proc/&lt;PID&gt;/stack` for kernel call traces</li><li>BPF and drgn are essential for advanced debugging</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://blog.cloudflare.com/searching-for-the-cause-of-hung-tasks-in-the-linux-kernel/" target="_blank" rel="noopener">Searching for the cause of hung tasks in the Linux kernel</a><span class="source-type">blog</span></li><li id="source-2"><span class="source-num">2</span><a href="https://man7.org/linux/man-pages/man5/proc.5.html" target="_blank" rel="noopener">Process states in Linux</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://www.kernel.org/doc/html/latest/block/index.html" target="_blank" rel="noopener">Linux I/O stack and debugging</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://en.wikipedia.org/wiki/Process_state" target="_blank" rel="noopener">Understanding uninterruptible sleep</a><span class="source-type">article</span></li><li id="source-5"><span class="source-num">5</span><a href="https://lwn.net/Articles/317814/" target="_blank" rel="noopener">Linux OOM Killer</a><span class="source-type">article</span></li><li id="source-6"><span class="source-num">6</span><a href="https://www.kernel.org/doc/Documentation/ABI/testing/sysfs-block" target="_blank" rel="noopener">I/O Performance Monitoring</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://github.com/iovisor/bcc" target="_blank" rel="noopener">BPF Performance Tools</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://github.com/osandov/drgn" target="_blank" rel="noopener">drgn debugger</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://man7.org/linux/man-pages/man2/syscalls.2.html" target="_blank" rel="noopener">Linux System Call Reference</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://www.kernel.org/doc/html/latest/admin-guide/bug-hunting.html" target="_blank" rel="noopener">Kernel debugging techniques</a><span class="source-type">documentation</span></li></ul></div>
+    <h2>Core Concepts</h2>REST and GraphQL represent two distinct philosophies for building APIs. REST provides resources identified by URLs and expects multiple endpoints per resource, aligning with HTTP verbs and status semantics. GraphQL exposes a single endpoint for queries, mutations, and subscriptions, with data selection driven by the client’s request <a href="#source-3" class="citation" title="View source">3</a>. This fundamental difference drives how data is modeled and retrieved: REST tends to fetch fixed shapes per endpoint, while GraphQL enables clients to specify exactly what data they need in a single request, reducing over-fetch and under-fetch in many scenarios <a href="#source-3" class="citation" title="View source">3</a><a href="#source-4" class="citation" title="View source">4</a>. GraphQL also enforces a strongly typed schema, guiding query validation and tooling, whereas REST schemas are optional and often documented via OpenAPI/AsyncAPI rather than a runtime contract <a href="#source-3" class="citation" title="View source">3</a>. Tools and ecosystems reinforce these models: GraphiQL and Apollo’s server/client stacks are central in GraphQL workflows <a href="#source-7" class="citation" title="View source">7</a><a href="#source-8" class="citation" title="View source">8</a><a href="#source-9" class="citation" title="View source">9</a>, while federation exemplifies composing data from multiple GraphQL services into a single graph <a href="#source-10" class="citation" title="View source">10</a>.<h2>Implementation &amp; Patterns</h2>Practical patterns emerge from how teams structure APIs in each paradigm:
+<ul><li>Data scope and shape: REST exposes resources with fixed shapes per endpoint; GraphQL lets clients shape responses exactly, even when combining data from multiple sources via resolvers <a href="#source-3" class="citation" title="View source">3</a><a href="#source-4" class="citation" title="View source">4</a>.</li>
+<li>Schema and typing: GraphQL requires a strongly typed schema that drives the API surface; REST relies on schemas as optional documents (OpenAPI/AsyncAPI) rather than a runtime contract <a href="#source-3" class="citation" title="View source">3</a>.</li>
+<li>Real-time and subscriptions: GraphQL supports real-time updates through subscriptions, often backed by Pub/Sub mechanisms or WebSocket transports; AWS AppSync demonstrates a serverless GraphQL model with built-in real-time capabilities and caching <a href="#source-2" class="citation" title="View source">2</a>.</li>
+<li>Data sources and composition: GraphQL can merge data from multiple sources into a single endpoint, which is a core feature of platforms like AWS AppSync and Hasura <a href="#source-2" class="citation" title="View source">2</a><a href="#source-6" class="citation" title="View source">6</a>. Federation further scales a shared graph across services <a href="#source-10" class="citation" title="View source">10</a>.</li>
+<li>Caching strategies: REST benefits from built-in HTTP caching at the transport layer; GraphQL typically requires a custom caching layer or client-side caching strategies, with server-side options available in managed services like AppSync <a href="#source-3" class="citation" title="View source">3</a><a href="#source-2" class="citation" title="View source">2</a>.</li></ul>
+Code snippets illustrate the contrast:</p><p>GraphQL query (client requests exact data):<br><pre><code class="language-graphql">query GetUser($id: ID!) {
+  user(id: $id) {
+    id
+    name
+    email
+  }
+}</code></pre></p><p>REST request (client fetches a fixed resource shape):<br><pre><code class="language-http">GET /users/1 HTTP/1.1
+Host: example.com</code></pre><br>Response:<br><pre><code class="language-json">{
+  &quot;id&quot;: 1,
+  &quot;name&quot;: &quot;Alice&quot;,
+  &quot;email&quot;: &quot;alice@example.com&quot;
+}</code></pre></p><p>Real-time and serverless patterns are increasingly common: AWS AppSync provides serverless GraphQL with Pub/Sub events and optional caching, while Hasura offers instant realtime GraphQL APIs on data sources and fine-grained access control <a href="#source-2" class="citation" title="View source">2</a><a href="#source-6" class="citation" title="View source">6</a>.<h2>Best Practices</h2>To maximize value from GraphQL and REST, several best practices emerge:
+<ul><li>Align the design with team needs: REST suits stable, resource-centric APIs with clear HTTP semantics; GraphQL excels when clients need flexible, efficient data fetching across sources <a href="#source-3" class="citation" title="View source">3</a>.</li>
+<li>Invest in a strong schema and tooling: GraphQL’s typed schema enables robust validation, introspection, and powerful tooling like GraphiQL, Apollo Server, and Apollo Client <a href="#source-7" class="citation" title="View source">7</a><a href="#source-8" class="citation" title="View source">8</a><a href="#source-9" class="citation" title="View source">9</a>. Federation and serverless options (AppSync) can help scale graphs across services <a href="#source-10" class="citation" title="View source">10</a>.</li>
+<li>Plan caching and performance from the start: REST benefits from built-in HTTP caching, while GraphQL often requires careful caching strategies at the server or client level; consider serverless caching options when using services like AppSync <a href="#source-3" class="citation" title="View source">3</a><a href="#source-2" class="citation" title="View source">2</a>.</li>
+<li>Prepare for evolution: GraphQL schema evolution is a built-in strength when schema-first development is practiced; REST APIs should plan versioning and backward compatibility through URL design and schema documentation <a href="#source-3" class="citation" title="View source">3</a>.</li>
+<li>Consider real-time requirements: If real-time updates are critical, GraphQL subscriptions with appropriate transport (e.g., WebSockets) are a natural fit; AWS AppSync highlights this capability as a built-in feature <a href="#source-2" class="citation" title="View source">2</a>.</li></ul>
+Real-world ecosystems illustrate the value of these choices: Apollo’s server/client tooling, Hasura’s instant GraphQL APIs, and federation patterns show practical routes to scalable, production-grade GraphQL deployments <a href="#source-8" class="citation" title="View source">8</a><a href="#source-9" class="citation" title="View source">9</a><a href="#source-6" class="citation" title="View source">6</a><a href="#source-10" class="citation" title="View source">10</a>.<h2>Common Pitfalls</h2>Several pitfalls frequently arise in practice:
+<ul><li>Over-fetch with REST: When endpoints return fixed shapes, clients may fetch unnecessary data, leading to higher bandwidth and slower experiences <a href="#source-3" class="citation" title="View source">3</a>.</li>
+<li>Under-planned GraphQL caching: Without thoughtful caching strategy, GraphQL apps can suffer from latency or cache inconsistencies; leverage server-side caching options or client-side caching in Apollo and similar tooling <a href="#source-3" class="citation" title="View source">3</a><a href="#source-2" class="citation" title="View source">2</a>.</li>
+<li>Transport misalignment for subscriptions: Subscriptions require transport beyond simple HTTP requests; not all environments support the necessary WebSocket/pub-sub patterns without explicit design <a href="#source-1" class="citation" title="View source">1</a>.</li>
+<li>Steep learning curve for teams new to GraphQL: The learning curve for GraphQL can be higher than REST due to a new query language and schema discipline, though tooling and ecosystem continue to mature rapidly <a href="#source-3" class="citation" title="View source">3</a>.</li>
+<li>Fragmented tooling and heterogeneous patterns: While GraphQL tooling is strong, teams should avoid ad-hoc, uncoordinated schemas across services; federation and well-defined governance help mitigate this <a href="#source-10" class="citation" title="View source">10</a>.</li></ul><h2>Conclusion</h2>GraphQL and REST represent complementary approaches to API design. REST remains a reliable default when stability, standardization, and straightforward HTTP semantics are paramount. GraphQL shines when precise data shapes, cross-source data composition, and real-time updates are priorities. Real-world platforms—from AWS AppSync to Hasura and Apollo tooling—demonstrate practical pathways to scalable GraphQL deployments, including serverless, real-time, and federated architectures <a href="#source-2" class="citation" title="View source">2</a><a href="#source-6" class="citation" title="View source">6</a><a href="#source-8" class="citation" title="View source">8</a><a href="#source-9" class="citation" title="View source">9</a><a href="#source-10" class="citation" title="View source">10</a>. Readers are encouraged to experiment with GraphQL tooling such as GraphiQL and Apollo Server to prototype schemas, while keeping REST as a solid baseline for resource-centric APIs <a href="#source-7" class="citation" title="View source">7</a><a href="#source-8" class="citation" title="View source">8</a><a href="#source-9" class="citation" title="View source">9</a>.<h2>GraphQL vs REST: High-level overview</h2><div class="mermaid">graph TD
+  REST[REST API] --> REST_Endpoints[Multiple endpoints per resource]
+  REST_Endpoints --> DataFetch[HTTP methods & status codes]
+  GraphQL[GraphQL API] --> GQL_Single[Single endpoint for all operations]
+  GQL_Single --> GQL_DataSelection[Query-based data selection]
+  GQL_Schema[Strongly-typed schema] --> GQL_Resolvers[Resolvers fetch data from sources]
+  Subscriptions[Subscriptions] --> PubSub[Real-time via Pub/Sub]
+  AppSync[AWS AppSync] --> Subscriptions
+  Hasura[Hasura GraphQL Engine] --> GQL_DataSelection
+  REST_Endpoints --> Caching[Built-in HTTP caching]
+  GQL_Resolvers --> Caching_GQL[Client/Server-side caching strategies]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The Federation pattern enables composing multiple GraphQL services into a single unified graph, offering scalable data graphs across diverse microservices environments <a href="#source-10" class="citation" title="View source">10</a>.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>REST emphasizes resources and standard HTTP semantics</li><li>GraphQL uses a single endpoint with a strongly-typed schema</li><li>Real-time capabilities are natural in GraphQL via subscriptions</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://graphql.org/learn/serving-over-http/" target="_blank" rel="noopener">Serving over HTTP | GraphQL</a><span class="source-type">blog</span></li><li id="source-2"><span class="source-num">2</span><a href="https://docs.aws.amazon.com/appsync/latest/devguide/what-is-appsync.html" target="_blank" rel="noopener">What is AWS AppSync? - AWS AppSync GraphQL</a><span class="source-type">docs</span></li><li id="source-3"><span class="source-num">3</span><a href="https://blog.postman.com/graphql-vs-rest/" target="_blank" rel="noopener">GraphQL vs REST | Postman Blog</a><span class="source-type">blog</span></li><li id="source-4"><span class="source-num">4</span><a href="https://www.apollographql.com/blog/graphql-vs-rest/" target="_blank" rel="noopener">GraphQL vs. REST - Apollo GraphQL Blog | Apollo GraphQL Blog</a><span class="source-type">blog</span></li><li id="source-5"><span class="source-num">5</span><a href="https://www.nginx.com/blog/graphql-vs-rest-api-design/" target="_blank" rel="noopener">NGINX | F5</a><span class="source-type">blog</span></li><li id="source-6"><span class="source-num">6</span><a href="https://github.com/hasura/graphql-engine" target="_blank" rel="noopener">GitHub - hasura/graphql-engine: Blazing fast, instant realtime GraphQL APIs on all your data with fine grained access control, also trigger webhooks on database events.</a><span class="source-type">github</span></li><li id="source-7"><span class="source-num">7</span><a href="https://github.com/graphql/graphiql" target="_blank" rel="noopener">GitHub - graphql/graphiql: GraphiQL &amp;amp; the GraphQL LSP Reference Ecosystem for building browser &amp;amp; IDE tools.</a><span class="source-type">github</span></li><li id="source-8"><span class="source-num">8</span><a href="https://github.com/apollographql/apollo-server" target="_blank" rel="noopener">GitHub - apollographql/apollo-server: 🌍  Spec-compliant and production ready JavaScript GraphQL server that lets you develop in a schema-first way. Built for Express, Connect, Hapi, Koa, and more.</a><span class="source-type">github</span></li><li id="source-9"><span class="source-num">9</span><a href="https://github.com/apollographql/apollo-client" target="_blank" rel="noopener">GitHub - apollographql/apollo-client: The industry-leading GraphQL client for TypeScript, JavaScript, React, Vue, Angular, and more. Apollo Client delivers powerful caching, intuitive APIs, and comprehensive developer tools to accelerate your app development.</a><span class="source-type">github</span></li><li id="source-10"><span class="source-num">10</span><a href="https://github.com/apollographql/federation" target="_blank" rel="noopener">GitHub - apollographql/federation: 🌐  Build and scale a single data graph across multiple services with Apollo&amp;#39;s federation gateway.</a><span class="source-type">github</span></li></ul></div>
     <div class="share-snippet">
       <div class="share-snippet-header">
         <span class="share-icon"><i data-lucide="share-2"></i></span>
         <h3>Share This</h3>
         <div class="share-buttons">
-          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-510%2Fthe-silent-killer-when-your-linux-processes-vanish-into-uninterruptible-sleep%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fcite-graphql-vs-mk15pem1-nqcc%2Fgraphql-vs-rest-api-design-a-practical-guide-for-modern-web-apis%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
             <i data-lucide="linkedin"></i>
           </a>
-          <a href="https://twitter.com/intent/tweet?text=%F0%9F%94%A5%20Your%20Linux%20processes%20are%20vanishing%20into%20D%20state%20and%20you%20can't%20kill%20them.%20Here's%20why...%0A%0A%E2%80%A2%20Cloudflare's%20production%20nightmare%3A%20dozens%20stuck%20in%20D%20state%2C%20SSH%20impossible%0A%E2%80%A2%20The%20plot%20twist%3A%20D%20state%20processes%20are%20often%20VICTIMS%2C%20not%20culprits%0A%E2%80%A2%20Why%20kill%20-9%20won't%20work%20and%20what%20actually%20does%0A%E2%80%A2%20Advanced%20tools%20(BPF%2Fdrgn)%20that%20saved%20the%20day%0A%0ADiscover%20the%20debugging%20techniques%20that%20will%20save%20you%20from%20your%20next%202AM%20system%20emergency...%0A%0A%23Linux%20%23SystemAdministration%20%23DevOps%20%23Debugging%20%23CloudComputing%20%23Infrastructure%20%23TechTroubleshooting%20%23ProductionIssues%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-510%2Fthe-silent-killer-when-your-linux-processes-vanish-into-uninterruptible-sleep%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+          <a href="https://twitter.com/intent/tweet?text=GraphQL%20vs%20REST%3A%20which%20API%20design%20should%20you%20choose%20for%20your%20next%20project%3F%0A%0AGraphQL%20offers%20a%20single%20endpoint%20with%20flexible%20data%20fetching%20and%20strong%20schemas%3B%20REST%20remains%20simple%20and%20cache-friendly.%20Real-world%20tooling%20and%20patterns%20(AppSync%2C%20Hasura%2C%20Federation%2C%20GraphiQL%2C%20Apollo)%20show%20practical%20paths%20to%20scalable%20APIs.%0A%0AExplore%20both%20patterns%20and%20prototype%20with%20GraphiQL%20and%20Apollo%20Server%20to%20decide%20what%20fits%20your%20team.%0A%0A%23GraphQL%20%23REST%20%23APIDesign%20%23WebDev%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fcite-graphql-vs-mk15pem1-nqcc%2Fgraphql-vs-rest-api-design-a-practical-guide-for-modern-web-apis%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
             <i data-lucide="twitter"></i>
           </a>
           <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
@@ -100,11 +98,11 @@ cat /proc/&lt;PID&gt;/stack</code></pre></p><p>For advanced cases, you'll need s
         </div>
       </div>
       <div class="share-snippet-content" id="shareSnippet">
-        <p class="snippet-hook">🔥 Your Linux processes are vanishing into D state and you can't kill them. Here's why...</p>
-        <p class="snippet-body">• Cloudflare's production nightmare: dozens stuck in D state, SSH impossible<br>• The plot twist: D state processes are often VICTIMS, not culprits<br>• Why kill -9 won't work and what actually does<br>• Advanced tools (BPF/drgn) that saved the day</p>
-        <p class="snippet-cta">Discover the debugging techniques that will save you from your next 2AM system emergency...</p>
-        <p class="snippet-hashtags">#Linux #SystemAdministration #DevOps #Debugging #CloudComputing #Infrastructure #TechTroubleshooting #ProductionIssues</p>
-        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-510/the-silent-killer-when-your-linux-processes-vanish-into-uninterruptible-sleep/</p>
+        <p class="snippet-hook">GraphQL vs REST: which API design should you choose for your next project?</p>
+        <p class="snippet-body">GraphQL offers a single endpoint with flexible data fetching and strong schemas; REST remains simple and cache-friendly. Real-world tooling and patterns (AppSync, Hasura, Federation, GraphiQL, Apollo) show practical paths to scalable APIs.</p>
+        <p class="snippet-cta">Explore both patterns and prototype with GraphiQL and Apollo Server to decide what fits your team.</p>
+        <p class="snippet-hashtags">#GraphQL #REST #APIDesign #WebDev</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/cite-graphql-vs-mk15pem1-nqcc/graphql-vs-rest-api-design-a-practical-guide-for-modern-web-apis/</p>
       </div>
     </div>
     <script>
@@ -120,7 +118,7 @@ cat /proc/&lt;PID&gt;/stack</code></pre></p><p>For advanced cases, you'll need s
     </script>
     
     <h2>Wrapping Up</h2>
-    <p>The D state is Linux's double-edged sword - it protects data integrity but can become a prison when things go wrong. The key insight is that visible D state processes are often symptoms, not causes. By understanding the underlying I/O stack and using advanced debugging tools like BPF and drgn, you can identify the real culprits and prevent these silent system killers from disrupting your infrastructure. Tomorrow, set up I/O monitoring and test your NFS timeout configurations - your future self will thank you.</p>
+    <p>GraphQL and REST offer complementary strengths. Teams should start with clear goals: REST for stable, resource-centric APIs; GraphQL for flexible, cross-source data access and real-time capabilities. Leverage mature tooling (GraphiQL, Apollo Server/Client) and architectures (Hasura, AppSync, Federation) to experiment and scale as needed <a href="#source-3" class="citation" title="View source">3</a><a href="#source-7" class="citation" title="View source">7</a><a href="#source-8" class="citation" title="View source">8</a><a href="#source-9" class="citation" title="View source">9</a><a href="#source-10" class="citation" title="View source">10</a>.</p>
   </div>
   
   <div class="author-card">
@@ -145,9 +143,30 @@ cat /proc/&lt;PID&gt;/stack</code></pre></p><p>For advanced cases, you'll need s
     </div>
   </div>
   
+    <div class="related-articles">
+      <h3>Continue Reading</h3>
+      <div class="related-grid">
+        
+          <a href="/posts/cite-api-rate-mk15f9fa-kszt/mastering-api-rate-limiting-and-throttling-practical-patterns-for-resilient-apis/" class="related-card">
+            <span class="related-title">Mastering API Rate Limiting and Throttling: Practical Patterns for Resilient APIs</span>
+            <span class="related-meta">intermediate</span>
+          </a>
+        
+          <a href="/posts/blog-1766675309405-7p8k4s/api-rate-limiting-protect-your-services-from-ddos/" class="related-card">
+            <span class="related-title">API Rate Limiting: Protect Your Services from DDoS</span>
+            <span class="related-meta">intermediate</span>
+          </a>
+        
+          <a href="/posts/blog-1766674305590-ncl9qn/rest-vs-graphql-choose-the-right-api-for-your-app/" class="related-card">
+            <span class="related-title">REST vs GraphQL: Choose the Right API for Your App</span>
+            <span class="related-meta">intermediate</span>
+          </a>
+        
+      </div>
+    </div>
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/unix" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/backend" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
