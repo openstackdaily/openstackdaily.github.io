@@ -3,19 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Security | DevInsights</title>
-  <meta name="description" content="2 articles about Security">
+  <title>The Vanishing CPU: A ClickHouse Case Study on Debugging with Kernel Memory Reclaim in the Clouds | DevInsights</title>
+  <meta name="description" content="A story-driven guide to debugging high-CPU processes with kernel memory reclaim in cloud environments, anchored by a ClickHouse case study.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad:true,theme:'base',look:'handDrawn',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◆</text></svg>">
 </head>
 <body>
+<style>
+.related-articles { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.related-articles h3 { font-size: 1rem; margin-bottom: 1rem; color: var(--text); }
+.related-grid { display: grid; gap: 0.75rem; }
+.related-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); text-decoration: none; transition: all 0.2s; }
+.related-card:hover { border-color: var(--border-hover); transform: translateX(4px); }
+.related-title { color: var(--text); font-size: 0.875rem; font-weight: 500; }
+.related-meta { color: var(--text-muted); font-size: 0.75rem; text-transform: capitalize; }
+</style>
 <header><div class="container header-content">
     <a href="/" class="logo"><i data-lucide="code-2"></i> DevInsights</a>
     <nav>
@@ -25,40 +36,113 @@
       <a href="https://open-interview.github.io" target="_blank" class="nav-cta"><i data-lucide="play"></i> Practice</a>
     </nav>
   </div></header>
-<main><section class="article-list" style="padding-top:7rem"><div class="container">
-  <a href="/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem"><i data-lucide="arrow-left"></i> Back</a>
-  <h1 style="margin:1.5rem 0 0.5rem;font-size:2rem;font-weight:700;letter-spacing:-0.03em">Security</h1>
-  <p style="color:var(--text-muted);margin-bottom:2.5rem;font-size:0.9375rem"><i data-lucide="file-text"></i> 2 deep dives</p>
-  <div class="articles-grid">
-    <div class="article-card">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Security</span>
-        <span class="badge badge-difficulty badge-advanced"><i data-lucide="rocket"></i> advanced</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/rca-uber-mk138h5a-s5fy/ubers-2016-data-breach-the-mfa-gap-that-exposed-57-million-riders-and-drivers/">Uber's 2016 Data Breach: The MFA Gap That Exposed 57 Million Riders and Drivers</a></h2>
-      <p class="card-excerpt">It was 3am when Uber's security dashboard flashed red, signaling a breach that would redefine how the company handles th...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> Security</span><span class="badge badge-tag"><i data-lucide="tag"></i> Data Breach</span><span class="badge badge-tag"><i data-lucide="tag"></i> Incident Response</span>
+<main><article class="article"><div class="container">
+  <a href="/categories/networking-systems/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Networking & Systems</a>
+  <div class="article-header">
+    <h1>The Vanishing CPU: A ClickHouse Case Study on Debugging with Kernel Memory Reclaim in the Clouds</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Operating Systems</span><span class="difficulty intermediate">intermediate</span><span class="tag">operating-systems</span></div>
+  </div>
+  <p class="article-intro">Picture this: ClickHouse Cloud on GCP encounters random, unresponsive pods where CPU spikes to 100% and signals go unheard. It isn’t a single buggy line of code; it’s production hell where typical tracing fails <a href="#source-1" class="citation" title="View source">1</a>. This isn’t just a bug hunt; it’s a crash course in reading the orchestra of a cloud kernel and learning when memory reclaim can masquerade as a user-space problem <a href="#source-1" class="citation" title="View source">1</a>.</p>
+  <div class="article-content">
+    <figure class="article-image">
+      <img src="/images/q-556-cd1b522b.svg" alt="Illustration: The Vanishing CPU: A ClickHouse Case Study on Debugging with Kernel Memory Reclaim in the Clouds" loading="lazy">
+      
+    </figure><h2>Hook and Stakes</h2>In the real world, a data analytics service suddenly loses responsiveness across multiple pods. The team leans on familiar tools, but the signals don’t cooperate. The pressure isn’t only latency—it’s gotta keep dashboards live and customers honest. This story starts with a 3am paging event and ends with a kernel-level windfall of insights that change how production is approached forever. The ClickHouse incident becomes the blueprint: when CPU is pegged and standard tracing stalls, the root cause can hide in kernel memory reclaim behavior, especially in cloud kernels <a href="#source-1" class="citation" title="View source">1</a>.<h2>The Hunt: From Signals to Silence</h2>You start with the basics—identify the offender with <code>top</code> or <code>htop</code> to pick out the PID quietly siphoning cycles <a href="#source-2" class="citation" title="View source">2</a>. Then peek into <code>/proc/PID/status</code> to confirm the process state and activity. If the stack stays murky, attach <code>strace -p PID</code> to watch system calls in real time and spot surprising stalls <a href="#source-3" class="citation" title="View source">3</a>. When user-space traces reach a dead end, a deeper look into the kernel story is required; attaching a debugger like <code>gdb -p PID</code> can reveal where the thread is blocked, especially if it’s stuck waiting on kernel resources <a href="#source-5" class="citation" title="View source">5</a>. The journey often reveals a tension between what the app does and what the kernel memory manager is doing behind the curtain <a href="#source-1" class="citation" title="View source">1</a>.<figure class="article-image">
+      <img src="/images/q-556-63ff1171.svg" alt="Illustration: The Twist: Kernel Memory Reclaim in the Spotlight" loading="lazy">
+      
+    </figure><h2>The Twist: Kernel Memory Reclaim in the Spotlight</h2>The twist is counterintuitive: production delays may resemble a stubborn user-space bug, but the culprit is memory reclaim throttling or livelocks within the kernel. Modern cloud kernels can exhibit intermittent reclaim behavior, particularly under memory pressure or unusual memory reclaim policies like MGLRU, which can mask as unresponsive CPU behavior <a href="#source-1" class="citation" title="View source">1</a>. To uncover this, engineers turn to kernel-space tracing and sampling tools—<code>perf</code> and flame-graph style visualizations help map long-latency stalls back to memory reclamation paths <a href="#source-6" class="citation" title="View source">6</a><a href="#source-7" class="citation" title="View source">7</a>. When signals and standard tracing fail, kernel tracing becomes essential, and reproducible stress tests validate hypotheses before changing rollout plans <a href="#source-1" class="citation" title="View source">1</a>.<h2>Resolution: From Diagnosis to Guardrails</h2>Resolution hinges on disciplined instrumentation and controlled restarts. If a process remains unresponsive to <code>SIGKILL</code>, the immediate action is to terminate with care, then inspect logs for patterns that hint at resource contention, memory pressure, or I/O blocking. The ClickHouse team confirmed that kernel memory reclaim issues required rigorous testing and staged rollouts before stabilizing production; journalism aside, the practical takeaway is to craft reproducible workloads that stress memory reclaim in staging before a cloud rollout <a href="#source-1" class="citation" title="View source">1</a>.
+    <div class="real-world-example">
+      <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
+      <div class="company"><i data-lucide="briefcase"></i> ClickHouse</div>
+      <p class="scenario">ClickHouse Cloud on GCP experienced random, unresponsive pods where CPU usage spiked to 100% and could not be profiled with standard tools, forcing manual restarts; investigation revealed intermittent, cloud-specific kernel behavior affecting memory reclaim.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Kernel memory reclaim can cause production delays that resemble user-space issues; when signals and traditional tracing fail, kernel tracing (bpftrace, perf) and reproducible stress tests are essential; modern kernel features like MGLRU can mitigate stubborn livelocks, but cloud-provider kernel differences require careful rollout and testing.</div>
+    </div><h2>CPU Debugging Flow</h2><div class="mermaid">graph TD
+A[High CPU process] --> B[Identify PID with top/htop]
+B --> C[Inspect /proc/PID/status]
+C --> D[strace -p PID]--> E[If kernel stall detected, attach gdb -p PID]
+E --> F[Decide kill vs. continue]
+F --> G[Roll out mitigations via staged testing]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> MGLRU, a modern memory reclaim strategy, aims to reduce livelocks in cloud kernels, but it requires careful rollout and testing across provider variants</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Identify high-CPU processes with top/htop</li><li>Observe `/proc/PID/status` for state and activity</li><li>Trace system calls with `strace -p PID` and inspect kernel stalls</li><li>Use kernel tracing (bpftrace, perf) for deeper visibility</li><li>Test changes with reproducible stress tests before rollout</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://clickhouse.com/blog/a-case-of-the-vanishing-cpu-a-linux-kernel-debugging-story" target="_blank" rel="noopener">The case of the vanishing CPU: A Linux kernel debugging story</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://en.wikipedia.org/wiki/Linux_kernel" target="_blank" rel="noopener">Linux kernel</a><span class="source-type">article</span></li><li id="source-3"><span class="source-num">3</span><a href="https://github.com/strace/strace" target="_blank" rel="noopener">Strace</a><span class="source-type">repository</span></li><li id="source-4"><span class="source-num">4</span><a href="https://en.wikipedia.org/wiki/Virtual_memory" target="_blank" rel="noopener">Virtual memory</a><span class="source-type">article</span></li><li id="source-5"><span class="source-num">5</span><a href="https://github.com/torvalds/linux" target="_blank" rel="noopener">Linux kernel source</a><span class="source-type">repository</span></li><li id="source-6"><span class="source-num">6</span><a href="https://github.com/brendangregg/perf-tools" target="_blank" rel="noopener">Perf tools</a><span class="source-type">repository</span></li><li id="source-7"><span class="source-num">7</span><a href="https://github.com/brendangregg/FlameGraph" target="_blank" rel="noopener">FlameGraph</a><span class="source-type">repository</span></li><li id="source-8"><span class="source-num">8</span><a href="https://en.wikipedia.org/wiki/Process_(computing)" target="_blank" rel="noopener">Process (computing)</a><span class="source-type">article</span></li><li id="source-9"><span class="source-num">9</span><a href="https://github.com/iovisor/bpftrace" target="_blank" rel="noopener">bpftrace</a><span class="source-type">repository</span></li><li id="source-10"><span class="source-num">10</span><a href="https://github.com/brendangregg/perf-tools" target="_blank" rel="noopener">Linux performance analysis with Brendan Gregg</a><span class="source-type">repository</span></li></ul></div>
+    <div class="share-snippet">
+      <div class="share-snippet-header">
+        <span class="share-icon"><i data-lucide="share-2"></i></span>
+        <h3>Share This</h3>
+        <div class="share-buttons">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-556%2Fthe-vanishing-cpu-a-clickhouse-case-study-on-debugging-with-kernel-memory-reclai%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+            <i data-lucide="linkedin"></i>
+          </a>
+          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20why%20a%20CPU%20spike%20hides%20in%20the%20kernel%3F%20%F0%9F%94%A7%0A%0AClickHouse%20faced%20random%2C%20unresponsive%20pods%20as%20CPU%20hit%20100%25%20and%20signals%20failed.%2CThe%20root%20cause%20often%20lurks%20in%20kernel%20memory%20reclaim%2C%20not%20in%20application%20code.%2CKernel%20tracing%20plus%20reproducible%20stress%20tests%20turn%20the%20tide%E2%80%94staged%20rollouts%20seal%20the%20deal.%0A%0ADive%20into%20the%20full%20story%20and%20learn%20how%20to%20defend%20production%20against%20stubborn%20livelocks.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23BackendDevelopment%20%23CloudComputing%20%23LinuxKernel%20%23PerformanceTuning%20%23Observability%20%23DevOps%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-556%2Fthe-vanishing-cpu-a-clickhouse-case-study-on-debugging-with-kernel-memory-reclai%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+            <i data-lucide="twitter"></i>
+          </a>
+          <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
+            <i data-lucide="copy"></i>
+          </button>
         </div>
-        <a href="/posts/rca-uber-mk138h5a-s5fy/ubers-2016-data-breach-the-mfa-gap-that-exposed-57-million-riders-and-drivers/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
+      </div>
+      <div class="share-snippet-content" id="shareSnippet">
+        <p class="snippet-hook">Ever wondered why a CPU spike hides in the kernel? 🔧</p>
+        <p class="snippet-body">ClickHouse faced random, unresponsive pods as CPU hit 100% and signals failed.,The root cause often lurks in kernel memory reclaim, not in application code.,Kernel tracing plus reproducible stress tests turn the tide—staged rollouts seal the deal.</p>
+        <p class="snippet-cta">Dive into the full story and learn how to defend production against stubborn livelocks.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #BackendDevelopment #CloudComputing #LinuxKernel #PerformanceTuning #Observability #DevOps</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-556/the-vanishing-cpu-a-clickhouse-case-study-on-debugging-with-kernel-memory-reclai/</p>
       </div>
     </div>
-    <div class="article-card">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Security</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
+    <script>
+    function copySnippet(btn) {
+      const snippet = document.getElementById('shareSnippet').innerText;
+      navigator.clipboard.writeText(snippet).then(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+        setTimeout(() => {
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+        }, 2000);
+      });
+    }
+    </script>
+    <figure class="article-image">
+      <img src="/images/q-556-daa5600f.svg" alt="Illustration: ClickHouse: Kernel memory reclaim can cause producti" loading="lazy">
+      
+    </figure>
+    <h2>Wrapping Up</h2>
+    <p>The moral: production reliability hinges on looking both above and below the user-space surface. Instrumentation, reproducible tests, and staged deployments make the difference between a one-off fix and a durable solution. Talk less, trace more, and test in prod-like environments.</p>
+  </div>
+  
+  <div class="author-card">
+    <img src="https://github.com/satishkumar-dhule.png" alt="Satishkumar Dhule" class="author-avatar" loading="lazy">
+    <div class="author-info">
+      <div class="author-name">Satishkumar Dhule</div>
+      <div class="author-role">Software Engineer</div>
+      <div class="author-links">
+        <a href="https://satishkumar-dhule.github.io" target="_blank" rel="noopener">
+          <i data-lucide="globe"></i>
+          Website
+        </a>
+        <a href="https://github.com/satishkumar-dhule" target="_blank" rel="noopener">
+          <i data-lucide="github"></i>
+          GitHub
+        </a>
+        <a href="https://linkedin.com/in/satishkumar-dhule" target="_blank" rel="noopener">
+          <i data-lucide="linkedin"></i>
+          LinkedIn
+        </a>
       </div>
-      <h2 class="card-title"><a href="/posts/q-255/the-3am-pager-that-changed-everything-how-netflix-learned-to-stop-trusting-json/">The 3am Pager That Changed Everything: How Netflix Learned to Stop Trusting JSON</a></h2>
-      <p class="card-excerpt">It was 3am when the pager went off. Again. Netflix's streaming service was buckling under a wave of malformed JSON paylo...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> top10</span><span class="badge badge-tag"><i data-lucide="tag"></i> asvs</span><span class="badge badge-tag"><i data-lucide="tag"></i> samm</span>
-        </div>
-        <a href="/posts/q-255/the-3am-pager-that-changed-everything-how-netflix-learned-to-stop-trusting-json/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
+    </div>
+  </div>
+  
+    <div class="related-articles">
+      <h3>Continue Reading</h3>
+      <div class="related-grid">
+        
+          <a href="/posts/q-471/the-2-million-memory-mistake-that-broke-nvidias-gpu-demo/" class="related-card">
+            <span class="related-title">The $2 Million Memory Mistake That Broke NVIDIA's GPU Demo</span>
+            <span class="related-meta">advanced</span>
+          </a>
+        
       </div>
-    </div></div>
-</div></section></main>
+    </div>
+  <div class="cta-box">
+    <p>Ready to put this into practice?</p>
+    <a href="https://open-interview.github.io/#/channel/operating-systems" class="cta-button">Practice Questions →</a>
+  </div>
+</div></article></main>
 
 <!-- Search Modal -->
 <div class="search-modal" id="searchModal" onclick="if(event.target===this)closeSearch()">
