@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d1117"/>
+      <stop offset="100%" stop-color="#161b22"/>
+    </linearGradient>
+  </defs>
+  <rect width="100%" height="100%" fill="url(#bgGrad)"/>
+  <g opacity="0.02" stroke="#f0f6fc"><line x1="0" y1="0" x2="0" y2="380"/><line x1="50" y1="0" x2="50" y2="380"/><line x1="100" y1="0" x2="100" y2="380"/><line x1="150" y1="0" x2="150" y2="380"/><line x1="200" y1="0" x2="200" y2="380"/><line x1="250" y1="0" x2="250" y2="380"/><line x1="300" y1="0" x2="300" y2="380"/><line x1="350" y1="0" x2="350" y2="380"/><line x1="400" y1="0" x2="400" y2="380"/><line x1="450" y1="0" x2="450" y2="380"/><line x1="500" y1="0" x2="500" y2="380"/><line x1="550" y1="0" x2="550" y2="380"/><line x1="600" y1="0" x2="600" y2="380"/><line x1="650" y1="0" x2="650" y2="380"/><line x1="700" y1="0" x2="700" y2="380"/><line x1="0" y1="0" x2="700" y2="0"/><line x1="0" y1="50" x2="700" y2="50"/><line x1="0" y1="100" x2="700" y2="100"/><line x1="0" y1="150" x2="700" y2="150"/><line x1="0" y1="200" x2="700" y2="200"/><line x1="0" y1="250" x2="700" y2="250"/><line x1="0" y1="300" x2="700" y2="300"/><line x1="0" y1="350" x2="700" y2="350"/></g>
+  <ellipse cx="105" cy="95" rx="120" ry="80" fill="#58a6ff" opacity="0.03"/>
+  <ellipse cx="595" cy="285" rx="100" ry="70" fill="#a371f7" opacity="0.03"/>
+  
+    
+    <g transform="translate(180, 280)">
+      <path d="M0,-85 L47.63,-112.5 L84.00200000000001,-91.5 L36.372,-64 Z" fill="#ff8a82" opacity="0.9"/>
+      <path d="M0,-85 L36.372,-64 L36.372,21 L0,0 Z" fill="#f85149" opacity="0.85"/>
+      <path d="M36.372,-64 L84.00200000000001,-91.5 L84.00200000000001,-6.5 L36.372,21 Z" fill="#c93c35" opacity="0.75"/>
+      <circle cx="10.9116" cy="-68" r="4" fill="#f85149"><animate attributeName="opacity" values="1;0.4;1" dur="1.5s" repeatCount="indefinite"/></circle>
+      <circle cx="10.9116" cy="-51" r="4" fill="#f85149"><animate attributeName="opacity" values="1;0.4;1" dur="2s" repeatCount="indefinite"/></circle>
+      <line x1="18.186" y1="-12.75" x2="32.7348" y2="-12.75" stroke="#c93c35" stroke-width="2" opacity="0.5"/><line x1="18.186" y1="-21.25" x2="32.7348" y2="-21.25" stroke="#c93c35" stroke-width="2" opacity="0.5"/><line x1="18.186" y1="-29.749999999999996" x2="32.7348" y2="-29.749999999999996" stroke="#c93c35" stroke-width="2" opacity="0.5"/><line x1="18.186" y1="-38.25" x2="32.7348" y2="-38.25" stroke="#c93c35" stroke-width="2" opacity="0.5"/>
+      <g><rect x="-2.314" y="10" width="41" height="16" rx="3" fill="#161b22"/><text x="18.186" y="22" text-anchor="middle" fill="#f0f6fc" font-size="9" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">prod-1</text></g>
+      <g><rect x="18.186" y="-69.7" width="28" height="12" rx="2" fill="#161b22"/><text x="20.0046" y="-62.05" fill="#79c0ff" font-size="8" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">98%</text></g>
+      
+    </g>
+    
+  <g transform="translate(350, 120)">
+    <circle r="45" fill="#f85149" opacity="0.15"/>
+    <path d="M-13.5,-13.5 L13.5,13.5 M13.5,-13.5 L-13.5,13.5" fill="none" stroke="#f85149" stroke-width="3" stroke-linecap="round"/>
+  </g>
+    
+  <g transform="translate(420, 100)">
+    <path d="M4.5,-30 L-7.5,1.5 L2.4,1.5 L-4.5,30 L7.5,-1.5 L-2.4,-1.5 Z" fill="#f85149"><animate attributeName="opacity" values="1;0.5;1;0.7;1" dur="0.6s" repeatCount="indefinite"/></path>
+  </g>
+    
+    <g transform="translate(420, 150)">
+      <rect width="200" height="120" rx="8" fill="#0d1117" stroke="#3fb950" stroke-width="1.5"/>
+      <rect width="200" height="20" rx="8" fill="#3fb950" opacity="0.15"/>
+      <text x="10" y="14" fill="#3fb950" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">terminal</text>
+      <text x="10" y="34" fill="#f0f6fc" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">$ kubectl logs pod-1</text><text x="10" y="48" fill="#f85149" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">ERROR: OOMKilled</text><text x="10" y="62" fill="#d29922" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Memory limit exceeded</text><text x="10" y="76" fill="#e3b341" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Container restarting...</text><text x="10" y="90" fill="#f85149" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Restart count: 5</text>
+      <rect x="10" y="104" width="8" height="12" fill="#3fb950"><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/></rect>
+    </g>
+    
+    <g transform="translate(40, 60)">
+      <rect width="90" height="55" rx="8" fill="#161b22" stroke="#30363d"/>
+      <text x="10" y="18" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Status</text>
+      <text x="10" y="38" fill="#f85149" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">503<tspan font-size="10" fill="#8b949e"></tspan></text>
+      <text x="75" y="38" fill="#8b949e" font-size="14" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">→</text>
+    </g>
+    
+    <g transform="translate(40, 125)">
+      <rect width="90" height="55" rx="8" fill="#161b22" stroke="#30363d"/>
+      <text x="10" y="18" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Errors</text>
+      <text x="10" y="38" fill="#f85149" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">2.3<tspan font-size="10" fill="#8b949e">K</tspan></text>
+      <text x="75" y="38" fill="#3fb950" font-size="14" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">↑</text>
+    </g>
+    
+    <g transform="translate(150, 60)">
+      <rect width="90" height="55" rx="8" fill="#161b22" stroke="#30363d"/>
+      <text x="10" y="18" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Memory</text>
+      <text x="10" y="38" fill="#f85149" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">98<tspan font-size="10" fill="#8b949e">%</tspan></text>
+      <text x="75" y="38" fill="#3fb950" font-size="14" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">↑</text>
+    </g>
+    
+    <g transform="translate(150, 125)">
+      <rect width="90" height="55" rx="8" fill="#161b22" stroke="#30363d"/>
+      <text x="10" y="18" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">CPU</text>
+      <text x="10" y="38" fill="#f85149" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">100<tspan font-size="10" fill="#8b949e">%</tspan></text>
+      <text x="75" y="38" fill="#3fb950" font-size="14" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">↑</text>
+    </g>
+    
+    <g transform="translate(40, 200)">
+      <rect x="-14" y="-14" width="150" height="28" rx="14" fill="#161b22" stroke="#f85149" stroke-width="1" opacity="0.9"/>
+      <circle r="10" fill="#f85149" opacity="0.3"/>
+      <text x="0" y="4" text-anchor="middle" fill="#f85149" font-size="12" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">✕</text>
+      <text x="18" y="4" text-anchor="start" fill="#f0f6fc" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Service unavailable</text>
+    </g>
+    
+    <g transform="translate(40, 225)">
+      <rect x="-14" y="-14" width="132" height="28" rx="14" fill="#161b22" stroke="#f85149" stroke-width="1" opacity="0.9"/>
+      <circle r="10" fill="#f85149" opacity="0.3"/>
+      <text x="0" y="4" text-anchor="middle" fill="#f85149" font-size="12" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">✕</text>
+      <text x="18" y="4" text-anchor="start" fill="#f0f6fc" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Memory exhausted</text>
+    </g>
+    
+    <g transform="translate(40, 250)">
+      <rect x="-14" y="-14" width="156" height="28" rx="14" fill="#161b22" stroke="#d29922" stroke-width="1" opacity="0.9"/>
+      <circle r="10" fill="#d29922" opacity="0.3"/>
+      <text x="0" y="4" text-anchor="middle" fill="#d29922" font-size="12" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">⚠</text>
+      <text x="18" y="4" text-anchor="start" fill="#f0f6fc" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Auto-restart failing</text>
+    </g>
+    
+    <path d="M260,220 Q305,110 350,150" fill="none" stroke="#f85149" stroke-width="2" stroke-dasharray="6,4" opacity="0.6"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1s" repeatCount="indefinite"/></path>
+    <circle r="4" fill="#f85149"><animateMotion dur="2s" repeatCount="indefinite" path="M260,220 Q305,110 350,150"/></circle>
+    <g><rect x="288.5" y="94" width="33" height="14" rx="3" fill="#161b22"/><text x="305" y="104" text-anchor="middle" fill="#f85149" font-size="8" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">crash</text></g>
+    
+    <g>
+      <rect x="264.325" y="327" width="171.35000000000002" height="19" rx="3" fill="rgba(13,17,23,0.85)"/>
+      <text x="350" y="340" text-anchor="middle" fill="#f85149" font-size="11" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Incident: Memory Exhaustion</text>
+    </g>
+  
+</svg>
