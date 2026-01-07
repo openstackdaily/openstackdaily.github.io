@@ -1,73 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 380" width="700" height="380">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 420" width="700" height="420">
   <defs>
-    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#0d1117"/>
       <stop offset="100%" stop-color="#161b22"/>
     </linearGradient>
   </defs>
-  <rect width="100%" height="100%" fill="url(#bgGrad)"/>
-  <g opacity="0.02" stroke="#f0f6fc"><line x1="0" y1="0" x2="0" y2="380"/><line x1="50" y1="0" x2="50" y2="380"/><line x1="100" y1="0" x2="100" y2="380"/><line x1="150" y1="0" x2="150" y2="380"/><line x1="200" y1="0" x2="200" y2="380"/><line x1="250" y1="0" x2="250" y2="380"/><line x1="300" y1="0" x2="300" y2="380"/><line x1="350" y1="0" x2="350" y2="380"/><line x1="400" y1="0" x2="400" y2="380"/><line x1="450" y1="0" x2="450" y2="380"/><line x1="500" y1="0" x2="500" y2="380"/><line x1="550" y1="0" x2="550" y2="380"/><line x1="600" y1="0" x2="600" y2="380"/><line x1="650" y1="0" x2="650" y2="380"/><line x1="700" y1="0" x2="700" y2="380"/><line x1="0" y1="0" x2="700" y2="0"/><line x1="0" y1="50" x2="700" y2="50"/><line x1="0" y1="100" x2="700" y2="100"/><line x1="0" y1="150" x2="700" y2="150"/><line x1="0" y1="200" x2="700" y2="200"/><line x1="0" y1="250" x2="700" y2="250"/><line x1="0" y1="300" x2="700" y2="300"/><line x1="0" y1="350" x2="700" y2="350"/></g>
-  <ellipse cx="105" cy="95" rx="120" ry="80" fill="#58a6ff" opacity="0.03"/>
-  <ellipse cx="595" cy="285" rx="100" ry="70" fill="#a371f7" opacity="0.03"/>
+  <rect width="700" height="420" fill="url(#bg)"/>
   
     
-    <g transform="translate(40, 60)">
-      <rect width="200" height="140" rx="8" fill="#161b22" stroke="#30363d"/>
-      <rect width="200" height="22" rx="8" fill="#21262d"/>
-      <circle cx="12" cy="11" r="4" fill="#f85149" opacity="0.8"/><circle cx="26" cy="11" r="4" fill="#d29922" opacity="0.8"/><circle cx="40" cy="11" r="4" fill="#3fb950" opacity="0.8"/>
-      <text x="100" y="15" text-anchor="middle" fill="#484f58" font-size="9" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">main.ts</text>
-      <text x="10" y="36" fill="#a371f7" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">try {</text><text x="10" y="50" fill="#f0f6fc" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">  await fetch(url);</text><text x="10" y="64" fill="#a371f7" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">} catch (err) {</text><text x="10" y="78" fill="#f85149" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">  // TypeError here</text><text x="10" y="92" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">  console.log(err);</text><text x="10" y="106" fill="#a371f7" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">}</text>
-    </g>
+  <rect x="40" y="50" width="300" height="130" rx="8" fill="#21262d" stroke="#30363d"/>
+  <rect x="40" y="50" width="300" height="28" rx="8" fill="#161b22"/>
+  <circle cx="56" cy="64" r="5" fill="#f85149" opacity="0.8"/>
+  <circle cx="72" cy="64" r="5" fill="#d29922" opacity="0.8"/>
+  <circle cx="88" cy="64" r="5" fill="#3fb950" opacity="0.8"/>
+  <text x="190" y="68" text-anchor="middle" fill="#6e7681" font-size="10" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">debug.ts</text>
+  <text x="52" y="98" fill="#e6edf3" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">async function fetch() {</text><text x="52" y="116" fill="#39c5cf" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">  const res = await api.get();</text><text x="52" y="134" fill="#e6edf3" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">  return res.data;</text><text x="52" y="152" fill="#e6edf3" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">}</text>
+
     
-    <g transform="translate(280, 100)">
-      <rect width="180" height="100" rx="8" fill="#0d1117" stroke="#3fb950" stroke-width="1.5"/>
-      <rect width="180" height="20" rx="8" fill="#3fb950" opacity="0.15"/>
-      <text x="10" y="14" fill="#3fb950" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">terminal</text>
-      <text x="10" y="34" fill="#f0f6fc" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">$ node debug.js</text><text x="10" y="48" fill="#f85149" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">TypeError: undefined</text><text x="10" y="62" fill="#d29922" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">at line 4, col 12</text><text x="10" y="76" fill="#8b949e" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">→ Stack trace...</text>
-      <rect x="10" y="90" width="8" height="12" fill="#3fb950"><animate attributeName="opacity" values="1;0;1" dur="1s" repeatCount="indefinite"/></rect>
-    </g>
+  <rect x="360" y="50" width="300" height="130" rx="8" fill="#0d1117" stroke="#3fb950"/>
+  <text x="372" y="70" fill="#3fb950" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">$ terminal</text>
+  <text x="372" y="94" fill="#e6edf3" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">node debug.ts</text><text x="372" y="112" fill="#f85149" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">TypeError: Cannot read undefined</text><text x="372" y="130" fill="#f85149" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">    at fetch (debug.ts:2)</text>
+
     
-  <g transform="translate(255, 80)">
-    <path d="M3.3,-22 L-5.5,1.1 L1.76,1.1 L-3.3,22 L5.5,-1.1 L-1.76,-1.1 Z" fill="#d29922"><animate attributeName="opacity" values="1;0.5;1;0.7;1" dur="0.6s" repeatCount="indefinite"/></path>
+  <rect x="150" y="220" width="120" height="80" rx="12" fill="#161b22" stroke="#f85149" stroke-width="2"/>
+  <g transform="translate(196, 246) scale(1.1666666666666667)">
+    <path d="M12 9v4m0 4h.01M12 2L2 22h20L12 2z" fill="none" stroke="#f85149" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
   </g>
+  <text x="210" y="284" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">Bug Found</text>
+  
+
     
-    <g transform="translate(500, 60)">
-      <rect width="90" height="55" rx="8" fill="#161b22" stroke="#30363d"/>
-      <text x="10" y="18" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Errors</text>
-      <text x="10" y="38" fill="#f85149" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">23<tspan font-size="10" fill="#8b949e">/hr</tspan></text>
-      <text x="75" y="38" fill="#3fb950" font-size="14" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">↑</text>
-    </g>
+  <rect x="430" y="220" width="120" height="80" rx="12" fill="#161b22" stroke="#3fb950" stroke-width="2"/>
+  <g transform="translate(476, 246) scale(1.1666666666666667)">
+    <path d="M20 6L9 17l-5-5" fill="none" stroke="#3fb950" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="490" y="284" text-anchor="middle" fill="#e6edf3" font-size="12" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">Fixed</text>
+  
+
     
-    <g transform="translate(500, 125)">
-      <rect width="90" height="55" rx="8" fill="#161b22" stroke="#30363d"/>
-      <text x="10" y="18" fill="#8b949e" font-size="9" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Latency</text>
-      <text x="10" y="38" fill="#d29922" font-size="18" font-weight="600" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">847<tspan font-size="10" fill="#8b949e">ms</tspan></text>
-      <text x="75" y="38" fill="#3fb950" font-size="14" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">↑</text>
-    </g>
+  <defs><marker id="ah270260" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto">
+    <path d="M0,0 L8,4 L0,8 Z" fill="#d29922"/>
+  </marker></defs>
+  <line x1="270" y1="260" x2="430" y2="260" stroke="#d29922" stroke-width="2"  marker-end="url(#ah270260)"/>
+  <rect x="325" y="250" width="50" height="20" rx="4" fill="#161b22"/>
+  <text x="350" y="264" text-anchor="middle" fill="#8b949e" font-size="10" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">debug</text>
     
-    <g transform="translate(510, 210)">
-      <rect x="-14" y="-14" width="156" height="28" rx="14" fill="#161b22" stroke="#f85149" stroke-width="1" opacity="0.9"/>
-      <circle r="10" fill="#f85149" opacity="0.3"/>
-      <text x="0" y="4" text-anchor="middle" fill="#f85149" font-size="12" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">✕</text>
-      <text x="18" y="4" text-anchor="start" fill="#f0f6fc" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Memory leak detected</text>
-    </g>
+  <circle cx="280" cy="340" r="6" fill="#3fb950"/>
+  <text x="294" y="344" fill="#e6edf3" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">Issue resolved</text>
     
-    <g transform="translate(510, 235)">
-      <rect x="-14" y="-14" width="120" height="28" rx="14" fill="#161b22" stroke="#d29922" stroke-width="1" opacity="0.9"/>
-      <circle r="10" fill="#d29922" opacity="0.3"/>
-      <text x="0" y="4" text-anchor="middle" fill="#d29922" font-size="12" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">⚠</text>
-      <text x="18" y="4" text-anchor="start" fill="#f0f6fc" font-size="10" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">High CPU usage</text>
-    </g>
-    <g transform="translate(600, 320)"><path d="M18,0 L28.873657093609417,8.143213495952228 L27.716385975338603,11.480502970952694 L14.135704755853409,11.143691087577011 L12.727922061357855,12.727922061357853 L14.658637244908649,26.17488021218391 L11.480502970952696,27.716385975338603 L2.1156731542410783,17.87523222518867 L1.102182119232618e-15,18 L-8.143213495952226,28.873657093609417 L-11.480502970952692,27.716385975338603 L-11.143691087577013,14.135704755853407 L-12.727922061357853,12.727922061357855 L-26.174880212183915,14.658637244908645 L-27.716385975338603,11.480502970952697 L-17.87523222518867,2.1156731542410756 L-18,2.204364238465236e-15 L-28.87365709360942,-8.143213495952217 L-27.716385975338607,-11.48050297095269 L-14.135704755853412,-11.143691087577007 L-12.727922061357857,-12.727922061357853 L-14.65863724490866,-26.174880212183908 L-11.48050297095271,-27.716385975338596 L-2.1156731542410925,-17.87523222518867 L-3.306546357697853e-15,-18 L8.143213495952216,-28.87365709360942 L11.480502970952701,-27.7163859753386 L11.143691087576999,-14.13570475585342 L12.727922061357852,-12.727922061357857 L26.174880212183908,-14.658637244908661 L27.716385975338596,-11.480502970952712 L17.87523222518867,-2.115673154241094 Z" fill="#a371f7" opacity="0.8"><animateTransform attributeName="transform" type="rotate" from="0" to="360" dur="8s" repeatCount="indefinite"/></path><circle r="6" fill="#0d1117"/></g>
-    
-    <path d="M240,130 L280,150" fill="none" stroke="#f85149" stroke-width="2" stroke-dasharray="6,4" opacity="0.6"><animate attributeName="stroke-dashoffset" from="0" to="-20" dur="1s" repeatCount="indefinite"/></path>
-    <circle r="4" fill="#f85149"><animateMotion dur="2s" repeatCount="indefinite" path="M240,130 L280,150"/></circle>
-    <g><rect x="243.5" y="124" width="33" height="14" rx="3" fill="#161b22"/><text x="260" y="134" text-anchor="middle" fill="#f85149" font-size="8" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">error</text></g>
-    
-    <g>
-      <rect x="285.5" y="307" width="129" height="19" rx="3" fill="rgba(13,17,23,0.85)"/>
-      <text x="350" y="320" text-anchor="middle" fill="#d29922" font-size="11" font-family="'SF Mono', 'Fira Code', 'JetBrains Mono', 'Cascadia Code', Consolas, Monaco, 'Courier New', monospace">Debug Session Active</text>
-    </g>
+  <rect x="30" y="362" width="640" height="50" rx="8" fill="#161b22" stroke="#30363d"/>
+  <text x="350" y="384" text-anchor="middle" fill="#e6edf3" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">The Vanishing CPU: A ClickHouse Case Study on Debugging with</text><text x="350" y="400" text-anchor="middle" fill="#e6edf3" font-size="11" font-family="'SF Mono', Menlo, Monaco, 'Courier New', monospace">Kernel Memory Reclaim in the Clouds</text>
   
 </svg>
