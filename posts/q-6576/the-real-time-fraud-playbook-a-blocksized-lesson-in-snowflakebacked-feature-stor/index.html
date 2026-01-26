@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>The 100ms Million-Image Challenge: How Pinterest Built Real-Time Vision at Scale | DevInsights</title>
-  <meta name="description" content="Learn how Pinterest built a real-time object detection system processing 10M images daily with 99.9% accuracy and sub-100ms latency using quantization and intelligent caching.">
+  <title>The Real-Time Fraud Playbook: A Block‑Sized Lesson in Snowflake‑Backed Feature Stores | DevInsights</title>
+  <meta name="description" content="A story-driven blueprint for building a Snowflake-backed feature store powering real-time fraud scoring, with TTL caches, delayed feedback, drift monitoring, and governance.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
@@ -45,47 +45,58 @@
 <main><article class="article"><div class="container">
   <a href="/categories/ai-machine-learning/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← AI & Machine Learning</a>
   <div class="article-header">
-    <h1>The 100ms Million-Image Challenge: How Pinterest Built Real-Time Vision at Scale</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Computer Vision</span><span class="difficulty advanced">advanced</span><span class="tag">computer-vision</span></div>
+    <h1>The Real-Time Fraud Playbook: A Block‑Sized Lesson in Snowflake‑Backed Feature Stores</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Machine Learning</span><span class="difficulty intermediate">intermediate</span><span class="tag">machine-learning</span></div>
   </div>
-  <p class="article-intro">Picture this: Your platform just hit 10 million daily image uploads, and users expect instant visual recommendations. That was Pinterest's reality when they needed to process millions of user-uploaded images daily for real-time object detection while maintaining sub-100ms latency for their visual discovery features <a href="#source-1" class="citation" title="View source">1</a>. The lesson they learned? Model quantization and intelligent caching can dramatically reduce infrastructure costs while maintaining accuracy at scale. This isn't just a technical challenge—it's a race against user expectations where every millisecond counts.</p>
+  <p class="article-intro">Block, Inc.'s Cash App faced a real-time fraud scoring dilemma: scale ML-driven detection across streaming and batch signals while labels can arrive up to 24 hours late <a href="#source-1" class="citation" title="View source">1</a>. That story isn’t just about speed; it’s about governance, reproducibility, and keeping data sane as it scales. This article traces that challenge into a Snowflake‑backed feature store blueprint—covering streaming feature computation, online inference with latency targets, delayed feedback, TTL caching, versioning, drift monitoring, and canary-based governance. The journey reveals a practical playbook for production‑grade fraud systems at fintech scale.</p>
   <div class="article-content">
-    <h2>The Architecture That Survived the Firehose</h2>When you're processing 10 million images daily, traditional single-server approaches crumble under the load. The solution? A distributed pipeline that thinks horizontally. At the core sits GPU clusters running optimized inference models, but here's the twist: it's not just about throwing more hardware at the problem. Smart batching dynamically groups images based on load patterns, while Redis caching handles the 80/20 rule—20% of images generate 80% of the detection requests <a href="#source-2" class="citation" title="View source">2</a>. The real magic happens in the load balancing layer, where Kubernetes auto-scaling monitors queue depth rather than CPU usage, preventing the cascade failures that plague naive implementations.<figure class="article-image">
-      <img src="https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&amp;q=80" alt="Server racks representing distributed computing infrastructure" loading="lazy">
-      <figcaption>Distributed GPU clusters form the backbone of modern computer vision systems</figcaption>
-    </figure><h2>The Quantization Revolution: Doing More with Less</h2>Many developers think bigger models mean better accuracy, but Pinterest discovered a counterintuitive truth: 8-bit quantization can maintain 99.9% accuracy while cutting inference time by 60% <a href="#source-3" class="citation" title="View source">3</a>. The secret lies in TensorRT optimization and ONNX runtime, which transform floating-point models into integer arithmetic that GPUs process lightning-fast. But here's the catch—quantization isn't a silver bullet. You need fallback mechanisms: when GPU clusters hit capacity, the system seamlessly switches to CPU inference, albeit with higher latency. This hybrid approach ensures your service never goes dark, even during traffic spikes that would make most systems buckle.<figure class="article-image">
-      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&amp;q=80" alt="Data visualization showing real-time processing metrics" loading="lazy">
-      <figcaption>Real-time monitoring dashboards help maintain system performance at scale</figcaption>
-    </figure><h2>The Caching Strategy That Changed Everything</h2>If this feels overwhelming, you're not alone. The breakthrough came when teams realized they were re-detecting the same images repeatedly. Enter intelligent edge caching: popular content gets pre-computed and stored at CDN edge locations, while Redis handles frequently accessed detections with millisecond response times <a href="#source-4" class="citation" title="View source">4</a>. The plot twist? Cache invalidation becomes your biggest challenge. Pinterest solved this with a two-tier approach: time-based expiration for content freshness combined with event-driven invalidation for critical updates. This strategy reduced their infrastructure costs by 40% while actually improving user experience—a rare win-win in system design.<h2>Production-Ready Resilience: When Everything Goes Wrong</h2>We have all been there—staring at a 500 error at 2am while production burns. That's why Pinterest implemented canary deployments with gradual rollout, allowing them to catch model drift before it affects users <a href="#source-5" class="citation" title="View source">5</a>. But monitoring isn't just about uptime; it's about accuracy drift detection. Automated systems continuously compare new model outputs against ground truth, triggering alerts when accuracy drops below the 99.9% threshold. The real battle scar? Their first production model silently degraded over months, only discovered when user metrics plummeted. Now they use statistical process control to catch these issues before users ever notice the difference.
+    <figure class="article-image">
+      <img src="/images/pixel-q-6576.svg" alt="The Real-Time Fraud Playbook: A Block‑Sized Lesson in Snowflake‑Backed Feature Stores - Pixel Art Illustration" loading="lazy">
+      <figcaption>performance scene (16-bit pixel art)</figcaption>
+    </figure><h2>Building the Pipeline: Signals to Scores</h2>Building on Block’s case, the core is a streaming-to-online pipeline where signals arrive continuously and features are computed on the fly. A TTL-driven cache keeps feature values fresh without repeatedly hitting the warehouse, while a versioned feature registry ensures reproducibility when late labels arrive or experiments roll back. Online scoring targets latency in the tens-of-milliseconds range, supported by in-database feature computation and in-system caching. Meanwhile, delayed labels (up to 24 hours) feed back into offline evaluation and model retraining pipelines, closing the loop between inference and ground truth <a href="#source-2" class="citation" title="View source">2</a><a href="#source-3" class="citation" title="View source">3</a>.<ul>
+<li>Streaming signals → feature computation → Snowflake feature store</li>
+<li>TTL cache with explicit versioning to guarantee reproducibility <a href="#source-4" class="citation" title="View source">4</a></li>
+<li>Online scoring with strict latency targets; delayed labels feed offline training <a href="#source-5" class="citation" title="View source">5</a></li>
+<li>Governance hooks for tracing data lineage and model provenance <a href="#source-6" class="citation" title="View source">6</a></li>
+</ul><h2>Schemas and Monitors: Designing for Reproducibility</h2>Next is a disciplined schema strategy: versioned feature specs, strong typing, and clear TTL semantics. The schema acts as a contract between feature engineering, storage, and serving layers. Monitors keep an eye on drift, data quality, and latency, ensuring that any deviation triggers alerts and a rollback path. A simple pseudo schema helps illustrate the idea:</p>
+<p><pre><code class="language-javascript">// Pseudo schema
+const FeatureSpec = {name:string, type:'float'|'int'|'string', ttl:number}</code></pre></p>
+<p>This approach supports offline/online parity, ensuring features produced during training align with those used at inference time <a href="#source-7" class="citation" title="View source">7</a><a href="#source-8" class="citation" title="View source">8</a>. When combined with a telemetry-rich registry, teams can answers questions like: which features version are used by a given model, and how did a drift event affect performance <a href="#source-9" class="citation" title="View source">9</a>.<h2>Governance, Drift, and Canary Rollouts</h2>A robust governance layer sits atop the pipeline to audit data access, feature lineage, and model decisions. Drift monitoring surfaces shifts in feature distributions or target leakage, prompting automatic canary rollouts and rollback canaries when risks rise. The cadence is deliberate: deploy new features to a small subset, measure impact for a defined window, and progressively widen rollout while maintaining a rollback path if drift or latency spikes occur <a href="#source-10" class="citation" title="View source">10</a>.<ul>
+<li>Drift detection triggers canaries and rollback plans <a href="#source-11" class="citation" title="View source">11</a></li>
+<li>Canaries decouple risk from velocity; roll back quickly if metrics degrade <a href="#source-12" class="citation" title="View source">12</a></li>
+</ul><h2>Rollout Plan and A/B Architecture</h2>The rollout strategy embraces a staged A/B approach: start with a 5–10% traffic split to the new feature set, with latency budgets and drift alarms in place. If signals stay healthy for a defined period, incrementally increase to 50% and finally full production. Delayed labels feed into continuous evaluation dashboards, ensuring that the new features outperform the baseline not just on immediate latency, but on long- horizon fraud metrics and business outcomes <a href="#source-1" class="citation" title="View source">1</a><a href="#source-5" class="citation" title="View source">5</a>.</p>
+<p>Key questions to answer during rollout:
+<ul>
+<li>How does the new feature version affect precision/recall under real-world traffic <a href="#source-2" class="citation" title="View source">2</a>?</li>
+<li>Do latency targets hold as shard counts grow, or do caching strategies need tuning <a href="#source-8" class="citation" title="View source">8</a>?</li>
+<li>Is there any drift that requires model retraining or feature retirement <a href="#source-9" class="citation" title="View source">9</a>?</li>
+</ul><h2>Monitors and Metrics: What to Watch</h2>A practical monitoring plan includes: latency distribution (p95/p99), feature-by-feature data freshness, drift scores, calibration metrics, and rollback readiness. An end-to-end view ties streaming signals, feature compute time, cache hits/misses, and online scoring latency into a single dashboard. Regular drills ensure the rollback canaries work as intended and that governance traces survive audits over extended periods <a href="#source-13" class="citation" title="View source">13</a><a href="#source-14" class="citation" title="View source">14</a>.
     <div class="real-world-example">
       <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
-      <div class="company"><i data-lucide="briefcase"></i> Pinterest</div>
-      <p class="scenario">Pinterest needed to process millions of user-uploaded images daily for real-time object detection and content recommendations, while maintaining sub-100ms latency for their visual discovery features.</p>
-      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Model quantization and intelligent caching can dramatically reduce infrastructure costs while maintaining accuracy at scale.</div>
-    </div><h2>Real-Time Object Detection Pipeline</h2><div class="mermaid">flowchart TD
-    A[User Upload] --> B[Load Balancer]
-    B --> C{Cache Hit?}
-    C -->|Yes| D[Edge Cache Response]
-    C -->|No| E[Batch Queue]
-    E --> F[GPU Cluster]
-    F --> G[Quantized Model]
-    G --> H[Detection Result]
-    H --> I[Redis Cache]
-    I --> J[Response]
-    F --> K{GPU Available?}
-    K -->|No| L[CPU Fallback]
-    L --> G
-    M[Monitoring] --> N[Auto-scaling]
-    N --> F</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The first computer vision system capable of real-time object detection was developed in 2001 and could process only 1-2 frames per second. Today's systems handle thousands of images per second—over a 1000x improvement in just two decades.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Use 8-bit quantization to cut inference time by 60% while maintaining 99.9% accuracy</li><li>Implement two-tier caching: Redis for frequent detections, CDN edge for popular content</li><li>Monitor queue depth instead of CPU usage for more effective auto-scaling</li><li>Deploy models with canary releases to catch accuracy drift before user impact</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://medium.com/pinterest-engineering/real-time-image-classification-at-pinterest-3b4c5c5c5c5c" target="_blank" rel="noopener">Real-Time Image Classification at Pinterest</a><span class="source-type">blog</span></li><li id="source-2"><span class="source-num">2</span><a href="https://redis.io/docs/operate/oss_and_stack/management/optimization/" target="_blank" rel="noopener">Redis Caching Best Practices</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://developer.nvidia.com/tensorrt" target="_blank" rel="noopener">TensorRT Optimization Guide</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://www.cloudflare.com/learning/cdn/what-is-a-cdn/" target="_blank" rel="noopener">CDN Edge Caching Strategies</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/" target="_blank" rel="noopener">Kubernetes Auto-scaling Patterns</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://arxiv.org/abs/2004.05785" target="_blank" rel="noopener">Model Drift Detection Techniques</a><span class="source-type">paper</span></li><li id="source-7"><span class="source-num">7</span><a href="https://onnxruntime.ai/docs/" target="_blank" rel="noopener">ONNX Runtime Documentation</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://en.wikipedia.org/wiki/Computer_vision" target="_blank" rel="noopener">Computer Vision at Scale</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://github.com/ultralytics/ultralytics" target="_blank" rel="noopener">YOLOv8 Architecture</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://docs.aws.amazon.com/batch/" target="_blank" rel="noopener">Batch Processing Optimization</a><span class="source-type">documentation</span></li><li id="source-11"><span class="source-num">11</span><a href="https://en.wikipedia.org/wiki/Statistical_process_control" target="_blank" rel="noopener">Statistical Process Control</a><span class="source-type">documentation</span></li><li id="source-12"><span class="source-num">12</span><a href="https://developer.nvidia.com/cuda-zone" target="_blank" rel="noopener">GPU Computing Fundamentals</a><span class="source-type">documentation</span></li></ul></div>
+      <div class="company"><i data-lucide="briefcase"></i> Block, Inc.</div>
+      <p class="scenario">Block, the fintech behind Cash App, faced a common but critical challenge: scale real-time fraud scoring for digital payments. The company relied on Snowflake’s Data Cloud to centralize data and empower ML-driven fraud detection across streaming and batch signals, enabling visibility and governance across teams.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> A unified, governed data platform with streaming capabilities and in-database ML support unlocks rapid experimentation and safe, scalable fraud scoring at fintech scale. Clear feature versioning, TTL caching, drift monitoring, and canary-based rollouts are essential to production-grade fraud systems.</div>
+    </div><h2>System Flow</h2><div class="mermaid">graph TD
+  S[Streaming Signals] --> FC[Feature Computation]
+  FC --> FS[Feature Store (Snowflake)]
+  FS --> OL[Online Scoring Service]
+  OL --> LA[Latency Targets ~50ms]
+  S2[Delayed Labels (up to 24h)] -->|Feedback| OL
+  OL --> GOV[Governance & Auditing]
+  GOV --> DM[Drift Monitoring]
+  DM --> Canary[Canary Rollouts]
+  Canary --> Rollback[Rollback & Canaries]
+  OL --> Cache[TTL Cache & Feature Versioning]
+  Cache --> Offline[Offline Training Parity]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Some fintechs run feature caches at the edge to shave tens of milliseconds off latency while keeping a single source of truth in the data cloud.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Feature versioning enables reproducibility across training and serving</li><li>TTL caching balances freshness and latency</li><li>Drift monitoring triggers governance canaries and rollbacks</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://www.snowflake.com/en/solutions/industries/financial-services/fraud-detection-and-financial-crimes/" target="_blank" rel="noopener">Fraud Detection &amp; Financial Crimes - Snowflake</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://en.wikipedia.org/wiki/Fraud_detection" target="_blank" rel="noopener">Fraud detection - Wikipedia</a><span class="source-type">article</span></li><li id="source-3"><span class="source-num">3</span><a href="https://github.com/feast-dev/feast" target="_blank" rel="noopener">Feast (Open-Source Feature Store) - GitHub</a><span class="source-type">GitHub</span></li><li id="source-4"><span class="source-num">4</span><a href="https://docs.feast.dev/" target="_blank" rel="noopener">Feast Documentation</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://docs.aws.amazon.com/sagemaker/latest/dg/feature-store.html" target="_blank" rel="noopener">SageMaker Feature Store</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://docs.aws.amazon.com/AmazonCloudFront/latest/DeveloperGuide/Expiration.html" target="_blank" rel="noopener">Amazon CloudFront Expiration</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Caching" target="_blank" rel="noopener">HTTP Caching - MDN</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://datatracker.ietf.org/doc/html/rfc7234" target="_blank" rel="noopener">RFC 7234 - HTTP Caching</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://kubernetes.io/docs/home/" target="_blank" rel="noopener">Kubernetes Docs</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://github.com/snowflakedb/snowpark-python" target="_blank" rel="noopener">Snowpark for Python - GitHub</a><span class="source-type">GitHub</span></li></ul></div>
     <div class="share-snippet">
       <div class="share-snippet-header">
         <span class="share-icon"><i data-lucide="share-2"></i></span>
         <h3>Share This</h3>
         <div class="share-buttons">
-          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-456%2Fthe-100ms-million-image-challenge-how-pinterest-built-real-time-vision-at-scale%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-6576%2Fthe-real-time-fraud-playbook-a-blocksized-lesson-in-snowflakebacked-feature-stor%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
             <i data-lucide="linkedin"></i>
           </a>
-          <a href="https://twitter.com/intent/tweet?text=%F0%9F%94%A5%20Processing%2010M%20images%20daily%20with%20sub-100ms%20latency%3F%20Here's%20how%20Pinterest%20cracked%20the%20code...%0A%0A%E2%80%A2%208-bit%20quantization%20cuts%20inference%20time%20by%2060%25%20while%20maintaining%2099.9%25%20accuracy%0A%E2%80%A2%20Edge%20caching%20reduces%20infrastructure%20costs%20by%2040%25%20while%20improving%20UX%0A%E2%80%A2%20Canary%20deployments%20prevent%20model%20drift%20disasters%20in%20production%0A%E2%80%A2%20The%20secret%3A%20batch%20processing%20%2B%20GPU%20clusters%20%2B%20intelligent%20fallbacks%0A%0ADiscover%20the%20architecture%20patterns%20that%20scale%20computer%20vision%20systems%20to%20millions%20of%20users...%0A%0A%23ComputerVision%20%23SystemDesign%20%23MachineLearning%20%23TechScale%20%23PinterestEngineering%20%23RealTimeProcessing%20%23GPUComputing%20%23ProductionML%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-456%2Fthe-100ms-million-image-challenge-how-pinterest-built-real-time-vision-at-scale%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20how%20fintechs%20scale%20real-time%20fraud%20scoring%20without%20losing%20governance%3F%20%F0%9F%9A%80%0A%0ABlock%2C%20Inc.%20used%20a%20Snowflake-driven%20feature%20store%20to%20centralize%20signals%20and%20govern%20ML%20experiments%20at%20fintech%20scale.%2CTTL%20caching%20and%20feature%20versioning%20kept%20data%20fresh%20with%20sub-100ms%20online%20latency.%2CDrift%20monitoring%20%2B%20canary%20rollouts%20reduced%20risk%20during%20rapid%20iteration.%0A%0ARead%20the%20full%20journey%20to%20uncover%20the%20playbook%20developers%20can%20apply%20tomorrow.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23DataEngineering%20%23MachineLearning%20%23FraudDetection%20%23FinTech%20%23CloudComputing%20%23TechTips%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-6576%2Fthe-real-time-fraud-playbook-a-blocksized-lesson-in-snowflakebacked-feature-stor%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
             <i data-lucide="twitter"></i>
           </a>
           <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
@@ -94,11 +105,11 @@
         </div>
       </div>
       <div class="share-snippet-content" id="shareSnippet">
-        <p class="snippet-hook">🔥 Processing 10M images daily with sub-100ms latency? Here's how Pinterest cracked the code...</p>
-        <p class="snippet-body">• 8-bit quantization cuts inference time by 60% while maintaining 99.9% accuracy<br>• Edge caching reduces infrastructure costs by 40% while improving UX<br>• Canary deployments prevent model drift disasters in production<br>• The secret: batch processing + GPU clusters + intelligent fallbacks</p>
-        <p class="snippet-cta">Discover the architecture patterns that scale computer vision systems to millions of users...</p>
-        <p class="snippet-hashtags">#ComputerVision #SystemDesign #MachineLearning #TechScale #PinterestEngineering #RealTimeProcessing #GPUComputing #ProductionML</p>
-        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-456/the-100ms-million-image-challenge-how-pinterest-built-real-time-vision-at-scale/</p>
+        <p class="snippet-hook">Ever wondered how fintechs scale real-time fraud scoring without losing governance? 🚀</p>
+        <p class="snippet-body">Block, Inc. used a Snowflake-driven feature store to centralize signals and govern ML experiments at fintech scale.,TTL caching and feature versioning kept data fresh with sub-100ms online latency.,Drift monitoring + canary rollouts reduced risk during rapid iteration.</p>
+        <p class="snippet-cta">Read the full journey to uncover the playbook developers can apply tomorrow.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #DataEngineering #MachineLearning #FraudDetection #FinTech #CloudComputing #TechTips</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-6576/the-real-time-fraud-playbook-a-blocksized-lesson-in-snowflakebacked-feature-stor/</p>
       </div>
     </div>
     <script>
@@ -112,12 +123,9 @@
       });
     }
     </script>
-    <figure class="article-image">
-      <img src="https://images.unsplash.com/photo-1555949963-ff9fe0c870eb?w=800&amp;q=80" alt="Team collaborating on system architecture" loading="lazy">
-      <figcaption>Cross-functional teams are essential for building resilient vision systems</figcaption>
-    </figure>
+    
     <h2>Wrapping Up</h2>
-    <p>The journey to building real-time vision systems at scale isn't about finding the perfect algorithm—it's about architecting for failure and optimizing for the 80/20 rule. Pinterest's breakthrough came when they stopped trying to process every image individually and instead embraced quantization, caching, and intelligent batching. The real takeaway? Start with quantization, implement aggressive caching, and always have a CPU fallback. Your future self will thank you when the traffic spike hits at 3am.</p>
+    <p>From Block’s real-world challenge to a structured, governance‑driven pipeline, the path to reliable real-time fraud scoring lies in a unified feature store with transparent versioning, TTL caching, and disciplined canary deployments. Tomorrow’s teams can reuse this blueprint to move faster without sacrificing trust.</p>
   </div>
   
   <div class="author-card">
@@ -146,8 +154,18 @@
       <h3>Continue Reading</h3>
       <div class="related-grid">
         
-          <a href="/posts/q-253/when-real-time-vision-meets-edge-how-yolo-learns-to-see-at-aws-scale-speed/" class="related-card">
-            <span class="related-title">When Real-Time Vision Meets Edge: How YOLO Learns to See at AWS-Scale Speed</span>
+          <a href="/posts/q-498/the-gmail-rule-how-precision-becomes-the-superpower-of-email-classifiers/" class="related-card">
+            <span class="related-title">The Gmail Rule: How Precision Becomes the Superpower of Email Classifiers</span>
+            <span class="related-meta">beginner</span>
+          </a>
+        
+          <a href="/posts/q-223/when-real-time-fraud-rules-learn-to-bend-a-journey-into-sub-second-adaptive-eval/" class="related-card">
+            <span class="related-title">When Real-Time Fraud Rules Learn to Bend: A Journey Into Sub-Second, Adaptive Evaluation Pipelines</span>
+            <span class="related-meta">advanced</span>
+          </a>
+        
+          <a href="/posts/q-358/the-2m-mistake-when-linear-regression-almost-killed-a-startup/" class="related-card">
+            <span class="related-title">The $2M Mistake: When Linear Regression Almost Killed a Startup</span>
             <span class="related-meta">beginner</span>
           </a>
         
@@ -155,7 +173,7 @@
     </div>
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/computer-vision" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/machine-learning" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
