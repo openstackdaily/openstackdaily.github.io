@@ -3,19 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>DevInsights - Engineering Knowledge That Ships | DevInsights</title>
-  <meta name="description" content="Real-world engineering insights for developers building at scale">
+  <title>The Night Tasks Hung: A Production-Trior story of taming I/O waits in Linux | DevInsights</title>
+  <meta name="description" content="Learn how to diagnose and safely terminate I/O-blocking processes in production using Unix tools, guided by a real Cloudflare case and a safety-first playbook.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad:true,theme:'base',look:'handDrawn',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◆</text></svg>">
 </head>
 <body data-theme="dark">
+<style>
+.related-articles { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.related-articles h3 { font-size: 1rem; margin-bottom: 1rem; color: var(--text); }
+.related-grid { display: grid; gap: 0.75rem; }
+.related-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); text-decoration: none; transition: all 0.2s; }
+.related-card:hover { border-color: var(--border-hover); transform: translateX(4px); }
+.related-title { color: var(--text); font-size: 0.875rem; font-weight: 500; }
+.related-meta { color: var(--text-muted); font-size: 0.75rem; text-transform: capitalize; }
+</style>
 <header><div class="container header-content">
     <a href="/" class="logo"><i data-lucide="code-2"></i> DevInsights</a>
     <nav>
@@ -31,267 +42,134 @@
   <i data-lucide="sun" class="theme-icon-light"></i>
   <i data-lucide="moon" class="theme-icon-dark"></i>
 </button>
-<main>
-  <section class="hero"><div class="container">
-    <div class="hero-badge"><span class="pulse"></span> New articles daily</div>
-    <h1>Deep dives into<br>real engineering</h1>
-    <p>Battle-tested insights from production systems. Learn what actually works at scale.</p>
-    <div class="hero-actions">
-      <a href="#articles" class="hero-cta"><i data-lucide="book-open"></i> Browse Articles</a>
-      <a href="/categories/" class="hero-cta-secondary"><i data-lucide="grid-3x3"></i> All Topics</a>
-    </div>
-  </div></section>
-  
-  <section class="stats-bar"><div class="container">
-    <div class="stats-grid">
-      <div class="stat-item">
-        <span class="stat-value"><i data-lucide="file-text"></i> 103</span>
-        <span class="stat-label">Deep Dives</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-value"><i data-lucide="layers"></i> 14</span>
-        <span class="stat-label">Topics</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-value"><i data-lucide="clock"></i> 8h+</span>
-        <span class="stat-label">Of Content</span>
-      </div>
-      <div class="stat-divider"></div>
-      <div class="stat-item">
-        <span class="stat-value"><i data-lucide="heart"></i> Free</span>
-        <span class="stat-label">Forever</span>
-      </div>
-    </div>
-  </div></section>
-  
-  
-    <section class="featured"><div class="container">
-      <div class="featured-grid">
-        <div class="featured-main">
-          <span class="featured-label"><i data-lucide="sparkles"></i> Latest</span>
-          <h2 class="featured-title"><a href="/posts/q-481/the-night-tasks-hung-a-production-trior-story-of-taming-io-waits-in-linux/">The Night Tasks Hung: A Production-Trior story of taming I/O waits in Linux</a></h2>
-          <p class="featured-excerpt">Picture this: a production cluster rigged with cloud-scale services suddenly emits hung-task warnings, and every attempt to progress stalls in place. Cloudflare faced this exact dilemma, wondering whe...</p>
-          <div class="featured-meta">
-            <span class="badge badge-channel"><i data-lucide="folder"></i> Unix</span>
-            <span class="badge badge-difficulty badge-advanced"><i data-lucide="rocket"></i> advanced</span>
-          </div>
-        </div>
-        <div class="featured-side">
-          
-            <a href="/posts/q-1197/guardrails-in-the-multi-account-cloud-drift-tags-and-isolation/" class="featured-side-card">
-              <span class="badge badge-channel"><i data-lucide="folder"></i> Terraform</span>
-              <h3>Guardrails in the Multi-Account Cloud: Drift, Tags, and Isolation</h3>
-            </a>
-          
-            <a href="/posts/gh-15/cloud-service-models-on-the-road-to-global-scale-an-airbnb-inspired-journey/" class="featured-side-card">
-              <span class="badge badge-channel"><i data-lucide="folder"></i> Aws</span>
-              <h3>Cloud Service Models on the Road to Global Scale: An Airbnb-Inspired Journey</h3>
-            </a>
-          
+<main><article class="article"><div class="container">
+  <a href="/categories/networking-systems/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Networking & Systems</a>
+  <div class="article-header">
+    <h1>The Night Tasks Hung: A Production-Trior story of taming I/O waits in Linux</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Unix</span><span class="difficulty advanced">advanced</span><span class="tag">unix</span></div>
+  </div>
+  <p class="article-intro">Picture this: a production cluster rigged with cloud-scale services suddenly emits hung-task warnings, and every attempt to progress stalls in place. Cloudflare faced this exact dilemma, wondering whether the culprit lay in the kernel or in user-space applications, and seeking a safe path that wouldn't risk data loss or cascading outages <a href="#source-1" class="citation" title="View source">1</a>. The lesson: distrust first impressions, because the first glance can mislead when the kernel is involved. This journey uncovers how to separate kernel hesitations from application hiccups using Unix-native tools, and how to head off outages with a safety-first playbook <a href="#source-1" class="citation" title="View source">1</a>.</p>
+  <div class="article-content">
+    <figure class="article-image">
+      <img src="/images/pixel-q-481.svg" alt="The Night Tasks Hung: A Production-Trior story of taming I/O waits in Linux - Pixel Art Illustration" loading="lazy">
+      <figcaption>debugging scene (16-bit pixel art)</figcaption>
+    </figure><h2>Hook to Triage: When the Night Shifts the Alarm</h2>Many developers discover that a handful of processes sit in uninterruptible sleep (D state) during a production wobble. The cliffhanger is simple: is the system waiting on I/O, or is a kernel thread in a hard wait? The stakes are real—misinterpreting the signal can cascade into misdirected debugging and wasted incident windows. In these moments, teams learn to read the room with care, not bravado, distinguishing kernel-induced stalls from user-space bottlenecks <a href="#source-1" class="citation" title="View source">1</a>. Heres what you’ll see in practice: a handful of D-state processes, possibly blocking on disk I/O or network resources, quietly delaying the whole service stack <a href="#source-13" class="citation" title="View source">13</a>.<h2>Journey to the Core: Reading the Signs</h2>Building on the problem, the first step is to identify which processes are blocked on I/O and what they’re waiting for. You’ll lean on classic indicators and multiple angles to triangulate the root cause:<ul>
+<li>Identify D-state processes with ps and their wait points (WCHAN) <a href="#source-13" class="citation" title="View source">13</a>.</li>
+<li>Inspect per-process status for deeper context: /proc/<PID>/status and related fd entries <a href="#source-6" class="citation" title="View source">6</a><a href="#source-7" class="citation" title="View source">7</a><a href="#source-8" class="citation" title="View source">8</a>.</li>
+<li>Observe overall I/O pressure with system metrics to separate kernel wait from disk or device queues <a href="#source-4" class="citation" title="View source">4</a>.</li>
+</ul>In practice, you might run:</p>
+<p><pre><code>ps aux | awk '$8 ~ /D/ {print $2, $11, $8}'
+# or more verbose:
+top -H</code></pre></p>
+<p>These steps help answer a critical question: is the stall isolated, or is there a systemic I/O bottleneck dragging multiple processes down <a href="#source-13" class="citation" title="View source">13</a>?<h2>Discovery Toolkit: lsof, strace, and the Procfs Window</h2>Once the suspects are milled down to a few PIDs, a focused toolkit helps reveal what those processes are touching and where the kernel is waiting. Two Unix tools shine here:<ul>
+<li>lsof -p <PID> reveals open files and network connections that could be blocking I/O <a href="#source-2" class="citation" title="View source">2</a>.</li>
+<li>strace -p <PID> surfaces blocked system calls and where in the kernel the process stalls <a href="#source-5" class="citation" title="View source">5</a>.</li>
+</ul>Additionally, the /proc filesystem provides a transparent view into per-process state and file descriptors, with status details available in /proc/<PID>/status and related fd links <a href="#source-6" class="citation" title="View source">6</a><a href="#source-7" class="citation" title="View source">7</a><a href="#source-8" class="citation" title="View source">8</a>.</p>
+<p>For example, strace can illuminate calls like read() or poll() waiting on IO readiness, while lsof surfaces the exact file or socket involved in the wait <a href="#source-5" class="citation" title="View source">5</a>.<h2>Twist: Not All Stalls Are Created Equal</h2>Here’s the counterintuitive insight: many hangs that look like kernel issues may actually be user-space interactions with I/O subsystems, or even misbehaving containers and storage backends. The literature and real-world stories emphasize that D-state stalls can be caused by blocked I/O in the kernel as well as by lock contention, or by I/O subsystems failing to complete. Treat each symptom as a clue rather than a verdict, and verify through multiple data points before declaring a root cause <a href="#source-11" class="citation" title="View source">11</a><a href="#source-12" class="citation" title="View source">12</a>.<h2>The Safe Termination Playbook: Avoid Data Tears</h2>After confirming the nature of the stall, termination must be approached with safety in mind. The recommended sequence is:<ul>
+<li>First, send SIGTERM to allow a graceful shutdown and to let tools finish in-flight writes when safe <a href="#source-2" class="citation" title="View source">2</a>.</li>
+<li>If processes remain hung, verify no critical writes are in progress and check for child processes before terminating <a href="#source-2" class="citation" title="View source">2</a>.</li>
+<li>Only then escalate to SIGKILL if the process remains unresponsive and safety checks pass in a controlled window <a href="#source-2" class="citation" title="View source">2</a>.</li>
+</ul>This approach minimizes the risk of data corruption while restoring service health. It also reinforces the principle: never rush a kill when a clean exit might still be possible.
+    <div class="real-world-example">
+      <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
+      <div class="company"><i data-lucide="briefcase"></i> Cloudflare</div>
+      <p class="scenario">Cloudflare observed Linux 'hung task' warnings in production, where processes appeared blocked (state D) for extended periods. The team sought to understand whether the issue was in the kernel or in user-space applications, and how to respond safely without data loss or cascading outages.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Kernel-level hung task warnings can mislead operators into blaming user-space apps; proper tuning of kernel thresholds and alerting can dramatically improve detection and triage, while keeping safety and data integrity in production.</div>
+    </div><h2>System Flow</h2><div class="mermaid">graph TD;
+A(Start: Hung task warnings appear) --> B(Identify D-state processes with ps); A --> C(Check /proc/<PID>/status and /proc/<PID>/fd);
+B --> D(Attach strace and lsof to PID);
+C --> D;
+D --> E{Is the stall I/O-bound?}; E --> F[Yes: inspect disk/network I/O; No: inspect kernel timers/locks];
+F --> G(Attempt graceful termination with SIGTERM);
+G --> H{Terminated?}; H -- Yes --> I(Complete); H -- No --> J(Force kill after safety checks);</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> In 2025, a major cloud provider reported that tuning hung-task detection thresholds reduced incident toil by a factor of 3</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>D state signals an uninterruptible sleep waiting on I/O</li><li>Use ps, strace, and lsof to triangulate the cause</li><li>Graceful termination via SIGTERM first, then SIGKILL if needed</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://blog.cloudflare.com/searching-for-the-cause-of-hung-tasks-in-the-linux-kernel/" target="_blank" rel="noopener">Searching for the cause of hung tasks in the Linux kernel</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://www.baeldung.com/linux/uninterruptible-process" target="_blank" rel="noopener">Uninterruptible Sleep</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://unix.stackexchange.com/questions/134888/simulate-an-unkillable-process-in-d-state" target="_blank" rel="noopener">Simulate an unkillable process in D state</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://man7.org/linux/man-pages/man1/strace.1.html" target="_blank" rel="noopener">strace(1) - Linux manual page</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://manpages.ubuntu.com/manpages/noble/man5/proc_pid_status.5.html" target="_blank" rel="noopener">/proc/pid/status - memory usage and status information</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://man.archlinux.org/man/proc_pid_status.5.en" target="_blank" rel="noopener">proc_pid_status(5) — Arch manual pages</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://manpages.debian.org/testing/manpages/proc_pid_status.5.en.html" target="_blank" rel="noopener">proc_pid_status(5) — Debian standard Debian manpages</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://www.joshmcguigan.com/blog/troubleshooting-stuck-process/" target="_blank" rel="noopener">Troubleshooting a stuck process</a><span class="source-type">blog</span></li><li id="source-9"><span class="source-num">9</span><a href="https://oneuptime.com/blog/post/2026-01-15-use-strace-troubleshooting-ubuntu/view" target="_blank" rel="noopener">How to Use strace for Troubleshooting on Ubuntu</a><span class="source-type">blog</span></li><li id="source-10"><span class="source-num">10</span><a href="https://arxiv.org/abs/2508.15703" target="_blank" rel="noopener">Concurrency Testing in the Linux Kernel via eBPF</a><span class="source-type">paper</span></li><li id="source-11"><span class="source-num">11</span><a href="https://www.phoronix.com/news/Linux-Reset-Hung-Task-Count" target="_blank" rel="noopener">Linux's Hung Task Detector Will Be Able To Reset For Easing System Administration</a><span class="source-type">blog</span></li><li id="source-12"><span class="source-num">12</span><a href="https://clickhouse.com/blog/a-case-of-the-vanishing-cpu-a-linux-kernel-debugging-story" target="_blank" rel="noopener">The case of the vanishing CPU: A Linux kernel debugging story</a><span class="source-type">blog</span></li><li id="source-13"><span class="source-num">13</span><a href="https://en.wikipedia.org/wiki/Load_(computing)" target="_blank" rel="noopener">Load (computing) - Wikipedia</a><span class="source-type">documentation</span></li><li id="source-14"><span class="source-num">14</span><a href="https://man.archlinux.org/man/proc_pid_status.5.en" target="_blank" rel="noopener">proc_pid_status(5) — Arch manual pages (duplicate reference for completeness)</a><span class="source-type">documentation</span></li><li id="source-15"><span class="source-num">15</span><a href="https://community.cloudflare.com/t/searching-for-the-cause-of-hung-tasks-in-the-linux-kernel/771005" target="_blank" rel="noopener">The Linux kernel hung task discussion (Cloudflare community mirror)</a><span class="source-type">blog</span></li><li id="source-16"><span class="source-num">16</span><a href="https://blog.cloudflare.com/the-story-of-one-latency-spike/" target="_blank" rel="noopener">The story of one latency spike (Cloudflare)</a><span class="source-type">blog</span></li></ul></div>
+    <div class="share-snippet">
+      <div class="share-snippet-header">
+        <span class="share-icon"><i data-lucide="share-2"></i></span>
+        <h3>Share This</h3>
+        <div class="share-buttons">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-481%2Fthe-night-tasks-hung-a-production-trior-story-of-taming-io-waits-in-linux%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+            <i data-lucide="linkedin"></i>
+          </a>
+          <a href="https://twitter.com/intent/tweet?text=What%20if%20a%20single%20hung%20task%20could%20teach%20a%20whole%20operation%20how%20to%20avoid%20outages%3F%0A%0ACloudflare%20faced%20production%20hangs%20interpreted%20as%20kernel%20vs%20user-space%20issues%20%5B1%5D.%2CUninterruptible%20sleep%20(D%20state)%20can%20stall%20entire%20services%3B%20diagnose%20with%20ps%2C%20strace%2C%20and%20lsof%20%5B2%5D%5B5%5D.%2CSafe%20termination%20relies%20on%20SIGTERM%20first%2C%20then%20SIGKILL%20only%20after%20checks%20%5B2%5D.%0A%0ADive%20into%20the%20full%20journey%20to%20learn%20how%20to%20triage%20safely%20and%20reduce%20incident%20impact.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23DevOps%20%23Linux%20%23Diagnostics%20%23Kernel%20%23DataIntegrity%20%23SRE%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-481%2Fthe-night-tasks-hung-a-production-trior-story-of-taming-io-waits-in-linux%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+            <i data-lucide="twitter"></i>
+          </a>
+          <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
+            <i data-lucide="copy"></i>
+          </button>
         </div>
       </div>
-    </div></section>
-  
-  <section class="topics-section"><div class="container">
-    <h2 class="topics-title"><i data-lucide="compass"></i> Explore by Topic</h2>
-    <div class="category-pills"><a href="/categories/system-design/" class="category-pill">System Design<span class="count">14</span></a><a href="/categories/algorithms-data-structures/" class="category-pill">Algorithms & Data Structures<span class="count">2</span></a><a href="/categories/frontend-development/" class="category-pill">Frontend Development<span class="count">4</span></a><a href="/categories/backend-development/" class="category-pill">Backend Development<span class="count">6</span></a><a href="/categories/database-storage/" class="category-pill">Database & Storage<span class="count">2</span></a><a href="/categories/devops-infrastructure/" class="category-pill">DevOps & Infrastructure<span class="count">18</span></a><a href="/categories/site-reliability/" class="category-pill">Site Reliability<span class="count">4</span></a><a href="/categories/ai-machine-learning/" class="category-pill">AI & Machine Learning<span class="count">20</span></a><a href="/categories/security/" class="category-pill">Security<span class="count">2</span></a><a href="/categories/testing-qa/" class="category-pill">Testing & QA<span class="count">8</span></a><a href="/categories/mobile-development/" class="category-pill">Mobile Development<span class="count">4</span></a><a href="/categories/networking-systems/" class="category-pill">Networking & Systems<span class="count">11</span></a><a href="/categories/leadership-soft-skills/" class="category-pill">Leadership & Soft Skills<span class="count">4</span></a><a href="/categories/data-engineering/" class="category-pill">Data Engineering<span class="count">2</span></a></div>
-  </div></section>
-  
-  <section class="article-list" id="articles"><div class="container">
-    <div class="section-header">
-      <h2 class="section-title"><i data-lucide="newspaper"></i> All Articles</h2>
-      <div class="diff-filters">
-        <button class="diff-filter active" onclick="filterArticles('all')">All</button>
-        <button class="diff-filter beginner" onclick="filterArticles('beginner')">Beginner (27)</button>
-        <button class="diff-filter intermediate" onclick="filterArticles('intermediate')">Intermediate (42)</button>
-        <button class="diff-filter advanced" onclick="filterArticles('advanced')">Advanced (34)</button>
+      <div class="share-snippet-content" id="shareSnippet">
+        <p class="snippet-hook">What if a single hung task could teach a whole operation how to avoid outages?</p>
+        <p class="snippet-body">Cloudflare faced production hangs interpreted as kernel vs user-space issues [1].,Uninterruptible sleep (D state) can stall entire services; diagnose with ps, strace, and lsof [2][5].,Safe termination relies on SIGTERM first, then SIGKILL only after checks [2].</p>
+        <p class="snippet-cta">Dive into the full journey to learn how to triage safely and reduce incident impact.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #DevOps #Linux #Diagnostics #Kernel #DataIntegrity #SRE</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-481/the-night-tasks-hung-a-production-trior-story-of-taming-io-waits-in-linux/</p>
       </div>
     </div>
-    <div class="articles-grid" id="articlesGrid">
-    <div class="article-card" data-difficulty="intermediate" data-channel="terraform">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Terraform</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-1197/guardrails-in-the-multi-account-cloud-drift-tags-and-isolation/">Guardrails in the Multi-Account Cloud: Drift, Tags, and Isolation</a></h2>
-      <p class="card-excerpt">It was a real-world crisis in the corporate cloud: Software AG's Corporate Cloud team deployed a scalable multi-account ...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> terraform</span>
-        </div>
-        <a href="/posts/q-1197/guardrails-in-the-multi-account-cloud-drift-tags-and-isolation/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="intermediate" data-channel="aws">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Aws</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/gh-15/cloud-service-models-on-the-road-to-global-scale-an-airbnb-inspired-journey/">Cloud Service Models on the Road to Global Scale: An Airbnb-Inspired Journey</a></h2>
-      <p class="card-excerpt">Airbnb's rapid growth forced a bold pivot: migrate almost everything to AWS to scale reliably and reduce operational bur...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> cloud</span><span class="badge badge-tag"><i data-lucide="tag"></i> aws</span><span class="badge badge-tag"><i data-lucide="tag"></i> azure</span>
-        </div>
-        <a href="/posts/gh-15/cloud-service-models-on-the-road-to-global-scale-an-airbnb-inspired-journey/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="advanced" data-channel="prompt-engineering">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Prompt Engineering</span>
-        <span class="badge badge-difficulty badge-advanced"><i data-lucide="rocket"></i> advanced</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-6485/the-canary-code-a-journey-to-safely-ship-prompt-experiments-at-lightning-speed/">The Canary Code: A Journey to Safely Ship Prompt Experiments at Lightning Speed</a></h2>
-      <p class="card-excerpt">It was 3am when the pager lit up with a safety-first deployment in Uber's Michelangelo ML platform, a reminder that rapi...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> prompt-engineering</span>
-        </div>
-        <a href="/posts/q-6485/the-canary-code-a-journey-to-safely-ship-prompt-experiments-at-lightning-speed/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="intermediate" data-channel="machine-learning">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Machine Learning</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-6576/the-real-time-fraud-playbook-a-blocksized-lesson-in-snowflakebacked-feature-stor/">The Real-Time Fraud Playbook: A Block‑Sized Lesson in Snowflake‑Backed Feature Stores</a></h2>
-      <p class="card-excerpt">Block, Inc.'s Cash App faced a real-time fraud scoring dilemma: scale ML-driven detection across streaming and batch sig...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> machine-learning</span>
-        </div>
-        <a href="/posts/q-6576/the-real-time-fraud-playbook-a-blocksized-lesson-in-snowflakebacked-feature-stor/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="beginner" data-channel="sre">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Sre</span>
-        <span class="badge badge-difficulty badge-beginner"><i data-lucide="zap"></i> beginner</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/gh-59/slacks-outage-sres-secret-sauce-and-the-journey-to-reliability/">Slack’s Outage, SRE’s Secret Sauce, and the Journey to Reliability</a></h2>
-      <p class="card-excerpt">It was May 12, 2020—the day Slack faced its first major outage in years. A rollout of a database configuration change sp...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> sre</span><span class="badge badge-tag"><i data-lucide="tag"></i> reliability</span>
-        </div>
-        <a href="/posts/gh-59/slacks-outage-sres-secret-sauce-and-the-journey-to-reliability/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="beginner" data-channel="llm-ops">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Llm Ops</span>
-        <span class="badge badge-difficulty badge-beginner"><i data-lucide="zap"></i> beginner</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-3824/guardrails-in-the-gate-designing-a-per-tenant-prompt-mutation-engine/">Guardrails in the Gate: Designing a Per-Tenant Prompt Mutation Engine</a></h2>
-      <p class="card-excerpt">Picture this: a large enterprise relies on a Bedrock-backed, multi-tenant gateway to power dozens of teams. Costs spike,...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> llm-ops</span>
-        </div>
-        <a href="/posts/q-3824/guardrails-in-the-gate-designing-a-per-tenant-prompt-mutation-engine/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="intermediate" data-channel="devops">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Devops</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-4596/the-zone-that-became-a-scheduler-a-real-world-tale-of-deterministic-placement/">The Zone That Became a Scheduler: A Real-World Tale of Deterministic Placement</a></h2>
-      <p class="card-excerpt">It was 3am when the pager pinged. CockroachCloud’s multi-region CockroachDB clusters were teetering on the edge of chaos...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> custom-schedulers</span><span class="badge badge-tag"><i data-lucide="tag"></i> kube-scheduler</span><span class="badge badge-tag"><i data-lucide="tag"></i> workload-optimization</span>
-        </div>
-        <a href="/posts/q-4596/the-zone-that-became-a-scheduler-a-real-world-tale-of-deterministic-placement/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="beginner" data-channel="generative-ai">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Generative Ai</span>
-        <span class="badge badge-difficulty badge-beginner"><i data-lucide="zap"></i> beginner</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-2934/edge-first-attention-a-real-world-journey-from-cloudflares-edge-ai-to-the-core-o/">Edge-First Attention: A Real-World Journey from Cloudflare’s Edge AI to the Core of Transformers</a></h2>
-      <p class="card-excerpt">Picture this: a global network where AI runs inches from users, delivering responses in the blink of an eye. Cloudflare’...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> transformer</span><span class="badge badge-tag"><i data-lucide="tag"></i> attention</span><span class="badge badge-tag"><i data-lucide="tag"></i> tokenization</span>
-        </div>
-        <a href="/posts/q-2934/edge-first-attention-a-real-world-journey-from-cloudflares-edge-ai-to-the-core-o/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="intermediate" data-channel="llm-ops">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Llm Ops</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-1263/the-netflix-inspired-playbook-for-zero-downtime-upgrades-across-three-regions/">The Netflix-Inspired Playbook for Zero-Downtime Upgrades Across Three Regions</a></h2>
-      <p class="card-excerpt">Picture this: a global LLM service must be upgraded across three regions with zero downtime. Netflix tackled this challe...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> llm-ops</span>
-        </div>
-        <a href="/posts/q-1263/the-netflix-inspired-playbook-for-zero-downtime-upgrades-across-three-regions/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="intermediate" data-channel="prompt-engineering">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Prompt Engineering</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-1206/guardrails-at-scale-a-journey-into-multi-tenant-prompt-lifecycle/">Guardrails at Scale: A Journey into Multi-Tenant Prompt Lifecycle</a></h2>
-      <p class="card-excerpt">It was 3am when the Uber pager buzzed, signaling a drift in a language model that powers critical support interactions. ...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> prompt-engineering</span>
-        </div>
-        <a href="/posts/q-1206/guardrails-at-scale-a-journey-into-multi-tenant-prompt-lifecycle/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div>
-    <div class="article-card" data-difficulty="intermediate" data-channel="linux">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Linux</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-3310/latency-unmasked-a-triaged-journey-through-linux-kernel-hurdles/">Latency Unmasked: A Triaged Journey Through Linux Kernel Hurdles</a></h2>
-      <p class="card-excerpt">It started with a single, stubborn question: why would a Linux-powered Redis-backed web app experience 30-second tail la...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> linux</span>
-        </div>
-        <a href="/posts/q-3310/latency-unmasked-a-triaged-journey-through-linux-kernel-hurdles/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div></div>
-  </div></section>
-  
-  <section class="newsletter"><div class="container">
-    <div class="newsletter-card">
-      <h2>Ready to ace your interviews?</h2>
-      <p>Practice with 1000+ real interview questions from FAANG companies</p>
-      <a href="https://open-interview.github.io" target="_blank" class="newsletter-btn">Start Practicing Free →</a>
-    </div>
-  </div></section>
-</main>
-
-<script>
-function filterArticles(difficulty) {
-  const cards = document.querySelectorAll('.article-card');
-  const buttons = document.querySelectorAll('.diff-filter');
-  
-  buttons.forEach(btn => btn.classList.remove('active'));
-  event.target.classList.add('active');
-  
-  cards.forEach(card => {
-    if (difficulty === 'all' || card.dataset.difficulty === difficulty) {
-      card.style.display = '';
-    } else {
-      card.style.display = 'none';
+    <script>
+    function copySnippet(btn) {
+      const snippet = document.getElementById('shareSnippet').innerText;
+      navigator.clipboard.writeText(snippet).then(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+        setTimeout(() => {
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+        }, 2000);
+      });
     }
-  });
-}
-</script>
+    </script>
+    
+    <h2>Wrapping Up</h2>
+    <p>The journey begins with a real-world alarm and ends with a practical, safety-first approach to diagnosing and resolving hung tasks. The Cloudflare case anchors the narrative, illustrating that the line between kernel behavior and application logic can be thin, and that disciplined triage—guided by system calls, file descriptors, and careful termination—keeps production stable.</p>
+  </div>
+  
+  <div class="author-card">
+    <img src="https://github.com/satishkumar-dhule.png" alt="Satishkumar Dhule" class="author-avatar" loading="lazy">
+    <div class="author-info">
+      <div class="author-name">Satishkumar Dhule</div>
+      <div class="author-role">Software Engineer</div>
+      <div class="author-links">
+        <a href="https://satishkumar-dhule.github.io" target="_blank" rel="noopener">
+          <i data-lucide="globe"></i>
+          Website
+        </a>
+        <a href="https://github.com/satishkumar-dhule" target="_blank" rel="noopener">
+          <i data-lucide="github"></i>
+          GitHub
+        </a>
+        <a href="https://linkedin.com/in/satishkumar-dhule" target="_blank" rel="noopener">
+          <i data-lucide="linkedin"></i>
+          LinkedIn
+        </a>
+      </div>
+    </div>
+  </div>
+  
+    <div class="related-articles">
+      <h3>Continue Reading</h3>
+      <div class="related-grid">
+        
+          <a href="/posts/q-1002/the-24-hour-log-hunt-a-one-liner-that-surfaces-busy-users-and-why-knight-capital/" class="related-card">
+            <span class="related-title">The 24-Hour Log Hunt: A One-Liner That Surfaces Busy Users (And Why Knight Capital's Lesson Still Matters)</span>
+            <span class="related-meta">beginner</span>
+          </a>
+        
+          <a href="/posts/q-564/when-d-stated-chaos-strikes-a-red-hat-war-story-that-teaches-you-to-debug-like-a/" class="related-card">
+            <span class="related-title">When D-Stated Chaos Strikes: A Red Hat War Story That Teaches You to Debug Like a Pro</span>
+            <span class="related-meta">advanced</span>
+          </a>
+        
+          <a href="/posts/q-510/the-silent-killer-when-your-linux-processes-vanish-into-uninterruptible-sleep/" class="related-card">
+            <span class="related-title">The Silent Killer: When Your Linux Processes Vanish into Uninterruptible Sleep</span>
+            <span class="related-meta">intermediate</span>
+          </a>
+        
+      </div>
+    </div>
+  <div class="cta-box">
+    <p>Ready to put this into practice?</p>
+    <a href="https://open-interview.github.io/#/channel/unix" class="cta-button">Practice Questions →</a>
+  </div>
+</div></article></main>
 
 <!-- Search Modal -->
 <div class="search-modal" id="searchModal" onclick="if(event.target===this)closeSearch()">
