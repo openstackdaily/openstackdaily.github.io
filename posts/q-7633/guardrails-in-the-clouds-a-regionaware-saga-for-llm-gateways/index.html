@@ -3,19 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Leadership &amp; Soft Skills | DevInsights</title>
-  <meta name="description" content="4 articles about Leadership &amp; Soft Skills">
+  <title>Guardrails in the Clouds: A Region‑Aware Saga for LLM Gateways | DevInsights</title>
+  <meta name="description" content="A story-driven exploration of designing a region-aware LLM gateway with guardrails, inspired by Microsoft's Data Zones, with practical steps and real-world lessons.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>mermaid.initialize({startOnLoad:true,theme:'base',look:'handDrawn',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◆</text></svg>">
 </head>
 <body data-theme="dark">
+<style>
+.related-articles { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--border); }
+.related-articles h3 { font-size: 1rem; margin-bottom: 1rem; color: var(--text); }
+.related-grid { display: grid; gap: 0.75rem; }
+.related-card { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-sm); text-decoration: none; transition: all 0.2s; }
+.related-card:hover { border-color: var(--border-hover); transform: translateX(4px); }
+.related-title { color: var(--text); font-size: 0.875rem; font-weight: 500; }
+.related-meta { color: var(--text-muted); font-size: 0.75rem; text-transform: capitalize; }
+</style>
 <header><div class="container header-content">
     <a href="/" class="logo"><i data-lucide="code-2"></i> DevInsights</a>
     <nav>
@@ -31,68 +42,128 @@
   <i data-lucide="sun" class="theme-icon-light"></i>
   <i data-lucide="moon" class="theme-icon-dark"></i>
 </button>
-<main><section class="article-list" style="padding-top:7rem"><div class="container">
-  <a href="/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem"><i data-lucide="arrow-left"></i> Back</a>
-  <h1 style="margin:1.5rem 0 0.5rem;font-size:2rem;font-weight:700;letter-spacing:-0.03em">Leadership & Soft Skills</h1>
-  <p style="color:var(--text-muted);margin-bottom:2.5rem;font-size:0.9375rem"><i data-lucide="file-text"></i> 4 deep dives</p>
-  <div class="articles-grid">
-    <div class="article-card">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Behavioral</span>
-        <span class="badge badge-difficulty badge-beginner"><i data-lucide="zap"></i> beginner</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-446/when-outages-force-a-pivot-how-twitters-stack-debacle-transformed-team-roles-and/">When Outages Force a Pivot: How Twitter’s Stack Debacle Transformed Team Roles and Architecture</a></h2>
-      <p class="card-excerpt">It was a crisis moment for a social giant: outages piled onto mounting growth, and the engineering team faced a fork in ...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> negotiation</span><span class="badge badge-tag"><i data-lucide="tag"></i> mediation</span><span class="badge badge-tag"><i data-lucide="tag"></i> feedback</span>
+<main><article class="article"><div class="container">
+  <a href="/categories/ai-machine-learning/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← AI & Machine Learning</a>
+  <div class="article-header">
+    <h1>Guardrails in the Clouds: A Region‑Aware Saga for LLM Gateways</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Llm Ops</span><span class="difficulty advanced">advanced</span><span class="tag">llm-ops</span></div>
+  </div>
+  <p class="article-intro">In Microsoft’s Azure OpenAI Service, Data Zones were introduced to keep customer data processed and stored within EU/EFTA regions, enabling region‑aware, compliant multi‑tenant AI deployments at scale <a href="#source-1" class="citation" title="View source">1</a>. This opening moment isn’t just a compliance note; it’s the doorway to a lifecycle where latency, budgets, and data locality become design features. For developers building a real‑time, region‑aware routing fabric, this is the map—the north star guiding a multi‑tenant LLM gateway through choppy seas of outages and audits <a href="#source-1" class="citation" title="View source">1</a>.</p>
+  <div class="article-content">
+    <figure class="article-image">
+      <img src="/images/pixel-q-7633.svg" alt="Guardrails in the Clouds: A Region‑Aware Saga for LLM Gateways - Pixel Art Illustration" loading="lazy">
+      <figcaption>coding scene (16-bit pixel art)</figcaption>
+    </figure><h2>Hook</h2>Picture this: a 3am incident where a global LLM gateway must preserve data locality, enforce per‑tenant budgets, and stream token responses with backpressure—all while surviving regional outages and maintaining auditable logs. You’ve seen how data zones can keep data inside borders <a href="#source-1" class="citation" title="View source">1</a>, but what would a real system look like if that idea were turned into a live routing fabric for multiple tenants across regions? The stakes aren’t just latency; they’re governance, compliance, and uptime for teams that depend on instant, auditable insights <a href="#source-2" class="citation" title="View source">2</a>.<h2>Context</h2>Building on the Data Zones mindset, region‑aware routing becomes a concrete architectural goal: prompts stay in their regional data plane, and responses travel back through the same local path. Data locality isn’t only about compliance; it reduces cross‑border traffic, lowers egress costs, and shortens tail latency <a href="#source-2" class="citation" title="View source">2</a>. In practice, this means a gateway design where each region houses model variants, while a global control plane enforces cross‑tenant policies—budgets, quotas, and rate limits—without leaking data across borders <a href="#source-3" class="citation" title="View source">3</a>.<h2>The Journey</h2>Step one: separate the data planes by region, so prompts and responses never traverse unnecessary borders. Step two: introduce a policy engine that enforces per‑tenant budgets and QPS ceilings at the regional edge. Step three: enable streaming token responses with backpressure, so clients see steady progress rather than bursts of data. For clarity, here’s a skeletal policy guard that captures the core idea (kept minimal by design):</p>
+<p><pre><code class="language-javascript">// Skeleton policy check
+function guard(tenant, region, req) {
+  if (req.latency &gt; region.latencyTarget) throw 'timeout'
+  if (tenant.qps &gt;= tenant.qpsLimit) throw 'rate limit'
+  return true
+}</code></pre></p>
+<p>This pattern keeps latency predictable, prevents runaway usage, and preserves data locality by routing through region‑local planes <a href="#source-3" class="citation" title="View source">3</a>.<h2>The Twist</h2>Streaming adds a twist: token by token, the system must handle backpressure so downstream consumers aren’t flooded while regional outages are absorbed gracefully. The policy layer must decide when to throttle, pause, or reroute without data loss or untracked leakage. The insight is counterintuitive: strict data locality can coexist with resilient global behavior, because local control planes can independently apply guardrails and logs while a lightweight coordinator handles cross‑region orchestration—without moving data out of its region <a href="#source-3" class="citation" title="View source">3</a>. If a region goes dark, the system degrades gracefully by shifting traffic to healthy regions while preserving auditable traces of the event <a href="#source-13" class="citation" title="View source">13</a>.<h2>Real‑World Proof</h2>Microsoft’s Data Zones example demonstrates the viability of region‑bound processing at scale, showing that enterprise deployments can meet compliance while sustaining multi‑tenant performance <a href="#source-1" class="citation" title="View source">1</a>. Additionally, Netflix’s approach to chaos engineering illustrates how teams learn to anticipate outages, injecting failures in controlled ways to make systems resilient under pressure <a href="#source-14" class="citation" title="View source">14</a>. These lessons converge on a simple idea: guardrails, auditing, and graceful degradation aren’t afterthoughts—they’re core design requirements. In practice, teams that bake in regional data planes and policy‑driven guards report fewer cross‑region incidents and faster recovery in outages <a href="#source-6" class="citation" title="View source">6</a>.<h2>The Payoff</h2>What to take away: design the gateway with a regional data plane first, then layer a policy engine to enforce per‑tenant budgets and QPS. enable streaming with backpressure to keep latency predictable, and implement auditable logs at every regional boundary. plan for regional outages with graceful degradation rather than full failure, and treat data locality as a feature that unlocks governance and resilience, not a constraint. Finally, integrate a minimal test plan that emphasizes data locality, quota enforcement, and outage simulations so the system stays reliable under real‑world pressure.
+    <div class="real-world-example">
+      <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
+      <div class="company"><i data-lucide="briefcase"></i> Microsoft</div>
+      <p class="scenario">Microsoft's Azure OpenAI Service introduced Data Zones to keep customer data processed and stored within EU/EFTA regions, enabling region-aware, compliant multi-tenant AI deployments at scale. This approach demonstrates how a major provider enforces data locality while providing enterprise-grade guardrails for a multi-tenant LLM workflow.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Region-aware data governance is a practical foundation for multi-tenant LLM gateways; you can approximate per-tenant budgets and quotas through policy engines within a data-local plane, improving resilience and auditability.</div>
+    </div><h2>System Flow</h2><div class="mermaid">graph TD
+  A[Incoming Request] --> B[Regional Data Plane]
+  B --> C[Region Variant Model]
+  B --> D[Region Variant Model]
+  B --> E[Region Variant Model]
+  F[Policy Engine] --> B
+  B --> G[Streaming/Backpressure]
+  G --> H_Client
+  I[Auditing Logs] --> F
+  H_Client --> J[Client Receiver]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Many developers discover that data locality can actually unlock better audit trails and more predictable performance, even before considering compliance.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Region-aware routing enables data locality and auditability.</li><li>Backpressure is essential for streaming token responses.</li><li>Per‑tenant budgets and QPS control must be enforced at the regional data plane.</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://azure.microsoft.com/en-us/blog/enterprise-trust-in-azure-openai-service-strengthened-with-data-zones/" target="_blank" rel="noopener">Enterprise trust in Azure OpenAI Service strengthened with Data Zones</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://en.wikipedia.org/wiki/Data_locality" target="_blank" rel="noopener">Data locality</a><span class="source-type">encyclopedia</span></li><li id="source-3"><span class="source-num">3</span><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Overview" target="_blank" rel="noopener">HTTP overview</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://kubernetes.io/docs/concepts/architecture/" target="_blank" rel="noopener">Kubernetes architecture</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://github.com/openai/openai-python" target="_blank" rel="noopener">OpenAI Python client</a><span class="source-type">repository</span></li><li id="source-6"><span class="source-num">6</span><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a><span class="source-type">paper</span></li><li id="source-7"><span class="source-num">7</span><a href="https://datatracker.ietf.org/doc/html/rfc7230" target="_blank" rel="noopener">HTTP/1.1: Message Syntax and Routing</a><span class="source-type">document</span></li><li id="source-8"><span class="source-num">8</span><a href="https://docs.python.org/3/" target="_blank" rel="noopener">Python 3 Documentation</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://www.digitalocean.com/community/tutorials/" target="_blank" rel="noopener">DigitalOcean Community Tutorials</a><span class="source-type">tutorial</span></li><li id="source-10"><span class="source-num">10</span><a href="https://en.wikipedia.org/wiki/Distributed_computing" target="_blank" rel="noopener">Distributed computing</a><span class="source-type">encyclopedia</span></li><li id="source-11"><span class="source-num">11</span><a href="https://en.wikipedia.org/wiki/Edge_computing" target="_blank" rel="noopener">Edge computing</a><span class="source-type">encyclopedia</span></li><li id="source-12"><span class="source-num">12</span><a href="https://en.wikipedia.org/wiki/Chaos_engineering" target="_blank" rel="noopener">Chaos engineering</a><span class="source-type">encyclopedia</span></li></ul></div>
+    <div class="share-snippet">
+      <div class="share-snippet-header">
+        <span class="share-icon"><i data-lucide="share-2"></i></span>
+        <h3>Share This</h3>
+        <div class="share-buttons">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-7633%2Fguardrails-in-the-clouds-a-regionaware-saga-for-llm-gateways%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+            <i data-lucide="linkedin"></i>
+          </a>
+          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20why%20data%20zones%20matter%20for%20LLM%20gateways%3F%20%F0%9F%94%A5%0A%0A-%20Data%20locality%20isn%E2%80%99t%20just%20compliance%20%E2%80%94%20it%20unlocks%20resilience%20%5B1%5D%0A-%20Streaming%20backpressure%20keeps%20latency%20predictable%0A-%20Per-tenant%20budgets%20prevent%20runaway%20usage%0A-%20Graceful%20degradation%20preserves%20service%20during%20regional%20outages%0A%0ARead%20the%20full%20story%20to%20learn%20how%20to%20design%20your%20own%20regional%20LLM%20gateway.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23CloudComputing%20%23AI%20%23LLMOps%20%23DataLocality%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-7633%2Fguardrails-in-the-clouds-a-regionaware-saga-for-llm-gateways%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+            <i data-lucide="twitter"></i>
+          </a>
+          <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
+            <i data-lucide="copy"></i>
+          </button>
         </div>
-        <a href="/posts/q-446/when-outages-force-a-pivot-how-twitters-stack-debacle-transformed-team-roles-and/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
+      </div>
+      <div class="share-snippet-content" id="shareSnippet">
+        <p class="snippet-hook">Ever wondered why data zones matter for LLM gateways? 🔥</p>
+        <p class="snippet-body">- Data locality isn’t just compliance — it unlocks resilience [1]<br>- Streaming backpressure keeps latency predictable<br>- Per-tenant budgets prevent runaway usage<br>- Graceful degradation preserves service during regional outages</p>
+        <p class="snippet-cta">Read the full story to learn how to design your own regional LLM gateway.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #CloudComputing #AI #LLMOps #DataLocality</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-7633/guardrails-in-the-clouds-a-regionaware-saga-for-llm-gateways/</p>
       </div>
     </div>
-    <div class="article-card">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Engineering Management</span>
-        <span class="badge badge-difficulty badge-beginner"><i data-lucide="zap"></i> beginner</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-261/chaos-to-control-how-a-15-person-engineering-team-can-learn-while-delivering/">Chaos to Control: How a 15-Person Engineering Team Can Learn While Delivering</a></h2>
-      <p class="card-excerpt">It was 3am when the pager lit up a sprawling distributed system, and a Chaos Monkey fault injected chaos through product...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> delegation</span><span class="badge badge-tag"><i data-lucide="tag"></i> mentoring</span><span class="badge badge-tag"><i data-lucide="tag"></i> growth</span>
-        </div>
-        <a href="/posts/q-261/chaos-to-control-how-a-15-person-engineering-team-can-learn-while-delivering/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
+    <script>
+    function copySnippet(btn) {
+      const snippet = document.getElementById('shareSnippet').innerText;
+      navigator.clipboard.writeText(snippet).then(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+        setTimeout(() => {
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+        }, 2000);
+      });
+    }
+    </script>
+    
+    <h2>Wrapping Up</h2>
+    <p>The road from data zones to regional gatekeeping isn’t a gimmick; it’s a design philosophy that shifts governance from an afterthought to an architectural cornerstone. By anchoring data, latency, and budgets within regional planes, teams can build multi‑tenant LLM gateways that are both compliant and resilient. The takeaway is clear: treat data locality as a feature, not a constraint, and let guardrails be the compass guiding every request.</p>
+  </div>
+  
+  <div class="author-card">
+    <img src="https://github.com/satishkumar-dhule.png" alt="Satishkumar Dhule" class="author-avatar" loading="lazy">
+    <div class="author-info">
+      <div class="author-name">Satishkumar Dhule</div>
+      <div class="author-role">Software Engineer</div>
+      <div class="author-links">
+        <a href="https://satishkumar-dhule.github.io" target="_blank" rel="noopener">
+          <i data-lucide="globe"></i>
+          Website
+        </a>
+        <a href="https://github.com/satishkumar-dhule" target="_blank" rel="noopener">
+          <i data-lucide="github"></i>
+          GitHub
+        </a>
+        <a href="https://linkedin.com/in/satishkumar-dhule" target="_blank" rel="noopener">
+          <i data-lucide="linkedin"></i>
+          LinkedIn
+        </a>
       </div>
     </div>
-    <div class="article-card">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Engineering Management</span>
-        <span class="badge badge-difficulty badge-intermediate"><i data-lucide="flame"></i> intermediate</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-281/the-art-of-technical-influence-how-i-won-battles-without-authority/">The Art of Technical Influence: How I Won Battles Without Authority</a></h2>
-      <p class="card-excerpt">Picture this: You're in a meeting with senior engineers and managers, and you know the proposed solution is wrong. But y...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> communication</span><span class="badge badge-tag"><i data-lucide="tag"></i> collaboration</span><span class="badge badge-tag"><i data-lucide="tag"></i> influence</span>
-        </div>
-        <a href="/posts/q-281/the-art-of-technical-influence-how-i-won-battles-without-authority/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
+  </div>
+  
+    <div class="related-articles">
+      <h3>Continue Reading</h3>
+      <div class="related-grid">
+        
+          <a href="/posts/q-3824/guardrails-in-the-gate-designing-a-per-tenant-prompt-mutation-engine/" class="related-card">
+            <span class="related-title">Guardrails in the Gate: Designing a Per-Tenant Prompt Mutation Engine</span>
+            <span class="related-meta">beginner</span>
+          </a>
+        
+          <a href="/posts/q-1263/the-netflix-inspired-playbook-for-zero-downtime-upgrades-across-three-regions/" class="related-card">
+            <span class="related-title">The Netflix-Inspired Playbook for Zero-Downtime Upgrades Across Three Regions</span>
+            <span class="related-meta">intermediate</span>
+          </a>
+        
+          <a href="/posts/q-252/the-1b-inference-challenge-robloxs-cpu-scale-tale-of-scaling-llms-in-production/" class="related-card">
+            <span class="related-title">The 1B-Inference Challenge: Roblox’s CPU-Scale Tale of Scaling LLMs in Production</span>
+            <span class="related-meta">beginner</span>
+          </a>
+        
       </div>
     </div>
-    <div class="article-card">
-      <div class="card-header">
-        <span class="badge badge-channel"><i data-lucide="folder"></i> Behavioral</span>
-        <span class="badge badge-difficulty badge-beginner"><i data-lucide="zap"></i> beginner</span>
-      </div>
-      <h2 class="card-title"><a href="/posts/q-212/the-3am-api-war-how-i-stopped-frontend-and-backend-teams-from-burning-the-house-/">The 3am API War: How I Stopped Frontend and Backend Teams from Burning the House Down</a></h2>
-      <p class="card-excerpt">Picture this: It's 2:47 AM, your phone buzzes with that dreaded Slack notification. The frontend team is threatening to ...</p>
-      <div class="card-footer">
-        <div class="card-tags">
-          <span class="badge badge-tag"><i data-lucide="tag"></i> situation</span><span class="badge badge-tag"><i data-lucide="tag"></i> task</span><span class="badge badge-tag"><i data-lucide="tag"></i> action</span>
-        </div>
-        <a href="/posts/q-212/the-3am-api-war-how-i-stopped-frontend-and-backend-teams-from-burning-the-house-/" class="card-link"><i data-lucide="arrow-right"></i> Read more</a>
-      </div>
-    </div></div>
-</div></section></main>
+  <div class="cta-box">
+    <p>Ready to put this into practice?</p>
+    <a href="https://open-interview.github.io/#/channel/llm-ops" class="cta-button">Practice Questions →</a>
+  </div>
+</div></article></main>
 
 <!-- Search Modal -->
 <div class="search-modal" id="searchModal" onclick="if(event.target===this)closeSearch()">
