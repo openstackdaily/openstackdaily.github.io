@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>The Collection View Layout Whisperer: Taming Dynamic Heights Like a Boss | DevInsights</title>
-  <meta name="description" content="Master UICollectionViewFlowLayout with dynamic heights and sticky headers. Learn Netflix's caching secrets and build buttery smooth iOS collection views.">
+  <title>When Bursts Hit the Pipeline: How to Reign in Backlog Without Sacrificing Delivery | DevInsights</title>
+  <meta name="description" content="A narrative on policy-driven backpressure for high-throughput pipelines, inspired by Airbnb's adaptive traffic control and reinforced by industry best practices.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
@@ -43,67 +43,68 @@
   <i data-lucide="moon" class="theme-icon-dark"></i>
 </button>
 <main><article class="article"><div class="container">
-  <a href="/categories/mobile-development/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Mobile Development</a>
+  <a href="/categories/site-reliability/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Site Reliability</a>
   <div class="article-header">
-    <h1>The Collection View Layout Whisperer: Taming Dynamic Heights Like a Boss</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Ios</span><span class="difficulty intermediate">intermediate</span><span class="tag">ios</span></div>
+    <h1>When Bursts Hit the Pipeline: How to Reign in Backlog Without Sacrificing Delivery</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Sre</span><span class="difficulty intermediate">intermediate</span><span class="tag">sre</span></div>
   </div>
-  <p class="article-intro">Ever had your beautiful collection view layout crash at 3am because dynamic cell heights went haywire? You're not alone. Creating smooth-scrolling collection views with sticky headers and dynamic heights is like conducting an orchestra - every instrument needs to play in perfect harmony.</p>
+  <p class="article-intro">Picture this: Airbnb’s Mussel store slams into a traffic spike, reads and writes explode, and a backlog starts piling up in the write path. The team realizes a hard truth—static rate limits won’t cut it when bursts are unpredictable. The answer lies in a policy-driven backpressure approach that keeps backlogs bounded, preserves at-least-once delivery, and scales gracefully under pressure <a href="#source-1" class="citation" title="View source">1</a>.</p>
   <div class="article-content">
-    <h2>The Layout Orchestra: Understanding UICollectionViewFlowLayout</h2>Think of UICollectionViewFlowLayout as your orchestra conductor. It tells each cell where to stand, how tall to be, and when to stick around (literally, for headers). But unlike a rigid classical conductor, we need one that can improvise on the fly.</p>
-<p>💡 <strong>Pro Tip</strong>: The <code>prepare()</code> method is your rehearsal time. Do all your heavy calculations here, not during the performance (scrolling).</p>
-<p><strong>Core Components You'll Master:</strong>
-<ul>
-<li><code>prepare()</code>: Your calculation playground</li>
-<li><code>layoutAttributesForElements(in:)</code>: The casting director for visible elements</li>
-<li><code>shouldInvalidateLayout(forBoundsChange:)</code>: The sticky header magician</li>
-<li><code>estimatedItemSize</code>: Your crystal ball for dynamic heights</li>
-</ul><h2>Performance Secrets: The Netflix Approach</h2>Netflix processes billions of UI elements daily. Their secret? <strong>Aggressive caching</strong> and <strong>smart invalidation</strong>. They cache layout attributes in a dictionary keyed by indexPath, reducing calculation time from O(n) to O(1) for repeated elements.</p>
-<p>⚠️ <strong>Gotcha</strong>: Don't cache everything! Memory is precious. Use a weak reference dictionary or implement a smart eviction policy.</p>
-<p><strong>Performance Optimization Checklist:</strong>
-<ul>
-<li>✅ Cache calculations in <code>prepare()</code></li>
-<li>✅ Use <code>UICollectionViewFlowLayoutInvalidationContext</code> for targeted updates</li>
-<li>✅ Implement <code>targetContentOffset(forProposedContentOffset:)</code> for buttery smooth scrolling</li>
-<li>✅ Set <code>estimatedItemSize</code> to avoid expensive height calculations during initial layout</li>
-</ul><h2>Sticky Headers: The Magic Trick</h2>Making headers stick is like making a magician's assistant float - it looks impossible but is just clever positioning. The key is manipulating the frame of header attributes in <code>layoutAttributesForElements(in:)</code>.</p>
-<p>🔥 <strong>Hot Take</strong>: Most developers overcomplicate sticky headers. You don't need custom scroll view observers - just adjust the header's y-coordinate when it would otherwise scroll out of view.</p>
-<p><strong>The Sticky Header Formula:</strong></p>
-<p><pre><code class="language-swift">let maxY = headerAttributes.frame.maxY
-let minY = proposedContentOffset.y + headerInset
-if maxY &lt; minY {
-    headerAttributes.frame.origin.y = minY
-}</code></pre>
-<h2>Dynamic Heights: The Shape-Shifter Challenge</h2>Dynamic cell heights are like trying to fit clothes for a growing teenager - they keep changing! The solution? <strong>Two-pass layout</strong>.</p>
-<p><strong>Pass 1</strong>: Quick estimation using <code>estimatedItemSize</code>
-<strong>Pass 2</strong>: Precise calculation using actual content</p>
-<p>🎯 <strong>Key Insight</strong>: Use <code>systemLayoutSizeFitting()</code> on your cell's contentView to get the real height. It's faster than manual calculation and respects Auto Layout constraints.</p>
-<p><strong>When Heights Go Wrong:</strong>
-<ul>
-<li><strong>Infinite loops</strong>: Caused by height calculations triggering layout invalidation</li>
-<li><strong>Jagged scrolling</strong>: From recalculating heights during scroll</li>
-<li><strong>Memory leaks</strong>: From retaining cells in your cache</li>
-</ul>
+    <figure class="article-image">
+      <img src="/images/pixel-q-13160.svg" alt="When Bursts Hit the Pipeline: How to Reign in Backlog Without Sacrificing Delivery - Pixel Art Illustration" loading="lazy">
+      <figcaption>testing scene (16-bit pixel art)</figcaption>
+    </figure><h2>From Hook to Policy: Defining Backlog Targets</h2>Building on the Airbnb guidance, the first move is to codify what “backlog control” means. Define dynamic backlog targets: max depth and max age (for example, a max backlog of 100k messages and a max age of 5 minutes). Then translate those targets into concrete controls: producer throttling via a token bucket to curb new messages when depth threatens the target, and broker-side backpressure to reject excess messages before the queue becomes unmanageable <a href="#source-2" class="citation" title="View source">2</a>. This is the core idea of backpressure—signal-driven, not guesswork-driven—and it aligns with how traffic control is discussed in queueing theory and practice <a href="#source-11" class="citation" title="View source">11</a>. The approach is deliberately conservative: it preserves at-least-once semantics by ensuring producers don’t outrun the system’s ability to persist and route messages, while providing a clear path to degradation when needed <a href="#source-4" class="citation" title="View source">4</a>.<h2>Autoscales and Signals: Turning Metrics into Motion</h2>Once the policy is defined, signals must drive action. Autoscaling is not a luxury; it’s a necessity when lag grows or when dead-letter queues (DLQs) begin to spike. Scale consumers based on lag signals (for example, target lag in seconds or the rate of DLQ growth) and consider per-dispatcher backpressure to contain local bursts without global meltdown. This is where industry patterns converge: autoscaling policies anchored in real-time observability, and a bias toward graceful degradation, not abrupt shutdowns <a href="#source-4" class="citation" title="View source">4</a><a href="#source-3" class="citation" title="View source">3</a>.<h2>Testing Under Fire: Drills That Prove the Theory</h2>The true test comes from controlled drills that mimic production bursts. Run load patterns that trigger backlog growth, then verify that throttling, broker backpressure, and autoscaling keep latency within SLIs while controlling backlog depth. Realistic chaos testing and burn‑in drills reveal edge cases—such as sudden DLQ surges or uneven tenant workloads—that static tests miss. The objective is to prove QoS and fairness under stress, not just to hit synthetic benchmarks <a href="#source-3" class="citation" title="View source">3</a><a href="#source-7" class="citation" title="View source">7</a>.
     <div class="real-world-example">
       <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
       <div class="company"><i data-lucide="briefcase"></i> Airbnb</div>
-      <p class="scenario">Airbnb's property listing screens use custom collection view layouts with dynamic heights for property descriptions, amenities, and photo galleries. They handle 10M+ daily views with 60fps scrolling.</p>
-      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Pre-calculate heights for the first 50 visible cells during app launch. This 'warm-up' period eliminates initial scroll jank and provides instant feedback to users.</div>
-    </div><h2>System Flow</h2><div class="mermaid">graph TD
-    A[User Scrolls] --> B{Bounds Changed?}
-    B -->|Yes| C[shouldInvalidateLayout]
-    B -->|No| D[Return Cached Attributes]
-    C --> E[prepare: Calculate New Attributes]
-    E --> F[Cache in Dictionary]
-    F --> G[layoutAttributesForElements]
-    G --> H{Is Header?}
-    H -->|Yes| I[Adjust Y for Sticky]
-    H -->|No| J[Return Normal Attributes]
-    I --> K[Apply to Collection View]
-    J --> K</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The first UICollectionView was introduced in iOS 6, but sticky headers weren't officially supported until iOS 9. Developers had to hack them using custom scroll view observers!</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Override prepare() for heavy calculations and caching</li><li>Use estimatedItemSize for dynamic height performance</li><li>Implement shouldInvalidateLayout for sticky headers</li><li>Cache attributes in dictionary keyed by indexPath</li><li>Avoid expensive operations in layoutAttributesForElements</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://developer.apple.com/documentation/uikit/uicollectionviewflowlayout" target="_blank" rel="noopener">Apple Documentation: UICollectionViewFlowLayout</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://netflixtechblog.com/optimizing-ui-performance-at-netflix" target="_blank" rel="noopener">Netflix Engineering: Optimizing UI Performance</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://medium.com/airbnb-engineering/building-smooth-scrolling-experiences" target="_blank" rel="noopener">Airbnb Engineering: Building Smooth Scrolling Experiences</a><span class="source-type">blog</span></li><li id="source-4"><span class="source-num">4</span><a href="https://developer.apple.com/videos/play/wwdc2018/222/" target="_blank" rel="noopener">WWDC 2018: High Performance Auto Layout</a><span class="source-type">video</span></li></ul></div>
+      <p class="scenario">Airbnb's Mussel key-value store handles millions of reads per second and must absorb traffic bursts from events and bots. They replaced static per-client rate limits with adaptive, resource-aware traffic control to maintain service quality during spikes, using Kafka as a write-ahead log to preserve ordering and durability.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Local, per-dispatcher backpressure with measurable signals (RU, latency) can bound backlog, enable graceful degradation, and scale; test with controlled drills to validate QoS and fairness.</div>
+    </div><h2>Backpressure System Overview</h2><div class="mermaid">flowchart TD
+  A[Producer] --> B{Depth < MaxBacklog?}
+  B -- Yes --> C[Broker Write]
+  B -- No --> D[Broker Backpressure] 
+  C --> E[Consumer Lag]
+  E -- LagWithinTarget --> F[Scale Down]
+  E -- LagExceedsTarget --> G[Scale Up]
+  G --> A</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Many developers discover that per-dispatcher backpressure, not global throttling alone, yields the most predictable QoS during bursts.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Backlog depth and age bound the system's input</li><li>Token bucket throttling limits producer pressure</li><li>Autoscale driven by consumer lag and DLQ signals</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://www.infoq.com/news/2025/11/airbnb-mussel-adaptive-traffic/" target="_blank" rel="noopener">Airbnb Adds Adaptive Traffic Control to Manage Key Value Store Spikes</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://en.wikipedia.org/wiki/Backpressure" target="_blank" rel="noopener">Backpressure</a><span class="source-type">article</span></li><li id="source-3"><span class="source-num">3</span><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/auto-scaling-best-practices.html" target="_blank" rel="noopener">Auto Scaling Best Practices</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/getting-started-with-auto-scaling.html" target="_blank" rel="noopener">Getting Started with Amazon EC2 Auto Scaling</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/" target="_blank" rel="noopener">Horizontal Pod Autoscaler</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://github.com/apache/kafka" target="_blank" rel="noopener">Apache Kafka</a><span class="source-type">repository</span></li><li id="source-7"><span class="source-num">7</span><a href="https://kafka.apache.org/documentation/" target="_blank" rel="noopener">Kafka Documentation</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://github.com/rabbitmq/rabbitmq-server" target="_blank" rel="noopener">RabbitMQ</a><span class="source-type">repository</span></li><li id="source-9"><span class="source-num">9</span><a href="https://github.com/kedacore/keda" target="_blank" rel="noopener">KEDA: Kubernetes Event-driven Autoscale</a><span class="source-type">repository</span></li><li id="source-10"><span class="source-num">10</span><a href="https://datatracker.ietf.org/doc/html/rfc7540" target="_blank" rel="noopener">HTTP/2 Flow Control</a><span class="source-type">RFC</span></li><li id="source-11"><span class="source-num">11</span><a href="https://en.wikipedia.org/wiki/Flow_control" target="_blank" rel="noopener">Flow Control</a><span class="source-type">article</span></li></ul></div>
+    <div class="share-snippet">
+      <div class="share-snippet-header">
+        <span class="share-icon"><i data-lucide="share-2"></i></span>
+        <h3>Share This</h3>
+        <div class="share-buttons">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-13160%2Fwhen-bursts-hit-the-pipeline-how-to-reign-in-backlog-without-sacrificing-deliver%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+            <i data-lucide="linkedin"></i>
+          </a>
+          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20why%20bursts%20don%E2%80%99t%20derail%20your%20data%20pipeline%3F%20%F0%9F%92%A1%0A%0AAirbnb%E2%80%99s%20adaptive%20traffic%20control%20kept%20key-value%20stores%20resilient%20under%20spikes%20%5B1%5D.%2CBacklog%20bounds%20%2B%20token-bucket%20throttling%20%3D%20controlled%20bursts%2C%20not%20chaos%20%5B2%5D.%2CAutoscaling%20tuned%20to%20consumer%20lag%20and%20DLQs%20preserves%20latency%20while%20clearing%20backlog%20%5B3%5D%5B4%5D.%0A%0ADive%20into%20the%20full%20journey%20to%20learn%20the%20exact%20policy%2C%20tests%2C%20and%20what%20to%20watch%20for.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23DataEngineering%20%23Backpressure%20%23Autoscaling%20%23Kubernetes%20%23Kafka%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-13160%2Fwhen-bursts-hit-the-pipeline-how-to-reign-in-backlog-without-sacrificing-deliver%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+            <i data-lucide="twitter"></i>
+          </a>
+          <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
+            <i data-lucide="copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="share-snippet-content" id="shareSnippet">
+        <p class="snippet-hook">Ever wondered why bursts don’t derail your data pipeline? 💡</p>
+        <p class="snippet-body">Airbnb’s adaptive traffic control kept key-value stores resilient under spikes [1].,Backlog bounds + token-bucket throttling = controlled bursts, not chaos [2].,Autoscaling tuned to consumer lag and DLQs preserves latency while clearing backlog [3][4].</p>
+        <p class="snippet-cta">Dive into the full journey to learn the exact policy, tests, and what to watch for.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #DataEngineering #Backpressure #Autoscaling #Kubernetes #Kafka</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-13160/when-bursts-hit-the-pipeline-how-to-reign-in-backlog-without-sacrificing-deliver/</p>
+      </div>
+    </div>
+    <script>
+    function copySnippet(btn) {
+      const snippet = document.getElementById('shareSnippet').innerText;
+      navigator.clipboard.writeText(snippet).then(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+        setTimeout(() => {
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+        }, 2000);
+      });
+    }
+    </script>
     
     <h2>Wrapping Up</h2>
-    <p>Ready to build collection views that scroll like butter? Start by implementing a basic cache in your prepare() method today. Add sticky headers tomorrow, and optimize for dynamic heights by the end of the week. Your users (and your 3am self) will thank you.</p>
+    <p>A well-escorted journey through backlog policy, intelligent autoscaling, and disciplined testing leads to a resilient, scalable pipeline. The real-world Airbnb case shows that adaptive traffic control—rooted in local signals and corroborated by drills—can transform chaos into controllable quality. Tomorrow, teams can start by defining backlog targets, wiring throttling to those targets, and validating the approach with deliberate drills.</p>
   </div>
   
   <div class="author-card">
@@ -132,16 +133,26 @@ if maxY &lt; minY {
       <h3>Continue Reading</h3>
       <div class="related-grid">
         
-          <a href="/posts/q-204/the-60fps-hunt-taming-10000-complex-cells-with-ios-auto-layout/" class="related-card">
-            <span class="related-title">The 60fps Hunt: Taming 10,000+ Complex Cells with iOS Auto Layout</span>
-            <span class="related-meta">advanced</span>
+          <a href="/posts/gh-59/slacks-outage-sres-secret-sauce-and-the-journey-to-reliability/" class="related-card">
+            <span class="related-title">Slack’s Outage, SRE’s Secret Sauce, and the Journey to Reliability</span>
+            <span class="related-meta">beginner</span>
+          </a>
+        
+          <a href="/posts/gh-63/toil-triumph-and-the-80-mttr-turnaround-a-lowes-sre-journey/" class="related-card">
+            <span class="related-title">Toil, Triumph, and the 80% MTTR Turnaround: A Lowe's SRE Journey</span>
+            <span class="related-meta">beginner</span>
+          </a>
+        
+          <a href="/posts/q-411/when-your-api-is-up-but-unusable-the-3am-pager-story-every-developer-fears/" class="related-card">
+            <span class="related-title">When Your API Is Up But Unusable: The 3AM Pager Story Every Developer Fears</span>
+            <span class="related-meta">beginner</span>
           </a>
         
       </div>
     </div>
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/ios" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/sre" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
