@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>The 3am Pager: How We Broke the Internet (and Fixed It) | DevInsights</title>
-  <meta name="description" content="How distributed load testing with k6 across multiple cloud regions saved our systems from crashing under 100k concurrent users. Real stories, code examples, and battle scars included.">
+  <title>One-Liner to Save the Day: Surfacing the Heaviest Directories in a Sea of Logs | DevInsights</title>
+  <meta name="description" content="A real-world journey from Uber’s log-data challenge to a practical one-liner for identifying largest top-level directories, plus lessons on scalable compression and storage.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
@@ -43,75 +43,68 @@
   <i data-lucide="moon" class="theme-icon-dark"></i>
 </button>
 <main><article class="article"><div class="container">
-  <a href="/categories/testing-qa/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Testing & QA</a>
+  <a href="/categories/networking-systems/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Networking & Systems</a>
   <div class="article-header">
-    <h1>The 3am Pager: How We Broke the Internet (and Fixed It)</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Performance Testing</span><span class="difficulty intermediate">intermediate</span><span class="tag">jmeter</span> <span class="tag">k6</span> <span class="tag">gatling</span></div>
+    <h1>One-Liner to Save the Day: Surfacing the Heaviest Directories in a Sea of Logs</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Unix</span><span class="difficulty beginner">beginner</span><span class="tag">unix</span></div>
   </div>
-  <p class="article-intro">It was 3am when the pager went off. Our new feature had just gone viral, and instead of celebrating, we were watching our systems crash in real-time. The load tests we ran said we could handle 100k users, but reality had other plans. This is the story of how distributed load testing with k6 saved our careers.</p>
+  <p class="article-intro">Picture this: Uber’s logs were exploding, with up to 200TB of Spark-generated data on a single busy day and a monthly mountain of 5PB uncompressed logs. The pressure to retain and search this data without breaking the bank drove a two-phase compression approach that changed everything <a href="#source-1" class="citation" title="View source">1</a>. In the middle of this heat, a sysadmin sought a quick, robust one-liner to identify the five largest top-level directories under /work/projects—ignoring hidden dirs, handling spaces in names, and shrugging off unreadable dirs. This story follows that hunt from problem to practical, battle-tested command-line technique that developers can reuse at the terminal.</p>
   <div class="article-content">
-    <h2>The False Sense of Security</h2>Picture this: your CEO just tweeted about the new feature, and suddenly your user count jumps from 10k to 100k in 5 minutes. Your load tests from last month said you were ready. You weren't. </p>
-<p>I used to think running a single load test from one region was enough. I was wrong. Dead wrong. When real users hit your system from Tokyo, Texas, and Timbuktu simultaneously, the network topology alone can add 200ms of latency you never saw coming.</p>
-<p>💡 <strong>The painful truth</strong>: 90% of load test failures happen because we test in a lab environment, not the real world.<h2>The Distributed Testing Awakening</h2>Here's where k6 cloud changed everything. Instead of one machine hammering your API, imagine hundreds of them scattered across the globe, each acting like real users in their region.</p>
-<p><pre><code class="language-javascript">// This isn't just code - it's your survival plan
-import http from 'k6/http';
-import { Rate } from 'k6/metrics';
-
-const errorRate = new Rate('errors');
-
-export let options = {
-  stages: [
-    { duration: '2m', target: 1000 },   // The warm-up
-    { duration: '5m', target: 10000 },  // Getting real
-    { duration: '8m', target: 50000 },  // The stress test
-    { duration: '10m', target: 100000 }, // The breaking point
-  ],
-  cloud: {
-    distribution: {
-      'amazon:us-east-1': { load: 0.3 },    // 30% US traffic
-      'amazon:eu-west-1': { load: 0.25 },   // 25% Europe
-      'amazon:ap-southeast-1': { load: 0.2 }, // 20% Asia
-    },
-  },
-};
-
-export default function() {
-  const response = http.get('https://api.example.com/users');
-  errorRate.add(response.status &gt;= 400);
-}</code></pre></p>
-<p>🔥 <strong>Hot take</strong>: If you're not testing from at least 3 different regions, you're not load testing - you're just lying to yourself.<h2>The Counterintuitive Discovery</h2>Everyone thinks the bottleneck is your servers. Plot twist: it's usually the network. </p>
-<p>When we distributed our tests, we discovered something shocking: our API was fast in Virginia (50ms), but slow in Singapore (350ms). The same code, different geography. Why? CDN propagation, database replica lag, and network routing that we never considered.</p>
-<p>⚠️ <strong>Watch out</strong>: Single-region tests give you a false sense of security. They're like testing your car in a parking lot and claiming it's ready for the Indy 500.<h2>The Metrics Pipeline That Saved Us</h2>Collecting accurate metrics across regions is harder than it looks. Clock drift alone can make your response times look 15% off. Here's our battle-tested setup:<ul>
-<li><strong>NTP Sync</strong>: All instances sync to the same time servers</li>
-<li><strong>Custom Metrics</strong>: Track more than just response time</li>
-<li><strong>Aggregation</strong>: Real-time metrics via InfluxDB + Telegraf</li>
-<li><strong>Alerting</strong>: PagerDuty integration for when things go sideways</li>
-</ul>🎯 <strong>Key Point</strong>: Without synchronized timing, your metrics are garbage. Period.<h2>The War Stories We Don't Tell</h2>Let me share some battle scars:<ul>
-<li><strong>Rate Limiting</strong>: We got IP-blocked by our own CDN during testing. Solution: Add 50-200ms jitter between requests</li>
-<li><strong>Resource Exhaustion</strong>: Our k6 instances ran out of CPU at 50k users. Auto-scaling isn't optional, it's mandatory</li>
-<li><strong>Metrics Loss</strong>: We lost 30% of our metrics due to network partitions. Buffer and retry became our best friends</li>
-</ul>💡 <strong>Confession</strong>: I once ran a 100k user test that took down our staging environment. Twice. The third time, I finally learned to start small and ramp up exponentially.
+    <figure class="article-image">
+      <img src="/images/pixel-q-9934.svg" alt="One-Liner to Save the Day: Surfacing the Heaviest Directories in a Sea of Logs - Pixel Art Illustration" loading="lazy">
+      <figcaption>coding scene (16-bit pixel art)</figcaption>
+    </figure><h2>The Problem on the Desk</h2>When storage usage spikes, quick insight becomes the currency of action. The challenge is to find the five largest top-level directories under /work/projects while ignoring hidden directories, tolerating spaces, and surviving unreadable paths. The goal is a single, reliable one-liner that outputs "<dir>: <size>K" per line, using only standard UNIX tools.<h2>The One-Liner Unfolds</h2>You can achieve this with a robust pipeline that accounts for spaces and errors, then formats the result cleanly. The following one-liner enumerates top-level dirs, computes their disk usage, sorts the results, and prints them in the required format. It tolerates spaces in directory names and suppresses unreadable entries.<h2>Why This Pattern Works</h2>This pattern leverages space-safe enumeration (find -print0), per-directory sizing (du -sk), robust error handling (2>/dev/null), and straightforward formatting (awk). The approach mirrors a broader lesson: when data growth tests scalability, simple, composable tools often win. For context on why data compression and storage strategies matter at scale, see foundational discussions on data compression and storage efficiency <a href="#source-1" class="citation" title="View source">1</a><a href="#source-9" class="citation" title="View source">9</a><a href="#source-10" class="citation" title="View source">10</a>.<h2>From Discovery to Practice</h2>The real-world takeaway goes beyond a single command. It’s a reminder that performance and cost often hinge on early, targeted instrumentation—identifying where the growth happens first, then applying layered strategies to reduce cost while preserving accessibility. In many teams, this translates to combining quick on-disk insights with smarter data retention and compression policies <a href="#source-1" class="citation" title="View source">1</a>.
     <div class="real-world-example">
       <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
-      <div class="company"><i data-lucide="briefcase"></i> Netflix</div>
-      <p class="scenario">During their 2016 Chaos Monkey testing, Netflix discovered that their single-region load tests missed critical failure modes. When they simulated real global traffic patterns, they found that database replica lag in Asia caused 15% of requests to timeout, something their Virginia-based tests never caught.</p>
-      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Real-world traffic patterns are messy and geographically distributed. Testing from one region is like practicing swimming in a bathtub and expecting to survive the ocean.</div>
-    </div><h2>System Flow</h2><div class="mermaid">graph TD
-    A[Master Controller] --> B[US-East k6 Cluster]
-    A --> C[EU-West k6 Cluster]
-    A --> D[AP-Southeast k6 Cluster]
-    B --> E[Load Balancer]
-    C --> E
-    D --> E
-    E --> F[API Servers]
-    B --> G[InfluxDB]
-    C --> G
-    D --> G
-    G --> H[Grafana Dashboard]
-    H --> I[Alert System]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The term &quot;load testing&quot; was coined in the 1960s when IBM needed to test their mainframe systems. They would literally have hundreds of operators typing commands simultaneously to simulate peak load. Today, one k6 script can do what took hundreds of people back then.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Always test from 3+ regions that match your user geography</li><li>Use exponential ramp-up to find breaking points safely</li><li>Sync NTP across all instances or your metrics are worthless</li><li>Add jitter to requests to avoid rate limiting</li><li>Monitor k6 instance resources, not just your application</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://k6.io/docs/cloud/get-started/" target="_blank" rel="noopener">k6 Cloud Documentation</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://netflixtechblog.com/chaos-engineering-the-origins-6f1d8b0c0b6" target="_blank" rel="noopener">Netflix Chaos Engineering</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://k6.io/docs/testing-guides/distributed-testing/" target="_blank" rel="noopener">Distributed Load Testing Best Practices</a><span class="source-type">documentation</span></li></ul></div>
+      <div class="company"><i data-lucide="briefcase"></i> Uber</div>
+      <p class="scenario">Uber faced explosive growth in Spark/log data. Their big data platform could generate up to 200TB of logs on a busy day, totaling about 5PB of uncompressed logs per month. Retaining this data verifiably for debugging and analytics was becoming prohibitively expensive, so they pursued a scalable, searchable compression solution.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Tailored, two-phase compression can provide massive storage savings while preserving searchability; pushing compression closer to data generation (on the appender) plus offline, more aggressive phase 2 compression unlocks practical long-term retention at petabyte scales.</div>
+    </div><h2>Directory Size Pipeline</h2><div class="mermaid">graph TD
+  A(Start) --> B{Identify top-level dirs}
+  B --> C[Enumerate with find -mindepth 1 -maxdepth 1 -type d -print0]
+  C --> D[Compute sizes with du -sk per dir]
+  D --> E[Suppress unreadable errors (2>/dev/null)]
+  E --> F[Sort descending by size]
+  F --> G[Output top 5 as '<dir>: <size>K']
+  G --> H(Done)</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Two-phase compression, a strategy Uber explored, demonstrates how moving work closer to data generation can unlock orders of magnitude in storage savings.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Use find -print0 to safely enumerate directories with spaces</li><li>Pipe to while read -d '' to handle arbitrary names</li><li>2&gt;/dev/null to suppress unreadable errors; sort and head to pick top 5</li><li>awk formats output as 'dir: sizeK' exactly</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://www.uber.com/blog/reducing-logging-cost-by-two-orders-of-magnitude-using-clp/" target="_blank" rel="noopener">Reducing Logging Cost by Two Orders of Magnitude using CLP</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://en.wikipedia.org/wiki/Data_compression" target="_blank" rel="noopener">Data compression</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://www.gnu.org/software/coreutils/manual/coreutils.html#du" target="_blank" rel="noopener">du (GNU core utilities manual)</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://docs.python.org/3/library/shutil.html#shutil.disk_usage" target="_blank" rel="noopener">shutil.disk_usage</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://docs.python.org/3/library/os.html#os.walk" target="_blank" rel="noopener">os.walk</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://en.wikipedia.org/wiki/File_system" target="_blank" rel="noopener">File system</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://en.wikipedia.org/wiki/Lossless_data_compression" target="_blank" rel="noopener">Lossless data compression</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://github.com/tldr-pages/tldr" target="_blank" rel="noopener">TLDR</a><span class="source-type">documentation</span></li></ul></div>
+    <div class="share-snippet">
+      <div class="share-snippet-header">
+        <span class="share-icon"><i data-lucide="share-2"></i></span>
+        <h3>Share This</h3>
+        <div class="share-buttons">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-9934%2Fone-liner-to-save-the-day-surfacing-the-heaviest-directories-in-a-sea-of-logs%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+            <i data-lucide="linkedin"></i>
+          </a>
+          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20how%20to%20tame%20petabytes%20of%20logs%20with%20a%20single%20command%3F%20%F0%9F%94%A5%0A%0AUber%20faced%205PB%20monthly%20uncompressed%20logs%3B%20the%20fix%20started%20with%20a%20deceptively%20simple%20one-liner.%2CA%20space-safe%20approach%20handles%20tricky%20names%20and%20unreadable%20dirs%20without%20breaking%20the%20pipeline.%2CTwo-phase%20compression%20proved%20the%20secret%20sauce%20for%20scalable%2C%20searchable%20retention.%0A%0ARead%20the%20full%20story%20to%20see%20how%20a%20tiny%20shell%20pattern%20spawned%20a%20large-scale%20storage%20win.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23DataEngineering%20%23DevOps%20%23Logging%20%23BigData%20%23Compression%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-9934%2Fone-liner-to-save-the-day-surfacing-the-heaviest-directories-in-a-sea-of-logs%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+            <i data-lucide="twitter"></i>
+          </a>
+          <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
+            <i data-lucide="copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="share-snippet-content" id="shareSnippet">
+        <p class="snippet-hook">Ever wondered how to tame petabytes of logs with a single command? 🔥</p>
+        <p class="snippet-body">Uber faced 5PB monthly uncompressed logs; the fix started with a deceptively simple one-liner.,A space-safe approach handles tricky names and unreadable dirs without breaking the pipeline.,Two-phase compression proved the secret sauce for scalable, searchable retention.</p>
+        <p class="snippet-cta">Read the full story to see how a tiny shell pattern spawned a large-scale storage win.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #DataEngineering #DevOps #Logging #BigData #Compression</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-9934/one-liner-to-save-the-day-surfacing-the-heaviest-directories-in-a-sea-of-logs/</p>
+      </div>
+    </div>
+    <script>
+    function copySnippet(btn) {
+      const snippet = document.getElementById('shareSnippet').innerText;
+      navigator.clipboard.writeText(snippet).then(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+        setTimeout(() => {
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+        }, 2000);
+      });
+    }
+    </script>
     
     <h2>Wrapping Up</h2>
-    <p>The moral of the story? Your load tests are lying to you unless they reflect reality. Start distributed testing tomorrow, before your CEO's tweet becomes your 3am pager nightmare. Your future self will thank you.</p>
+    <p>The one-liner is more than a line of code; it’s a pattern for disciplined data hygiene. Start by knowing where the growth hides, then apply incremental improvements that scale with the data, not against it. In practice, teams can adopt this mindset to curb storage costs and preserve fast, searchable access to critical logs tomorrow.</p>
   </div>
   
   <div class="author-card">
@@ -140,16 +133,26 @@ export default function() {
       <h3>Continue Reading</h3>
       <div class="related-grid">
         
-          <a href="/posts/q-280/latency-unmasked-how-flame-graphs-turn-a-rails-delay-into-a-playbook-for-speed/" class="related-card">
-            <span class="related-title">Latency Unmasked: How Flame Graphs Turn a Rails Delay Into a Playbook for Speed</span>
+          <a href="/posts/q-481/the-night-tasks-hung-a-production-trior-story-of-taming-io-waits-in-linux/" class="related-card">
+            <span class="related-title">The Night Tasks Hung: A Production-Trior story of taming I/O waits in Linux</span>
+            <span class="related-meta">advanced</span>
+          </a>
+        
+          <a href="/posts/q-1002/the-24-hour-log-hunt-a-one-liner-that-surfaces-busy-users-and-why-knight-capital/" class="related-card">
+            <span class="related-title">The 24-Hour Log Hunt: A One-Liner That Surfaces Busy Users (And Why Knight Capital's Lesson Still Matters)</span>
             <span class="related-meta">beginner</span>
+          </a>
+        
+          <a href="/posts/q-564/when-d-stated-chaos-strikes-a-red-hat-war-story-that-teaches-you-to-debug-like-a/" class="related-card">
+            <span class="related-title">When D-Stated Chaos Strikes: A Red Hat War Story That Teaches You to Debug Like a Pro</span>
+            <span class="related-meta">advanced</span>
           </a>
         
       </div>
     </div>
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/performance-testing" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/unix" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
