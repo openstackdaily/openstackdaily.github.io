@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>The Zone That Became a Scheduler: A Real-World Tale of Deterministic Placement | DevInsights</title>
-  <meta name="description" content="Explore how Cockroach Labs used a custom Kubernetes scheduler for deterministic zone placement in multi-region clusters, and learn when a custom scheduler makes sense.">
+  <title>Quota Wars: Designing a Cost-Aware, Multi-Tenant LLM Gateway | DevInsights</title>
+  <meta name="description" content="A story-driven guide to per-tenant budgets, token throttling, and fallback routing for cost-aware multi-tenant LLM gateways.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
@@ -43,39 +43,79 @@
   <i data-lucide="moon" class="theme-icon-dark"></i>
 </button>
 <main><article class="article"><div class="container">
-  <a href="/categories/devops-infrastructure/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← DevOps & Infrastructure</a>
+  <a href="/categories/ai-machine-learning/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← AI & Machine Learning</a>
   <div class="article-header">
-    <h1>The Zone That Became a Scheduler: A Real-World Tale of Deterministic Placement</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Devops</span><span class="difficulty intermediate">intermediate</span><span class="tag">custom-schedulers</span> <span class="tag">kube-scheduler</span> <span class="tag">workload-optimization</span></div>
+    <h1>Quota Wars: Designing a Cost-Aware, Multi-Tenant LLM Gateway</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Llm Ops</span><span class="difficulty beginner">beginner</span><span class="tag">llm-ops</span></div>
   </div>
-  <p class="article-intro">It was 3am when the pager pinged. CockroachCloud’s multi-region CockroachDB clusters were teetering on the edge of chaos during scale operations—zone presence could drift, and data availability was at stake. The default Kubernetes scheduler couldn’t guarantee zone-level placement for StatefulSets, risking data locality and reliability. Cockroach Labs built a custom Kubernetes scheduler to lock StatefulSet pods to specific zones based on ordinal, delivering deterministic zonal placement and safer scale behavior <a href="#source-1" class="citation" title="View source">1</a>.</p>
+  <p class="article-intro">Picture this: Microsoft scales Azure OpenAI deployments across 50+ models, only to watch per-region TPM/RPM quotas throttle deployments and burst traffic, triggering Terraform failures and furious retries <a href="#source-1" class="citation" title="View source">1</a>. In that pressure cooker, teams discover that quota-aware automation isn’t a nicety—it’s the difference between a smooth gateway and a bottleneck that bleeds both latency and cost. This journey explores how to design a lightweight, per-tenant budgeting approach that throttles gently, routes to cheaper models when budgets tighten, and stays predictable as demands ebb and flow <a href="#source-1" class="citation" title="View source">1</a>.</p>
   <div class="article-content">
     <figure class="article-image">
-      <img src="/images/pixel-q-4596.svg" alt="The Zone That Became a Scheduler: A Real-World Tale of Deterministic Placement - Pixel Art Illustration" loading="lazy">
-      <figcaption>api scene (16-bit pixel art)</figcaption>
-    </figure><h2>Hooked by a Real-World Constraint</h2>The opening crisis reveals a core truth: topology and data locality aren’t afterthoughts—they’re the backbone ofHA. In CockroachCloud, the need wasn't just faster scheduling; it was placing stateful pods where data lives and performs best. When the default scheduler can’t enforce this, a custom path emerges, one that encodes topology constraints directly into scheduling decisions. Kubernetes supports multiple schedulers in a cluster, and pods can opt for a specific one using the schedulerName field in their pod spec, setting the stage for deterministic behavior <a href="#source-1" class="citation" title="View source">1</a>.<h2>From Default to Designer’s Clockwork</h2>Building on this, the reader learns why the default kube-scheduler exists: it uses a two-phase filtering and scoring process to match pods with nodes, considering resources, affinity/anti-affinity, taints/tolerations, and other constraints. Yet, when the workload’s requirements diverge—GPU memory topology, NVLink connectivity, or strict geographic proximity—a custom scheduler can replace or extend this logic with bespoke algorithms or plugins. In practice, teams deploy the scheduler as a separate service, wire it into the cluster API, and give it RBAC visibility to place pods exactly where they belong <a href="#source-2" class="citation" title="View source">2</a><a href="#source-3" class="citation" title="View source">3</a><a href="#source-4" class="citation" title="View source">4</a>.<h2>When to Consider a Custom Scheduler</h2>Common scenarios push teams toward custom schedulers: GPU-intensive workloads needing precise hardware placement, latency-sensitive apps targeting nearby regions, or cost-aware deployments balancing spot and on-demand nodes. A machine learning platform, for instance, might choose a scheduler that weighs GPU memory availability and NVLink topology to maximize training throughput while minimizing cross-node data transfer <a href="#source-4" class="citation" title="View source">4</a><a href="#source-9" class="citation" title="View source">9</a>. This is a deliberate shift from generic scheduling to workload-aware orchestration.<h2>A Practical Pattern for the Brave</h2>Implementing a custom scheduler isn’t just about writing new logic; it’s about designing for reliability. The scheduler runs as a separate service, must implement the Kubernetes scheduling interface, and should be highly available with multiple replicas. It consumes the cluster state from the API server, observes pod lifecycle events, and makes placement decisions that honor topology, locality, and constraints that the default scheduler would struggle to enforce <a href="#source-2" class="citation" title="View source">2</a><a href="#source-4" class="citation" title="View source">4</a>.<h2>Real-World Proof in the Wild</h2>The Cockroach Labs case isn’t fiction. By locking StatefulSet pods to specific zones based on ordinal, they achieved deterministic placement, improved availability, and safer scale behavior in multi-region deployments. This blueprint shows how topology-aware scheduling can transform stateful workloads and topologies that demand strict data locality <a href="#source-1" class="citation" title="View source">1</a>.<h2>Design Principles for Your Own Scheduler</h2>If topology and data locality matter for your HA story, a custom scheduler offers a principled path forward. Start by defining the constraints that the default scheduler misses, instrument the plugin interfaces for clear traceability, and design for failure modes—retries, backoffs, and simulated outages. Embrace the scheduling framework as a foundation rather than reinventing the wheel; leverage existing patterns for integration with RBAC, metrics, and observability <a href="#source-2" class="citation" title="View source">2</a><a href="#source-3" class="citation" title="View source">3</a><a href="#source-4" class="citation" title="View source">4</a>.<h2>Putting It All Together</h2>The journey comes full circle when the team realizes the real win: deterministic placement as a feature, not a byproduct. The right scheduler isn’t just about faster deployments; it’s about making scale safe and predictable for workloads that refuse to be caged by generic heuristics. The pattern invites teams to codify operational realities—data locality, hardware topology, and regional latency—into the scheduling decision itself <a href="#source-1" class="citation" title="View source">1</a><a href="#source-2" class="citation" title="View source">2</a><a href="#source-4" class="citation" title="View source">4</a>.
+      <img src="/images/pixel-q-8687.svg" alt="Quota Wars: Designing a Cost-Aware, Multi-Tenant LLM Gateway - Pixel Art Illustration" loading="lazy">
+      <figcaption>analytics scene (16-bit pixel art)</figcaption>
+    </figure><h2>Building the Compass: How to think about cost, latency, and isolation</h2>In multi-tenant environments, costs rise where budgets collide with demand. The stand-out idea is to give each tenant its own budget and enforce it without clobbering global performance. Many developers discover that a token-bucket throttling mechanism paired with a simple model-tiering policy can cap spend while preserving responsiveness for high-priority tenants <a href="#source-2" class="citation" title="View source">2</a><a href="#source-3" class="citation" title="View source">3</a>.</p>
+<p>However, the real leverage comes from decoupling configuration from quotas: treat quotas as first-class signals that influence routing decisions, not afterthought knobs. When a tenant’s budget nears exhaustion, the gateway should nimbly switch to a lighter model or trim context to maintain SLA targets, instead of queuing or failing requests outright <a href="#source-4" class="citation" title="View source">4</a><a href="#source-5" class="citation" title="View source">5</a>.<h2>Character in the room: the data model that makes it possible</h2>Think of a per-tenant BudgetStore that tracks initial_budget, remaining_tokens, and a dynamic low-water mark. Each request deducts tokens, and the router consults the tenant’s budget and token bucket state to decide whether to serve the default model or fall back to a cheaper option. The per-tenant isolation ensures one tenant’s burst doesn’t derail others, while a lightweight selector keeps latency predictable.</p>
+<p>A practical takeaway is that the budget surface must be observable, with clear signals for when to reallocate or throttle. This aligns with industry patterns around quota management and service-level transparency <a href="#source-6" class="citation" title="View source">6</a><a href="#source-7" class="citation" title="View source">7</a>.<h2>From concept to concrete: the minimal code sketch</h2>A compact function demonstrates the core idea: deduct tokens, check remaining budget, and select a model accordingly. The pattern is intentionally small and composable, enabling teams to expand with richer policies (e.g., context trimming, dynamic batch sizing) without rearchitecting the gateway.</p>
+<p><pre><code class="language-javascript">function selectModel(tenant: string, tokensUsed: number, budgetStore: BudgetStore) {
+  if (budgetStore.remaining(tenant) &lt; 0.2 * budgetStore.initial(tenant)) {
+    return 'compact-model';
+  }
+  return 'default-model';
+}</code></pre></p>
+<p>This approach mirrors widely used rate-limiting and quota strategies described in industry references <a href="#source-2" class="citation" title="View source">2</a><a href="#source-3" class="citation" title="View source">3</a>.<h2>A minimal test plan to keep it honest</h2>Tests should validate both cost and latency guardrails under realistic mixes of tenant budgets and workloads. Key elements:
+<ul>
+<li>Latency targets: 95th percentile < 300 ms for default-model, < 450 ms for fallback-paths <a href="#source-4" class="citation" title="View source">4</a>.</li>
+<li>Bursty traffic under uneven budgets: verify budget drain triggers timely fallbacks without tripping global rate limits <a href="#source-5" class="citation" title="View source">5</a>.</li>
+<li>Cost reporting: verify per-tenant cost aggregation and cutoff behavior when budgets hit low-water marks <a href="#source-11" class="citation" title="View source">11</a>.</li>
+<li>Failover correctness: ensure fallback paths never starve high-priority tenants during quota pressure <a href="#source-9" class="citation" title="View source">9</a>.</li>
+</ul><h2>A quick tour of the data surface you’ll need</h2>Core data considerations:
+<ul>
+<li>BudgetStore: per-tenant initial_budget, remaining_tokens, and time-varying spend.</li>
+<li>TokenBucket: tokens_per_window, refill_rate, and a low-water threshold.</li>
+<li>ModelTier: default-model, compact-model, and any in-between tiers.</li>
+<li>RoutingRules: per-tenant preferences, SLAs, and fallback strategies.</li>
+</ul>Observability is essential: trace requests with tenant-id, model chosen, tokens consumed, and budget state to enable auditing and cost-aware optimization <a href="#source-8" class="citation" title="View source">8</a><a href="#source-12" class="citation" title="View source">12</a>.<h2>Putting it all together: a lightweight diagram</h2>The following Mermaid diagram illustrates the flow from budget checks to model selection. It keeps the narrative grounded in a practical, scalable pattern you can implement today.</p>
+<p><pre><code class="language-mermaid">flowchart TD
+  TB[Token Bucket per tenant]
+  B[Budget remaining]
+  S[Model selector]
+  R[Router]
+  D[default-model]
+  C[compact-model]
+  TB --&gt; B
+  B --&gt;|ok| S
+  B --&gt;|low| C
+  S --&gt;|choose| R
+  R --&gt; D
+  R --&gt; C</code></pre></p>
+<p>This visual aligns with established patterns for quota-aware automation and dynamic allocation <a href="#source-8" class="citation" title="View source">8</a><a href="#source-11" class="citation" title="View source">11</a>.<h2>Reality check: a real-world war story</h2>Real-world lessons show that quotas can stall progress if automation remains rigid. Microsoft’s Azure OpenAI deployments revealed how quota pressure can derail scalable, regionally distributed deployments, underscoring the need for quota-aware automation and early fallback strategies <a href="#source-1" class="citation" title="View source">1</a>. The takeaway is clear: decouple quota allocation from deployment configuration, and implement dynamic reallocation paths to cheaper resources when quotas or budgets tighten <a href="#source-1" class="citation" title="View source">1</a>.
     <div class="real-world-example">
       <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
-      <div class="company"><i data-lucide="briefcase"></i> Cockroach Labs</div>
-      <p class="scenario">CockroachCloud runs multi-region CockroachDB clusters across several availability zones. The default Kubernetes scheduler could not guarantee zone-level placement during scale operations for StatefulSets, risking loss of zone presence and data availability. To achieve deterministic zonal placement, Cockroach Labs built a custom Kubernetes scheduler that locks StatefulSet pods to specific zones based on their ordinal.</p>
-      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> When topology and data locality are critical for HA, the default scheduler may not suffice. The Kubernetes scheduling framework allows custom plugins to encode workload-specific constraints, enabling deterministic placement and safer scale behavior for stateful, multi-zone workloads.</div>
-    </div><h2>Scheduling Process Flow</h2><div class="mermaid">flowchart TD
-A[Kubernetes Cluster] --> B{Pod scheduling}
-B -->|Default| C[Default kube-scheduler]
-B -->|Custom| D[Custom Scheduler]
-C --> E[Evaluate resources, taints, affinities]
-D --> E
-E --> F[Pod assigned to Node]
-F --> G[Pod running]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Many developers discover that the real killer is data locality, not just raw compute capacity.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>SchedulerName enables multiple schedulers in a cluster</li><li>Custom schedulers replace or extend the default kube-scheduler</li><li>Topology-aware placement improves HA for stateful workloads</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://kubernetes.io/blog/2020/12/21/writing-crl-scheduler/" target="_blank" rel="noopener">A Custom Kubernetes Scheduler to Orchestrate Highly Available Applications</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://kubernetes.io/docs/concepts/scheduling/scheduling-framework/" target="_blank" rel="noopener">Scheduling Framework</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/" target="_blank" rel="noopener">StatefulSet - Kubernetes</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://kubernetes.io/docs/concepts/scheduling/scheduler-perf-tuning/" target="_blank" rel="noopener">Scheduler Performance Tuning</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://en.wikipedia.org/wiki/Kubernetes" target="_blank" rel="noopener">Kubernetes</a><span class="source-type">article</span></li><li id="source-6"><span class="source-num">6</span><a href="https://github.com/kubernetes/kubernetes" target="_blank" rel="noopener">Kubernetes - Kubernetes</a><span class="source-type">blog</span></li><li id="source-7"><span class="source-num">7</span><a href="https://github.com/kubernetes-sigs/kueue" target="_blank" rel="noopener">Kueue: Kubernetes Queuing for Scheduling</a><span class="source-type">repository</span></li><li id="source-8"><span class="source-num">8</span><a href="https://docs.aws.amazon.com/eks/latest/userguide/what-is-kubernetes.html" target="_blank" rel="noopener">What is Kubernetes? - AWS</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://en.wikipedia.org/wiki/Container_orchestration" target="_blank" rel="noopener">Container orchestration - Wikipedia</a><span class="source-type">article</span></li><li id="source-10"><span class="source-num">10</span><a href="https://datatracker.ietf.org/doc/html/rfc2616" target="_blank" rel="noopener">HTTP/1.1: RFC 2616</a><span class="source-type">documentation</span></li></ul></div>
+      <div class="company"><i data-lucide="briefcase"></i> Microsoft</div>
+      <p class="scenario">At scale, Azure OpenAI deployments across 50+ models hit per-region TPM/RPM quotas, causing Terraform deployment failures and throttling; teams lacked a way to predictably allocate quotas across models.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Design quota-aware automation; decouple deployment configuration from quota allocation; implement dynamic reallocation strategies and fallback paths to cheaper resources when quotas or budgets are constrained.</div>
+    </div><h2>System Flow</h2><div class="mermaid">flowchart TD
+  TB[Token Bucket per tenant]
+  B[Budget remaining]
+  S[Model selector]
+  R[Router]
+  D[default-model]
+  C[compact-model]
+  TB --> B
+  B -->|ok| S
+  B -->|low| C
+  S -->|choose| R
+  R --> D
+  R --> C</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Some of the earliest scalable quota systems draw from network traffic shaping and have evolved into layered billing and SLA-aware routing in modern LLM gateways.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Per-tenant budgets enforce fairness and predictability.</li><li>Token buckets enable smooth throttling without hard outages.</li><li>Model tiering preserves latency for critical tenants while trimming cost for others.</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://medium.com/@sohaibsohailengineer/the-azure-llm-quota-problem-youll-hit-at-scale-and-how-i-built-around-it-8069be46bc90" target="_blank" rel="noopener">The Azure LLM Quota Problem You'll Hit At Scale (And How I Built Around It)</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://en.wikipedia.org/wiki/Token_bucket" target="_blank" rel="noopener">Token bucket</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://en.wikipedia.org/wiki/Rate_limiting" target="_blank" rel="noopener">Rate limiting</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://kubernetes.io/docs/concepts/policy/resource-quotas/" target="_blank" rel="noopener">Kubernetes – Resource quotas</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://docs.aws.amazon.com/servicequotas/latest/userguide/intro.html" target="_blank" rel="noopener">AWS Service Quotas</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://datatracker.ietf.org/doc/html/rfc6585" target="_blank" rel="noopener">HTTP 429 Too Many Requests (RFC 6585)</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://datatracker.ietf.org/doc/html/rfc7231" target="_blank" rel="noopener">HTTP/1.1 Semantics (RFC 7231)</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://github.com/Netflix/conductor" target="_blank" rel="noopener">Netflix Conductor</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://github.com/istio/istio" target="_blank" rel="noopener">Istio</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://github.com/open-telemetry/opentelemetry-specification" target="_blank" rel="noopener">OpenTelemetry</a><span class="source-type">documentation</span></li><li id="source-11"><span class="source-num">11</span><a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After" target="_blank" rel="noopener">Retry-After header (MDN)</a><span class="source-type">documentation</span></li><li id="source-12"><span class="source-num">12</span><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need (arXiv)</a><span class="source-type">paper</span></li></ul></div>
     <div class="share-snippet">
       <div class="share-snippet-header">
         <span class="share-icon"><i data-lucide="share-2"></i></span>
         <h3>Share This</h3>
         <div class="share-buttons">
-          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-4596%2Fthe-zone-that-became-a-scheduler-a-real-world-tale-of-deterministic-placement%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-8687%2Fquota-wars-designing-a-cost-aware-multi-tenant-llm-gateway%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
             <i data-lucide="linkedin"></i>
           </a>
-          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20why%20some%20deployments%20stay%20rock-stable%20across%20zones%20while%20others%20don%E2%80%99t%3F%20%F0%9F%A7%AD%0A%0AA%20real-world%20case%20shows%20topology-aware%20scheduling%20turning%20chaos%20into%20determinism.%2CKubernetes%20supports%20multiple%20schedulers%3B%20pods%20can%20pick%20the%20right%20one%20with%20schedulerName.%2CDeterministic%20placement%20unlocks%20safer%20scale%20for%20stateful%2C%20multi-region%20workloads.%0A%0ARead%20the%20full%20journey%20to%20see%20how%20a%20custom%20scheduler%20reshaped%20reliability%20and%20scale.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23DevOps%20%23Kubernetes%20%23CloudComputing%20%23DataEngineering%20%23HA%20%23Scheduling%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-4596%2Fthe-zone-that-became-a-scheduler-a-real-world-tale-of-deterministic-placement%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20how%20to%20pay%20for%20LLMs%20without%20breaking%20SLA%3F%20%F0%9F%9A%A6%0A%0APer-tenant%20budgets%20%2B%20token%20throttling%20keep%20costs%20predictable.%2CSmart%20model%20tiering%20preserves%20latency%20for%20high-priority%20tenants.%2CFallback%20to%20cheaper%20models%20prevents%20outages%20during%20quota%20pressure.%0A%0ADive%20into%20the%20full%20narrative%20to%20see%20how%20Microsoft-like%20quota%20problems%20become%20solvable%20with%20a%20lightweight%2C%20scalable%20design.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23BackendDevelopment%20%23LLMOps%20%23CloudComputing%20%23CostOptimization%20%23DevOps%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-8687%2Fquota-wars-designing-a-cost-aware-multi-tenant-llm-gateway%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
             <i data-lucide="twitter"></i>
           </a>
           <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
@@ -84,11 +124,11 @@ F --> G[Pod running]</div><div class="fun-fact"><span class="fun-fact-icon"><i d
         </div>
       </div>
       <div class="share-snippet-content" id="shareSnippet">
-        <p class="snippet-hook">Ever wondered why some deployments stay rock-stable across zones while others don’t? 🧭</p>
-        <p class="snippet-body">A real-world case shows topology-aware scheduling turning chaos into determinism.,Kubernetes supports multiple schedulers; pods can pick the right one with schedulerName.,Deterministic placement unlocks safer scale for stateful, multi-region workloads.</p>
-        <p class="snippet-cta">Read the full journey to see how a custom scheduler reshaped reliability and scale.</p>
-        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #DevOps #Kubernetes #CloudComputing #DataEngineering #HA #Scheduling</p>
-        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-4596/the-zone-that-became-a-scheduler-a-real-world-tale-of-deterministic-placement/</p>
+        <p class="snippet-hook">Ever wondered how to pay for LLMs without breaking SLA? 🚦</p>
+        <p class="snippet-body">Per-tenant budgets + token throttling keep costs predictable.,Smart model tiering preserves latency for high-priority tenants.,Fallback to cheaper models prevents outages during quota pressure.</p>
+        <p class="snippet-cta">Dive into the full narrative to see how Microsoft-like quota problems become solvable with a lightweight, scalable design.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #BackendDevelopment #LLMOps #CloudComputing #CostOptimization #DevOps</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-8687/quota-wars-designing-a-cost-aware-multi-tenant-llm-gateway/</p>
       </div>
     </div>
     <script>
@@ -104,7 +144,7 @@ F --> G[Pod running]</div><div class="fun-fact"><span class="fun-fact-icon"><i d
     </script>
     
     <h2>Wrapping Up</h2>
-    <p>Topology-aware scheduling turns a distribution of resources into a deliberate architectural choice. When data locality and deterministic placement matter for high availability, the path from default scheduling to a custom scheduler becomes not just practical, but essential. The next step is to map real-world constraints into scheduling decisions and explore how plugins can encode those rules without sacrificing cluster health.</p>
+    <p>Budget-aware routing transforms risk into predictability. By decoupling quotas from deployment and adding graceful fallbacks, teams can sustain performance while controlling cost. Tomorrow's gateway design benefits from starting with per-tenant budgets, lightweight token throttling, and cheap fallbacks—the trio that keeps both latency and spend under control. Consider sharing the core insight with your team: you don’t have to choose between cost and performance; you can balance both with a disciplined, observable approach.</p>
   </div>
   
   <div class="author-card">
@@ -133,26 +173,26 @@ F --> G[Pod running]</div><div class="fun-fact"><span class="fun-fact-icon"><i d
       <h3>Continue Reading</h3>
       <div class="related-grid">
         
-          <a href="/posts/q-10488/the-build-at-scale-how-to-ship-a-rust-microservice-with-buildkit-secrets-cargo-c/" class="related-card">
-            <span class="related-title">The Build at Scale: How to Ship a Rust Microservice with BuildKit Secrets, Cargo Caching, and a Minimal Runtime</span>
-            <span class="related-meta">intermediate</span>
+          <a href="/posts/q-7633/guardrails-in-the-clouds-a-regionaware-saga-for-llm-gateways/" class="related-card">
+            <span class="related-title">Guardrails in the Clouds: A Region‑Aware Saga for LLM Gateways</span>
+            <span class="related-meta">advanced</span>
           </a>
         
-          <a href="/posts/q-644/the-etsy-rule-how-feature-flags-and-canary-deployments-enable-zero-downtime-at-s/" class="related-card">
-            <span class="related-title">The Etsy Rule: How Feature Flags and Canary Deployments Enable Zero-Downtime at Scale</span>
-            <span class="related-meta">intermediate</span>
-          </a>
-        
-          <a href="/posts/blog-1766676477930-9i8oki/docker-containers-revolutionize-your-development-workflow/" class="related-card">
-            <span class="related-title">Docker Containers: Revolutionize Your Development Workflow</span>
+          <a href="/posts/q-3824/guardrails-in-the-gate-designing-a-per-tenant-prompt-mutation-engine/" class="related-card">
+            <span class="related-title">Guardrails in the Gate: Designing a Per-Tenant Prompt Mutation Engine</span>
             <span class="related-meta">beginner</span>
+          </a>
+        
+          <a href="/posts/q-1263/the-netflix-inspired-playbook-for-zero-downtime-upgrades-across-three-regions/" class="related-card">
+            <span class="related-title">The Netflix-Inspired Playbook for Zero-Downtime Upgrades Across Three Regions</span>
+            <span class="related-meta">intermediate</span>
           </a>
         
       </div>
     </div>
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/devops" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/llm-ops" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
