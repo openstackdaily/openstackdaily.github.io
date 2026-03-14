@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Guardrails in the Gate: Designing a Per-Tenant Prompt Mutation Engine | DevInsights</title>
-  <meta name="description" content="A story-driven look at building a per-tenant prompt mutation gate for multi-tenant GenAI gateways, inspired by AWS Bedrock governance and cost-tracking lessons.">
+  <title>The Guarded Prompt: A Journey to Provenance Across Model Versions | DevInsights</title>
+  <meta name="description" content="A story-driven guide to enforcing prompt provenance and per-tenant policy across model versions, with a real-world case study and a practical Python prototype.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
@@ -45,91 +45,59 @@
 <main><article class="article"><div class="container">
   <a href="/categories/ai-machine-learning/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← AI & Machine Learning</a>
   <div class="article-header">
-    <h1>Guardrails in the Gate: Designing a Per-Tenant Prompt Mutation Engine</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Llm Ops</span><span class="difficulty beginner">beginner</span><span class="tag">llm-ops</span></div>
+    <h1>The Guarded Prompt: A Journey to Provenance Across Model Versions</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Prompt Engineering</span><span class="difficulty intermediate">intermediate</span><span class="tag">prompt-engineering</span></div>
   </div>
-  <p class="article-intro">Picture this: a large enterprise relies on a Bedrock-backed, multi-tenant gateway to power dozens of teams. Costs spike, governance frays, and latency unpredictably creeps up. AWS tackled this head-on by building an internal SaaS service that tracks cost and usage for foundation models on Bedrock, enforcing per-tenant governance with a centralized gateway <a href="#source-1" class="citation" title="View source">1</a>. The result isn’t just cheaper or faster; it’s a blueprint for scaling GenAI responsibly. This article follows that spirit: you’ll see how a per-tenant prompt mutation gate can shorten prompts to a configurable maxTokens while preserving intent, under clear policy and deterministically applied paraphrase. <a href="#source-1" class="citation" title="View source">1</a></p>
+  <p class="article-intro">In a Talantir case study, an unnamed mid-sized enterprise faced shadow ChatGPT usage that risked data leaks and inconsistent results. The story shows that governance at the workflow level can turn a chaotic rollout into auditable, role-aware control within four months <a href="#source-1" class="citation" title="View source">1</a>. This blog follows that path, inviting you to discover how a real-time system can enforce prompt provenance and per-tenant policy across model versions—without slowing down innovation.</p>
   <div class="article-content">
     <figure class="article-image">
-      <img src="/images/pixel-q-3824.svg" alt="Guardrails in the Gate: Designing a Per-Tenant Prompt Mutation Engine - Pixel Art Illustration" loading="lazy">
-      <figcaption>collaboration scene (16-bit pixel art)</figcaption>
-    </figure><h2>Hook: The AWS Case That Ignites the Journey</h2>Many developers discover a sneaky tension in enterprise AI: every team wants access to powerful models, but costs, data boundaries, and security rules differ across teams. AWS’s experience building an internal SaaS service for foundation models on Bedrock demonstrates how a centralized gateway with strict per-tenant governance can scale governance, cost tracking, and throttling without compromising user experience <a href="#source-1" class="citation" title="View source">1</a>. Building on this, the journey begins with a simple question: how can a per-tenant policy gate automatically shorten prompts, enforce tokens caps, and preserve intent? The stakes are high—slippage in policy or semantics can mean misinformed decisions, budget overruns, or hidden data exposure <a href="#source-1" class="citation" title="View source">1</a>.<h2>Discovery: Designing the Per-Tenant Mutation Gate</h2>Building on the AWS blueprint, the core idea is a per-tenant policy schema that governs how prompts are mutated before they ever reach a model. Consider a lightweight data model that captures the essentials:</p>
-<p><pre><code class="language-ts">type TenantPolicy = {
-  tenantId: string
-  maxTokens: number
-  bannedTokens: string[]
-  allowParaphrase: boolean
-}</code></pre><ul>
-<li>maxTokens sets the hard cap for token count, a guardrail against runaway costs and latency <a href="#source-8" class="citation" title="View source">8</a>.</li>
-<li>bannedTokens ensure sensitive or prohibited content never leaves the gateway <a href="#source-7" class="citation" title="View source">7</a>.</li>
-<li>allowParaphrase controls whether a deterministic paraphrase step may be applied to shorten or adjust prompts while preserving intent <a href="#source-4" class="citation" title="View source">4</a><a href="#source-5" class="citation" title="View source">5</a>.</li>
-</ul>Mutation order matters. A predictable, auditable sequence locks in safety and determinism:
-<ul>
-<li>Ban check: if any banned token appears, the mutation halts or flags for review.</li>
-<li>Deterministic paraphrase: if allowed, apply a rule-based, reproducible paraphrase to shorten content without changing meaning <a href="#source-4" class="citation" title="View source">4</a><a href="#source-7" class="citation" title="View source">7</a>.</li>
-<li>Truncation: tokenize and cut to maxTokens, then join back to a compliant prompt.</li>
-</ul>For context, tokenization is the process of splitting text into tokens that models count and process; this concept is widely discussed and standardized in language processing literature <a href="#source-8" class="citation" title="View source">8</a>.<h2>Implementation Walkthrough: A Minimal Mutation Pipeline</h2>Here’s a compact, deterministic mutation flow you can start with. It mirrors the AWS lesson of central governance while keeping the logic approachable:</p>
-<p><pre><code class="language-ts">type TenantPolicy = {
-  tenantId: string
-  maxTokens: number
-  bannedTokens: string[]
-  allowParaphrase: boolean
-}
-function tokenize(s: string): string[] { return s.trim().split(/\s+/) }
-function paraphrase(s: string): string { return s.replace(/transfer/g, 'move').replace(/\$/g, 'USD ') }
-function applyMutation(prompt: string, policy: TenantPolicy): string {
-  // Ban check: if any banned token appears, reject mutation (or flag for review)
-  for (const t of policy.bannedTokens) {
-    if (prompt.includes(t)) return prompt // or throw/flag in production
-  }
-  let m = prompt
-  // Deterministic paraphrase if allowed
-  if (policy.allowParaphrase) m = paraphrase(m)
-  // Tokenization and truncation
-  const tokens = tokenize(m)
-  if (tokens.length &gt; policy.maxTokens) m = tokens.slice(0, policy.maxTokens).join(' ')
-  return m
-}</code></pre></p>
-<p>Example:
-<ul>
-<li>TenantPolicy: { tenantId: 'team-rocket', maxTokens: 12, bannedTokens: ['secret'], allowParaphrase: true }</li>
-<li>Prompt: "Transfer $1000 to vendor account"</li>
-<li>Mutated: "move USD 1000 to vendor account" (paraphrase applied, token count fine)</li>
-</ul>This is the baseline. In practice, you’ll want a small suite of synthetic prompts to validate token caps and semantic retention under various policies. Inline tests would cover: (a) no paraphrase when allowParaphrase is false, (b) semantics preserved after paraphrase, (c) truncation never violates critical phrasing, (d) banned-token hits are rejected or flagged for review.<h2>Follow the Mutation, Test the Impact</h2>A minimal test plan uses synthetic prompts to validate token caps and semantic preservation:
-<ul>
-<li>Test 1: No paraphrase, strict maxTokens = 6; input longer sentence; verify output is exactly 6 tokens.</li>
-<li>Test 2: Paraphrase enabled; input with a verb mapped in paraphrase rules; verify output tokens stay within maxTokens and semantics remain intact.</li>
-<li>Test 3: Banned token  triggers rejection or safe fallback; verify mutation path halts and logs the event.</li>
-<li>Test 4: Edge-case punctuation and contractions; verify tokenization treats them as expected and truncation doesn’t split meaningful chunks.</li>
-</ul>Concrete prompts for validation:
-<ul>
-<li>Prompt A: "Transfer $250 to the vendor team" with maxTokens 8, paraphrase on -> expect "move USD 250 to the vendor team" truncated to 8 tokens if needed.</li>
-<li>Prompt B: "Secret project kickoff notes" with banned token 'Secret' present -> mutation should reject/flag.</li>
-<li>Prompt C: A long, multi-sentence briefing that exceeds maxTokens -> expect truncation to maxTokens while preserving a coherent beginning.</li>
+      <img src="/images/pixel-q-14081.svg" alt="The Guarded Prompt: A Journey to Provenance Across Model Versions - Pixel Art Illustration" loading="lazy">
+      <figcaption>deploy scene (16-bit pixel art)</figcaption>
+    </figure><h2>Hook: The Shadow Prompt Nightmare</h2>Imagine teams casually tailoring prompts on live systems, slipping sensitive data into outputs, and governance never quite catching up. That was the looming threat in an unnamed mid-sized enterprise, where shadow usage risked data leaks and inconsistent results <a href="#source-1" class="citation" title="View source">1</a>. The tension wasn’t about a single policy; it was about keeping every prompt honest, traceable, and auditable across dozens of teams. The question wasn’t if this could fail, but when. How could a company turn this around without stifling creativity?<h2>Context: Why Provenance and Policy Matter</h2>Provenance turns every prompt into a traceable story—the who, what, when, and why. In practice, this means per-tenant controls, versioning of prompts, and immutable records that survive model upgrades. The real win comes from cryptographic signatures and tamper-evident audits, which provide a trustworthy backbone for governance rather than vague guarantees <a href="#source-2" class="citation" title="View source">2</a>. You’ll also rely on strong fingerprinting to tie inputs to policy intent, a staple in modern security discussions <a href="#source-3" class="citation" title="View source">3</a>. For readers who want to dig into the cryptographic basics, the Web Crypto API and Python tooling offer practical starting points <a href="#source-9" class="citation" title="View source">9</a>.<h2>Journey: Designing the Versioned Provenance Layer</h2>The core idea is a lightweight but rigorous provenance layer that preserves user intent while applying policy, across model versions. A practical fingerprint can be computed as sha256(input + policy_id + model_version + ts), producing a compact, tamper-evident identifier for each prompt attempt <a href="#source-3" class="citation" title="View source">3</a>. The audit itself should be signed with an RSA key, creating an immutable record that can be independently verified later <a href="#source-4" class="citation" title="View source">4</a>. For readers who want a quick glimpse, here is a minimal Python prototype excerpt that shows signing, fingerprinting, and a naive guard rewrite. It demonstrates the flow without getting lost in production scaffolding.</p>
+<p><pre><code class="language-python">import hashlib, json, rsa
+
+def fingerprint(inp, policy_id, model_ver, ts):
+    data = f'{inp}|{policy_id}|{model_ver}|{ts}'
+    return hashlib.sha256(data.encode()).hexdigest()
+
+def sign(audit, privkey_pem):
+    key = rsa.PrivateKey.load_pkcs1(privkey_pem.encode())
+    return rsa.sign(json.dumps(audit).encode(), key, 'SHA-256')
+
+# guard rewrite (very naive)
+def guard(inp, policy):
+    if 'system_prompt' in inp:
+        return inp.replace('system_prompt', 'sanitized')
+    return inp</code></pre></p>
+<p>This pattern gives you a reproducible footprint for every prompt—useful for audits, anomaly detection, and continuous improvement <a href="#source-5" class="citation" title="View source">5</a><a href="#source-9" class="citation" title="View source">9</a>.<h2>Twist: Per-Tenant Policy Envelopes and Leakage Prevention</h2>The clever part isn't just signing prompts; it’s wrapping inputs in per-tenant policy envelopes that enforce leakage controls and enforce role-based constraints. A real implementation must support key rotation, policy blob updates, and seamless auditing who saw what, when, and why. The cryptographic foundations—RSA signatures, hash-based fingerprints, and tamper-evident logs—are well-established, but the operational choreography matters most when policies rotate and model versions advance <a href="#source-4" class="citation" title="View source">4</a><a href="#source-9" class="citation" title="View source">9</a><a href="#source-11" class="citation" title="View source">11</a>. This is where governance meets engineering discipline: you rotate keys and policies without breaking audit integrity or forcing a full re-audit of historical prompts <a href="#source-12" class="citation" title="View source">12</a>.<h2>Real-World Proof: The Talantir Case Revisited</h2>The Talantir case study illustrates a powerful truth: governance at the workflow level, with per-role definitions and auditable workflows, changes the calculus of risk. When a 600-person organization moved from ad hoc usage to a governed deployment in four months, the team gained visibility into prompt usage, tightened controls, and reduced leakage opportunities. This isn’t just theory; it’s a practical pattern that reduces blast radius and increases trust in AI-assisted decision-making <a href="#source-1" class="citation" title="View source">1</a>.<h2>Payoff: Start Now with a Practical Roadmap</h2>This journey yields concrete next steps that teams can adopt today:<ul>
+<li>Define per-tenant policy envelopes: map tenants to policy_id, model_version, and required data protections. Establish clear ownership for policy blobs <a href="#source-9" class="citation" title="View source">9</a>.</li>
+<li>Implement fingerprinting: compute SHA-256 over input, policy_id, model_version, and a timestamp to bind prompts to their governance context <a href="#source-3" class="citation" title="View source">3</a>.</li>
+<li>Create an immutable audit ledger: store signed JSON records with a robust signature scheme (RSA) and a verifiable public key <a href="#source-4" class="citation" title="View source">4</a>.</li>
+<li>Prototype and test: use the minimal Python example to validate signing, fingerprinting, and a guard rewrite before productionizing <a href="#source-5" class="citation" title="View source">5</a>.</li>
+<li>Plan key rotation and policy updates: design a rotation protocol that preserves audit integrity and allows historical audits to remain verifiable <a href="#source-12" class="citation" title="View source">12</a>.</li>
+<li>Build a lightweight evaluation harness: simulate high-throughput prompts, measure latency, and verify end-to-end integrity of provenance and audits <a href="#source-9" class="citation" title="View source">9</a>.</li>
 </ul>
     <div class="real-world-example">
       <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
-      <div class="company"><i data-lucide="briefcase"></i> Amazon Web Services (AWS)</div>
-      <p class="scenario">AWS demonstrates building an internal SaaS layer to provide access to foundation models (Bedrock) in a multi-tenant setup, focusing on per-tenant governance, cost tracking, and throttling.</p>
-      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Per-tenant cost governance and quota enforcement can scale to many teams, while decoupling cost reporting from model latency; a centralized SaaS gateway with clear data partitioning makes it feasible to manage multi-tenant GenAI at enterprise scale.</div>
-    </div><h2>Per-Tenant Prompt Mutation Flow</h2><div class="mermaid">flowchart TD
-  A[Input Prompt] --> B{TenantPolicy}
-  B --> C[Ban Check]
-  C -->|Ban Found| D[Reject/Flag]
-  C --> E[Paraphrase if allowed]
-  E --> F[Tokenize]
-  F --> G{Token Count > maxTokens}
-  G -->|Yes| H[Truncate to maxTokens]
-  G -->|No| I[Output]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Many enterprises discover that a well-placed paraphrase rule can shave 20–40% of average prompt length without losing essential meaning, but edge cases require careful auditing for safety.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Deterministic paraphrase preserves intent while shortening prompts.</li><li>Ban checks prevent leaking banned tokens and enforce policy.</li><li>Token caps must be validated before sending prompts to models.</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://aws.amazon.com/blogs/machine-learning/build-an-internal-saas-service-with-cost-and-usage-tracking-for-foundation-models-on-amazon-bedrock/" target="_blank" rel="noopener">Build an internal SaaS service with cost and usage tracking for foundation models on Amazon Bedrock</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://docs.aws.amazon.com/cost-management/index.html" target="_blank" rel="noopener">Cost Management</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a><span class="source-type">paper</span></li><li id="source-4"><span class="source-num">4</span><a href="https://arxiv.org/abs/1810.04805" target="_blank" rel="noopener">BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding</a><span class="source-type">paper</span></li><li id="source-5"><span class="source-num">5</span><a href="https://github.com/openai/openai-python" target="_blank" rel="noopener">openai-python</a><span class="source-type">repository</span></li><li id="source-6"><span class="source-num">6</span><a href="https://github.com/huggingface/transformers" target="_blank" rel="noopener">Transformers</a><span class="source-type">repository</span></li><li id="source-7"><span class="source-num">7</span><a href="https://en.wikipedia.org/wiki/Tokenization" target="_blank" rel="noopener">Tokenization</a><span class="source-type">article</span></li><li id="source-8"><span class="source-num">8</span><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/String/split" target="_blank" rel="noopener">String.split() - MDN</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://docs.python.org/3/library/textwrap.html" target="_blank" rel="noopener">textwrap — Text wrapping and filling</a><span class="source-type">documentation</span></li></ul></div>
+      <div class="company"><i data-lucide="briefcase"></i> Unnamed mid-sized enterprise (case study published by Talantir)</div>
+      <p class="scenario">A ~600-employee enterprise faced uncoordinated, shadow ChatGPT usage across teams, risking data leaks and inconsistent results. They used Talantir to test readiness and roll out a governed, enterprise ChatGPT deployment with role-based controls and auditable workflows within four months.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Governance at the workflow level beats generic policy; per-role definitions and auditable logs make risk visible and controllable; trust but verify usage in practice, not just in documentation.</div>
+    </div><h2>System Flow</h2><div class="mermaid">graph TD
+  A[User input] --> B[Fingerprint(input, policy_id, model_version, ts)]
+  B --> C[Guarded Prompt (policy envelope)]
+  C --> D[Audit Record {fingerprint, tenant_id, policy_id, model_version, signature}]
+  D --> E[Immutable Audit Ledger]
+  E --> F[Model Inference]
+  F --> G[Output]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The pace of governance adoption can outstrip tooling; four months is enough to reorganize policy, not just implement it.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Per-tenant policy envelopes map tenants to policy_id and model_version</li><li>Fingerprinting binds input, policy, version, and time</li><li>Signed audit records enable verifiable provenance across upgrades</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://talantir.ai/en/case-studies/how-a-600-person-company-rolled-out-chatgpt-withou-697285c28875dc2ca53843ce" target="_blank" rel="noopener">How a 600-Person Company Rolled Out ChatGPT Without Data Leaks</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://en.wikipedia.org/wiki/Digital_signature" target="_blank" rel="noopener">Digital signature - Wikipedia</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://en.wikipedia.org/wiki/SHA-2" target="_blank" rel="noopener">SHA-2 (SHA-256) - Wikipedia</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://datatracker.ietf.org/doc/html/rfc8017" target="_blank" rel="noopener">PKCS #1: RSA Cryptography Specifications (RFC 8017)</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://docs.python.org/3/library/hashlib.html" target="_blank" rel="noopener">hashlib — Python 3.11.0 documentation</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://cryptography.io/en/latest/hazmat/primitives/asymmetric/rsa/" target="_blank" rel="noopener">RSA (cryptography) — Python Cryptography Authority</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://github.com/pyca/cryptography" target="_blank" rel="noopener">pyca/cryptography</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://arxiv.org/abs/1706.03762" target="_blank" rel="noopener">Attention Is All You Need</a><span class="source-type">paper</span></li><li id="source-9"><span class="source-num">9</span><a href="https://developer.mozilla.org/en-US/docs/Web/API/SubtleCrypto/digest" target="_blank" rel="noopener">SubtleCrypto.digest - MDN</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://docs.aws.amazon.com/kms/latest/developerguide/overview.html" target="_blank" rel="noopener">AWS KMS overview</a><span class="source-type">documentation</span></li><li id="source-11"><span class="source-num">11</span><a href="https://kubernetes.io/docs/concepts/security/overview/" target="_blank" rel="noopener">Kubernetes security overview</a><span class="source-type">documentation</span></li><li id="source-12"><span class="source-num">12</span><a href="https://datatracker.ietf.org/doc/html/rfc7616" target="_blank" rel="noopener">Digest Access Authentication (RFC 7616)</a><span class="source-type">documentation</span></li><li id="source-13"><span class="source-num">13</span><a href="https://en.wikipedia.org/wiki/Hash_function" target="_blank" rel="noopener">Hash function - Wikipedia</a><span class="source-type">documentation</span></li></ul></div>
     <div class="share-snippet">
       <div class="share-snippet-header">
         <span class="share-icon"><i data-lucide="share-2"></i></span>
         <h3>Share This</h3>
         <div class="share-buttons">
-          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-3824%2Fguardrails-in-the-gate-designing-a-per-tenant-prompt-mutation-engine%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-14081%2Fthe-guarded-prompt-a-journey-to-provenance-across-model-versions%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
             <i data-lucide="linkedin"></i>
           </a>
-          <a href="https://twitter.com/intent/tweet?text=What%20if%20a%20gate%20could%20shorten%20prompts%20without%20losing%20intent%3F%20%F0%9F%94%92%0A%0ALearn%20how%20per-tenant%20policies%20enable%20scalable%20governance%20for%20multi-tenant%20GenAI%20gateways.%2CAWS's%20Bedrock%20case%20shows%20decoupling%20cost%20reporting%20from%20latency%20makes%20large-scale%20usage%20feasible.%2CDeterministic%20paraphrase%20plus%20token%20caps%20keep%20budgets%20in%20check%20while%20preserving%20meaning.%0A%0ADive%20into%20the%20full%20journey%20and%20start%20building%20your%20own%20policy-controlled%20gateway.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23LLMOps%20%23CloudComputing%20%23CostGovernance%20%23MultiTenant%20%23GenAI%20%23AWS%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-3824%2Fguardrails-in-the-gate-designing-a-per-tenant-prompt-mutation-engine%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+          <a href="https://twitter.com/intent/tweet?text=What%20if%20prompts%20could%20age%20like%20wine%E2%80%94policy-bound%20and%20auditable%3F%20%F0%9F%A7%AD%0A%0AA%20real-world%20case%20shows%20governance%20at%20the%20workflow%20level%20cuts%20data-leak%20risk%20while%20keeping%20teams%20productive.%2CFingerprinting%2C%20per-tenant%20envelopes%2C%20and%20signed%20audits%20create%20a%20trustworthy%2C%20auditable%20chain%20across%20model%20versions.%2CA%20minimal%20Python%20prototype%20demonstrates%20signing%2C%20fingerprinting%2C%20and%20a%20guard%20rewrite%20to%20start%20the%20journey.%0A%0ARead%20the%20full%20article%20to%20see%20how%20to%20apply%20these%20lessons%20in%20your%20org.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23TechCareers%20%23CodingInterview%20%23BackendDevelopment%20%23AI%20%23DataSecurity%20%23DevOps%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-14081%2Fthe-guarded-prompt-a-journey-to-provenance-across-model-versions%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
             <i data-lucide="twitter"></i>
           </a>
           <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
@@ -138,11 +106,11 @@ function applyMutation(prompt: string, policy: TenantPolicy): string {
         </div>
       </div>
       <div class="share-snippet-content" id="shareSnippet">
-        <p class="snippet-hook">What if a gate could shorten prompts without losing intent? 🔒</p>
-        <p class="snippet-body">Learn how per-tenant policies enable scalable governance for multi-tenant GenAI gateways.,AWS's Bedrock case shows decoupling cost reporting from latency makes large-scale usage feasible.,Deterministic paraphrase plus token caps keep budgets in check while preserving meaning.</p>
-        <p class="snippet-cta">Dive into the full journey and start building your own policy-controlled gateway.</p>
-        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #LLMOps #CloudComputing #CostGovernance #MultiTenant #GenAI #AWS</p>
-        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-3824/guardrails-in-the-gate-designing-a-per-tenant-prompt-mutation-engine/</p>
+        <p class="snippet-hook">What if prompts could age like wine—policy-bound and auditable? 🧭</p>
+        <p class="snippet-body">A real-world case shows governance at the workflow level cuts data-leak risk while keeping teams productive.,Fingerprinting, per-tenant envelopes, and signed audits create a trustworthy, auditable chain across model versions.,A minimal Python prototype demonstrates signing, fingerprinting, and a guard rewrite to start the journey.</p>
+        <p class="snippet-cta">Read the full article to see how to apply these lessons in your org.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #TechCareers #CodingInterview #BackendDevelopment #AI #DataSecurity #DevOps</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-14081/the-guarded-prompt-a-journey-to-provenance-across-model-versions/</p>
       </div>
     </div>
     <script>
@@ -158,7 +126,7 @@ function applyMutation(prompt: string, policy: TenantPolicy): string {
     </script>
     
     <h2>Wrapping Up</h2>
-    <p>The journey from real-world governance to a practical per-tenant mutation gate demonstrates how policy, determinism, and testing come together to scale GenAI responsibly. Start with a minimal policy, prove it with synthetic prompts, then layer in telemetry and audits to grow confidence across teams.</p>
+    <p>The real takeaway is that trustworthy AI deployment hinges on governance that lives alongside your models. By treating prompts as auditable, versioned artifacts, teams can move fast while keeping data safe and results reliable.</p>
   </div>
   
   <div class="author-card">
@@ -187,18 +155,18 @@ function applyMutation(prompt: string, policy: TenantPolicy): string {
       <h3>Continue Reading</h3>
       <div class="related-grid">
         
-          <a href="/posts/q-8687/quota-wars-designing-a-cost-aware-multi-tenant-llm-gateway/" class="related-card">
-            <span class="related-title">Quota Wars: Designing a Cost-Aware, Multi-Tenant LLM Gateway</span>
-            <span class="related-meta">beginner</span>
-          </a>
-        
-          <a href="/posts/q-7633/guardrails-in-the-clouds-a-regionaware-saga-for-llm-gateways/" class="related-card">
-            <span class="related-title">Guardrails in the Clouds: A Region‑Aware Saga for LLM Gateways</span>
+          <a href="/posts/q-16261/guarding-the-multilingual-prompt-frontier-a-real-time-safe-translation-tale-for-/" class="related-card">
+            <span class="related-title">Guarding the Multilingual Prompt Frontier: A Real-Time, Safe Translation Tale for Support AIs</span>
             <span class="related-meta">advanced</span>
           </a>
         
-          <a href="/posts/q-1263/the-netflix-inspired-playbook-for-zero-downtime-upgrades-across-three-regions/" class="related-card">
-            <span class="related-title">The Netflix-Inspired Playbook for Zero-Downtime Upgrades Across Three Regions</span>
+          <a href="/posts/q-6485/the-canary-code-a-journey-to-safely-ship-prompt-experiments-at-lightning-speed/" class="related-card">
+            <span class="related-title">The Canary Code: A Journey to Safely Ship Prompt Experiments at Lightning Speed</span>
+            <span class="related-meta">advanced</span>
+          </a>
+        
+          <a href="/posts/q-1206/guardrails-at-scale-a-journey-into-multi-tenant-prompt-lifecycle/" class="related-card">
+            <span class="related-title">Guardrails at Scale: A Journey into Multi-Tenant Prompt Lifecycle</span>
             <span class="related-meta">intermediate</span>
           </a>
         
@@ -206,7 +174,7 @@ function applyMutation(prompt: string, policy: TenantPolicy): string {
     </div>
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/llm-ops" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/prompt-engineering" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
