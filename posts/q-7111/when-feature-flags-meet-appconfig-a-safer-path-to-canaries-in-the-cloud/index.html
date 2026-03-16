@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>The Ring Master: How Netflix Survives the Midnight Cache Apocalypse | DevInsights</title>
-  <meta name="description" content="Master consistent hashing for distributed caching. Learn how Netflix handles 100M+ users with minimal data movement and 99.99% availability.">
+  <title>When Feature Flags Meet AppConfig: A Safer Path to Canaries in the Cloud | DevInsights</title>
+  <meta name="description" content="Learn how to use AWS AppConfig for feature flags in ECS Fargate behind an ALB, with minimal IaC, startup fetch/cache, and robust rollback criteria.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
@@ -43,73 +43,73 @@
   <i data-lucide="moon" class="theme-icon-dark"></i>
 </button>
 <main><article class="article"><div class="container">
-  <a href="/categories/system-design/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← System Design</a>
+  <a href="/categories/other/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Other</a>
   <div class="article-header">
-    <h1>The Ring Master: How Netflix Survives the Midnight Cache Apocalypse</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">System Design</span><span class="difficulty advanced">advanced</span><span class="tag">hashing</span> <span class="tag">dist-sys</span> <span class="tag">caching</span></div>
+    <h1>When Feature Flags Meet AppConfig: A Safer Path to Canaries in the Cloud</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Aws Devops Pro</span><span class="difficulty beginner">beginner</span><span class="tag">aws-devops-pro</span></div>
   </div>
-  <p class="article-intro">Ever had your API crash at 3am because a single cache node went down and took 10% of your data with it? You're not alone. When your traffic suddenly spikes from 1M to 10M requests per second, traditional hashing becomes your worst nightmare - but consistent hashing turns chaos into a well-orchestrated ballet.</p>
+  <p class="article-intro">Picture this: a multi-tenant SaaS platform planning a new response format. CyberArk tackled this with AWS AppConfig-driven feature flags, enabling canary-style releases and fast rollback without redeploys <a href="#source-1" class="citation" title="View source">1</a>. The reader follows a journey where centralized config becomes the difference between a bold rollout and a brittle rollback, keeping customers happy and engineers unshackled.</p>
   <div class="article-content">
-    <h2>Why Your Current Cache Strategy is a Time Bomb</h2>Traditional modulo hashing (<code>hash(key) % N</code>) seems innocent until you scale. Add one node? Suddenly 50% of your cache misses. Lose a node? Welcome to the thundering herd. </p>
-<p>💡 <strong>Pro Tip</strong>: At scale, every node change becomes a cache apocalypse. Consistent hashing limits data movement to just 1/N of your keys when scaling.</p>
-<p>⚠️ <strong>Gotcha</strong>: Don't confuse consistent hashing with simple hash rings. The magic is in virtual nodes - 160+ replicas per physical node for even distribution.<h2>The Magic Behind the Ring</h2>Imagine a circular pizza where each slice represents a hash range. Instead of cutting it evenly (traditional hashing), we place toppings randomly. When you add more toppings (nodes), only the nearby slices change.</p>
-<p>🔥 <strong>Hot Take</strong>: 160 virtual nodes isn't random - it's the sweet spot between load distribution and memory overhead, proven by Dynamo's research.</p>
-<p><strong>Key Components</strong>:
-<ul>
-<li><strong>Hash Ring</strong>: Circular space from 0 to 2^32-1</li>
-<li><strong>Virtual Nodes</strong>: Multiple hash points per physical node</li>
-<li><strong>Replication Factor</strong>: How many copies of each key</li>
-<li><strong>Quorum Reads/Writes</strong>: (N,W,R) configuration for consistency</li>
-</ul><h2>Scaling from 10 to 100 Nodes: The Math</h2>When you go from 10 to 100 nodes, traditional hashing moves 90% of your data. With consistent hashing? Only 9% moves. Here's the breakdown:<table><thead><tr><th>Metric</th><th>Traditional Hashing</th><th>Consistent Hashing</th></tr></thead><tbody><tr><td>Data Movement</td><td>90%</td><td>9%</td></tr><tr><td>Cache Misses</td><td>Massive</td><td>Minimal</td></tr><tr><td>Hotspot Risk</td><td>High</td><td>Low</td></tr><tr><td>Recovery Time</td><td>Hours</td><td>Minutes</td></tr></tbody></table>
-🎯 <strong>Key Insight</strong>: The 1/N data movement rule is your scaling superpower. Each node addition only affects its immediate neighbors on the ring.<h2>Handling Node Failures Like a Boss</h2>Nodes will fail. The question is how gracefully you handle it. Here's the battle-tested approach:</p>
-<p><strong>Failure Detection</strong>:
-<ul>
-<li>Gossip protocols (every 3-5 seconds)</li>
-<li>Phi accrual failure detectors</li>
-<li>Health checks with exponential backoff</li>
-</ul><strong>Recovery Strategy</strong>:
-<ol>
-<li>Immediate replica promotion</li>
-<li>Background rebalancing</li>
-<li>Gradual traffic restoration</li>
-<li>Monitoring for cascade failures</li>
-</ol>⚠️ <strong>Gotcha</strong>: Don't rush to mark nodes as failed. False positives cause unnecessary data movement and can trigger cascading failures.<h2>Load Balancing: The Virtual Node Secret Sauce</h2>Physical nodes aren't created equal - some are beefier, some are weaker. Virtual nodes let you weight them accordingly:</p>
-<p><pre><code class="language-javascript">// Weighted virtual node allocation
-const nodeWeights = {
-  'node-1': 1.0,  // Standard node
-  'node-2': 2.0,  // High-memory node
-  'node-3': 0.5   // Low-spec node
-};
-
-// Calculate virtual nodes per physical node
-const virtualNodes = Math.floor(160 * nodeWeight);</code></pre></p>
-<p>💡 <strong>Pro Tip</strong>: Monitor the standard deviation of keys per virtual node. If it exceeds 10%, your hash function needs work.
+    <figure class="article-image">
+      <img src="/images/pixel-q-7111.svg" alt="When Feature Flags Meet AppConfig: A Safer Path to Canaries in the Cloud - Pixel Art Illustration" loading="lazy">
+      <figcaption>devops scene (16-bit pixel art)</figcaption>
+    </figure><h2>Building on CyberArk’s Insight</h2>Many developers discover that toggling behavior at runtime beats pushing new code just to test. CyberArk’s pattern shows how feature flags, powered by AWS AppConfig, decouple deployment from release. This approach lets teams expose a new response format behind a boolean flag (newFormat) and control rollout fractionally via configuration changes, not code changes <a href="#source-1" class="citation" title="View source">1</a>. This is not a theory exercise—it's a practical strategy that scales with CI/CD, canaries, and quick rollback when needed. </p>
+<p>Hearing about this in practice makes the value immediately tangible: you can flip a switch in AppConfig, observe the impact, and revert in seconds if something goes off the rails. The core idea: centralize the flag, automate its propagation, and keep runtime logic ready to honor the toggle without touching code paths at every release. <a href="#source-2" class="citation" title="View source">2</a> <a href="#source-11" class="citation" title="View source">11</a><h2>The Minimal IaC Footprint</h2>This journey starts with a lean Infrastructure as Code footprint. The goal is to create just enough AppConfig resources to host the flag and integrate with the existing pipeline. In CDK or CloudFormation terms, this means an Application, an Environment, a ConfigurationProfile, and a HostedConfigurationVersion. The flag itself sits in a hosted configuration (a JSON or YAML payload with a boolean newFormat). A small snippet illustrates the idea (pseudo-CDK):</p>
+<p><pre><code class="language-javascript">// Pseudo-CDK to create AppConfig resources
+new appconfig.CfnApplication(this, 'App');
+// Environment, ConfigurationProfile, HostedConfigurationVersion would follow</code></pre></p>
+<p>This keeps the surface area minimal while enabling centralized control that CI/CD can drive. For orchestration, tie AppConfig changes into CodePipeline so that a config update can accompany or precede a feature rollout, with the ability to rollback via AppConfig prior versions. <a href="#source-2" class="citation" title="View source">2</a> <a href="#source-11" class="citation" title="View source">11</a><h2>Startup Fetch and Cache: a Simple Runtime Pattern</h2>The API should fetch the AppConfig flag at startup and cache the value for a short window (for example, a few minutes) to balance latency with freshness. The runtime path reads newFormat on startup and uses a safe default if the fetch fails. The cache reduces repeated calls and avoids startup delays during high-traffic bursts. If the evaluation of the flag encounters an error, the system can gracefully fall back to the previous behavior, preserving user experience while signaling for a quick review. This pattern aligns with AppConfig’s role as a centralized, versioned source of truth for feature toggles. <a href="#source-2" class="citation" title="View source">2</a> <a href="#source-11" class="citation" title="View source">11</a><h2>The Twist: Rollback Criteria and Drift Mitigation</h2>What happens when AppConfig fetch or evaluation fails? The prudent approach is to define rollback criteria that are evaluated at startup and during health checks. If fetch fails, or if the flag evaluation yields an inconsistent result, revert to the last known-good configuration and emit a clear alert for the team. This is where observability matters: monitor AppConfig fetch latency, error rates, and clock drift between configuration versions. The goal is to treat config as a first-class, versioned artifact that never blocks progress when things go wrong. <a href="#source-11" class="citation" title="View source">11</a> <a href="#source-2" class="citation" title="View source">2</a><h2>Real-World Proof: CyberArk’s Use Case Refined</h2>Real-world stories illuminate the path. CyberArk’s implementation demonstrates how feature flags via AppConfig support safe, gradual releases tied to CI/CD and serverless or container runtimes. The approach enables canary-style rollouts, quick rollback, and centralized change management, all without code redeploys. This pattern mirrors broader industry lessons: versioned configurations with automatic rollback reduce blast radii and accelerate learning in production. <a href="#source-1" class="citation" title="View source">1</a> <a href="#source-2" class="citation" title="View source">2</a><h2>Transformation: What This Means for Teams</h2>Building a flag-driven rollout changes the culture: teams move from push-to-prod to verify-and-rollout. The minimal IaC, startup fetch, and rollback criteria provide a repeatable blueprint for safe experimentation. In practice, this means smaller blast radii, faster feedback, and a simple rollback story when the new format proves too disruptive. The transformation is less about new code and more about disciplined configuration and observability. <a href="#source-2" class="citation" title="View source">2</a> <a href="#source-11" class="citation" title="View source">11</a>
     <div class="real-world-example">
       <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
-      <div class="company"><i data-lucide="briefcase"></i> Netflix</div>
-      <p class="scenario">Netflix uses consistent hashing in their EVCache system (built on top of Memcached) to serve 100M+ users. When they need to scale during peak hours (like new season releases), they add nodes without causing cache storms. Their ring can handle 50K+ operations per second per node with 99.99% availability.</p>
-      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Netflix proved that consistent hashing isn't just theoretical - it's production-ready at massive scale. Their key insight: combine consistent hashing with client-side routing for maximum performance.</div>
-    </div><h2>System Flow</h2><div class="mermaid">graph TB
-    A[Client Request] --> B{Hash Key}
-    B --> C[Consistent Hash Ring]
-    C --> D[Virtual Node 1]
-    C --> E[Virtual Node 2]
-    C --> F[Virtual Node N]
-    D --> G[Physical Node 1]
-    E --> H[Physical Node 2]
-    F --> I[Physical Node N]
-    G --> J[Replica 1]
-    G --> K[Replica 2]
-    H --> L[Replica 1]
-    H --> M[Replica 2]
-    J --> N[Response]
-    K --> N
-    L --> N
-    M --> N
-    N --> O[Client]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The number 160 for virtual nodes isn't random! It comes from Dynamo's research showing that 150-200 virtual nodes provide the best balance between load distribution and memory overhead. Fewer than 100 cause hotspots, more than 200 waste memory.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Use 160+ virtual nodes per physical node for optimal distribution</li><li>Monitor key distribution - aim for &lt;10% standard deviation</li><li>Implement exponential backoff for failure detection</li><li>Always test with 3x expected load before production</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://www.allthingsdistributed.com/files/amazon-dynamo-sosp2007.pdf" target="_blank" rel="noopener">Dynamo: Amazon's Highly Available Key-value Store</a><span class="source-type">paper</span></li><li id="source-2"><span class="source-num">2</span><a href="https://netflixtechblog.com/evcache-architecture-and-implementation-238e3215b2c7" target="_blank" rel="noopener">Netflix EVCache Architecture</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://cassandra.apache.org/_/latest/cassandra/architecture/partitioning.html" target="_blank" rel="noopener">Cassandra Consistent Hashing Documentation</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://redis.io/docs/reference/cluster-spec/" target="_blank" rel="noopener">Redis Cluster Specification</a><span class="source-type">documentation</span></li></ul></div>
+      <div class="company"><i data-lucide="briefcase"></i> CyberArk</div>
+      <p class="scenario">CyberArk uses AWS AppConfig to implement feature flags for its SaaS services, enabling dynamic configuration and canary-style releases without code redeploys, tied into its CI/CD processes and Lambda-based runtime evaluation.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Feature flags managed via AppConfig decouple deployment from release, enable safe gradual rollouts and quick rollback, and can be integrated with serverless runtimes or containers; maintain strict versioning and monitoring to detect and rollback issues promptly.</div>
+    </div><h2>System Flow</h2><div class="mermaid">flowchart TD
+  A(CodePipeline) --> B(ECS Deploy)
+  B --> C[Fetch AppConfig]
+  C --> D[Test Canary / DB check]
+  D --> E{Pass?}
+  E -->|Yes| F(Promote)
+  E -->|No| G(Rollback)
+</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Many developers discover feature flags reduce Mean Time to Recovery (MTTR) during releases by keeping behavior toggles out of code paths.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Centralize config with AppConfig to decouple deployment from release</li><li>Fetch flag at startup and cache briefly to minimize latency</li><li>Define rollback criteria for fetch/evaluation failures and monitor</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://aws.amazon.com/blogs/mt/how-cyberark-implements-feature-flags-with-aws-appconfig/" target="_blank" rel="noopener">How CyberArk Implements Feature Flags with AWS AppConfig</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://docs.aws.amazon.com/appconfig/latest/userguide/what-is-appconfig.html" target="_blank" rel="noopener">What is AWS AppConfig</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-appconfig-application.html" target="_blank" rel="noopener">AWS CloudFormation – AWS::AppConfig::Application</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://docs.aws.amazon.com/codepipeline/latest/userguide/welcome.html" target="_blank" rel="noopener">CodePipeline User Guide</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://docs.aws.amazon.com/ecs/latest/userguide/fargate.html" target="_blank" rel="noopener">Amazon ECS with Fargate</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/introduction.html" target="_blank" rel="noopener">Application Load Balancers – Introduction</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://docs.aws.amazon.com/cdk/v2/guide/home.html" target="_blank" rel="noopener">AWS CDK Guide</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://www.digitalocean.com/community/tutorials/what-is-a-canary-release" target="_blank" rel="noopener">What is a Canary Release?</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://en.wikipedia.org/wiki/Feature_toggle" target="_blank" rel="noopener">Feature toggle</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://docs.github.com/en/actions" target="_blank" rel="noopener">GitHub Actions</a><span class="source-type">documentation</span></li><li id="source-11"><span class="source-num">11</span><a href="https://docs.aws.amazon.com/appconfig/latest/userguide/monitoring-appconfig.html" target="_blank" rel="noopener">AppConfig Monitoring and Telemetry</a><span class="source-type">documentation</span></li><li id="source-12"><span class="source-num">12</span><a href="https://docs.aws.amazon.com/lambda/index.html" target="_blank" rel="noopener">AWS Lambda</a><span class="source-type">documentation</span></li><li id="source-13"><span class="source-num">13</span><a href="https://kubernetes.io/docs/concepts/configuration/overview/" target="_blank" rel="noopener">Kubernetes ConfigMaps and configuration</a><span class="source-type">documentation</span></li><li id="source-14"><span class="source-num">14</span><a href="https://en.wikipedia.org/wiki/Chaos_Monkey" target="_blank" rel="noopener">Chaos Monkey</a><span class="source-type">documentation</span></li></ul></div>
+    <div class="share-snippet">
+      <div class="share-snippet-header">
+        <span class="share-icon"><i data-lucide="share-2"></i></span>
+        <h3>Share This</h3>
+        <div class="share-buttons">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-7111%2Fwhen-feature-flags-meet-appconfig-a-safer-path-to-canaries-in-the-cloud%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+            <i data-lucide="linkedin"></i>
+          </a>
+          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20how%20to%20roll%20out%20a%20new%20API%20format%20without%20pulling%20a%20code%20redeploy%3F%20%F0%9F%9A%80%0A%0ACyberArk%E2%80%99s%20real-world%20pattern%20uses%20AWS%20AppConfig%20to%20decouple%20deployment%20from%20release.%2CFlag-driven%20rollouts%20enable%20canaries%2C%20quick%20rollback%2C%20and%20safer%20experiments.%2CMinimal%20IaC%20plus%20startup%20fetch%2Fcache%20keeps%20latency%20in%20check%20and%20control%20centralized.%0A%0ARead%20the%20full%20journey%20and%20bring%20this%20pattern%20to%20your%20next%20release.%0A%0A%23SoftwareEngineering%20%23DevOps%20%23CloudComputing%20%23FeatureFlags%20%23AppConfig%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-7111%2Fwhen-feature-flags-meet-appconfig-a-safer-path-to-canaries-in-the-cloud%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+            <i data-lucide="twitter"></i>
+          </a>
+          <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
+            <i data-lucide="copy"></i>
+          </button>
+        </div>
+      </div>
+      <div class="share-snippet-content" id="shareSnippet">
+        <p class="snippet-hook">Ever wondered how to roll out a new API format without pulling a code redeploy? 🚀</p>
+        <p class="snippet-body">CyberArk’s real-world pattern uses AWS AppConfig to decouple deployment from release.,Flag-driven rollouts enable canaries, quick rollback, and safer experiments.,Minimal IaC plus startup fetch/cache keeps latency in check and control centralized.</p>
+        <p class="snippet-cta">Read the full journey and bring this pattern to your next release.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #DevOps #CloudComputing #FeatureFlags #AppConfig</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-7111/when-feature-flags-meet-appconfig-a-safer-path-to-canaries-in-the-cloud/</p>
+      </div>
+    </div>
+    <script>
+    function copySnippet(btn) {
+      const snippet = document.getElementById('shareSnippet').innerText;
+      navigator.clipboard.writeText(snippet).then(() => {
+        btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6L9 17l-5-5"/></svg>';
+        setTimeout(() => {
+          btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>';
+        }, 2000);
+      });
+    }
+    </script>
     
     <h2>Wrapping Up</h2>
-    <p>Ready to level up your cache game? Start by implementing consistent hashing in your next project. Begin with a simple ring using 160 virtual nodes, add replica sets for fault tolerance, and implement gossip-based failure detection. Your 3am self will thank you when that node goes down and your users don't even notice.</p>
+    <p>The story closes with a practical lesson: centralize feature control, automate safe rollouts, and design for quick rollback. Tomorrow’s deployments should feel confident, not risky, because a well-placed flag can save the day.</p>
   </div>
   
   <div class="author-card">
@@ -134,30 +134,9 @@ const virtualNodes = Math.floor(160 * nodeWeight);</code></pre></p>
     </div>
   </div>
   
-    <div class="related-articles">
-      <h3>Continue Reading</h3>
-      <div class="related-grid">
-        
-          <a href="/posts/q-8937/when-retries-turn-nightmares-a-resilience-journey-through-microservices/" class="related-card">
-            <span class="related-title">When Retries Turn Nightmares: A Resilience Journey Through Microservices</span>
-            <span class="related-meta">intermediate</span>
-          </a>
-        
-          <a href="/posts/rca-airbnb-mk1332mb-uont/airbnbs-2019-elasticsearch-outage-the-rolling-upgrade-that-silenced-search-for-h/" class="related-card">
-            <span class="related-title">Airbnb's 2019 Elasticsearch Outage: The Rolling Upgrade That Silenced Search for Hours</span>
-            <span class="related-meta">advanced</span>
-          </a>
-        
-          <a href="/posts/rca-okta-mk12r0d7-ll7e/oktas-ok6-outage-a-136-minute-dashboards-read-only-postmortem/" class="related-card">
-            <span class="related-title">Okta's OK6 Outage: A 136-Minute Dashboards Read-Only Postmortem</span>
-            <span class="related-meta">intermediate</span>
-          </a>
-        
-      </div>
-    </div>
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/system-design" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/aws-devops-pro" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
