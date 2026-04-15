@@ -3,16 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>Okta's OK6 Outage: A 136-Minute Dashboards Read-Only Postmortem | DevInsights</title>
-  <meta name="description" content="Deep-dive into Okta's OK6 outage: 136 minutes of read-only dashboard, per-cell isolation, and lessons for faster recovery.">
+  <title>Latency with Heart: How a Real-Time Fraud Engine Split Fast Path from HITL | DevInsights</title>
+  <meta name="description" content="A story-driven exploration of building a real-time fraud decision engine with a fast path and HITL, private data access, drift monitoring, and safe migration.">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
-  <script>mermaid.initialize({startOnLoad:true,theme:'base',look:'handDrawn',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>◆</text></svg>">
@@ -43,39 +41,32 @@
   <i data-lucide="moon" class="theme-icon-dark"></i>
 </button>
 <main><article class="article"><div class="container">
-  <a href="/categories/system-design/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← System Design</a>
+  <a href="/categories/other/" style="color:var(--text-muted);text-decoration:none;font-size:0.8125rem;display:inline-flex;align-items:center;gap:0.25rem;margin-bottom:2rem">← Other</a>
   <div class="article-header">
-    <h1>Okta's OK6 Outage: A 136-Minute Dashboards Read-Only Postmortem</h1>
-    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">System Design</span><span class="difficulty intermediate">intermediate</span><span class="tag">Okta</span> <span class="tag">incident-management</span> <span class="tag">SRE</span></div>
+    <h1>Latency with Heart: How a Real-Time Fraud Engine Split Fast Path from HITL</h1>
+    <div class="article-meta" style="justify-content:flex-start;margin-top:1rem"><span class="tag">Aws Ml Specialty</span><span class="difficulty intermediate">intermediate</span><span class="tag">aws-ml-specialty</span></div>
   </div>
-  <p class="article-intro">At 3am in December 2025, Okta's OK6 dashboard abruptly turned red as end users could log in but could not create or modify data <a href="#source-1" class="citation" title="View source">1</a>. The incident forced a rapid, cell-level isolation and a sprint to restore write capabilities, all while administrators faced restricted dashboard access and stakeholders awaited answers <a href="#source-1" class="citation" title="View source">1</a>.</p>
+  <p class="article-intro">Forter operates a global real-time fraud decision platform used by thousands of merchants. To preserve a fast checkout experience while maintaining strong protection, Forter engineered a real-time, low-latency decision engine capable of handling massive transaction volumes across many countries, enabling fast automatic decisions with escalations for edge cases <a href="#source-1" class="citation" title="View source">1</a>. Picture this: a single payment request must be decided in under 200 ms for the 95th percentile, but when the signal isn't clear, a human-in-the-loop steps in without stalling the user. This is the blueprint behind the journey you’re about to read.</p>
   <div class="article-content">
-    <h2>THE MOMENT</h2>The OK6 cell of Okta's dashboard split from normal operation: authentication remained available, but data creation and modification were blocked. End users saw login succeed but write operations fail, and admins noted restricted dashboard features. The crisis triggered immediate on-call paging and status-page updates, with the public postmortem indicating that RCA details would be provided within five business days as the investigation continued <a href="#source-1" class="citation" title="View source">1</a>.<h2>THE INVESTIGATION</h2>Monitoring dashboards and user reports flagged a write-path failure while authentication stayed healthy. Incident responders assembled an on-call IC/incident command, coordinated across teams, and began isolating the affected OK6 cell while preserving service elsewhere. The team communicated that RCA timelines were in effect (5 business days) and that the investigation involved upstream dependency considerations, reflecting the cross-team pressure to restore full functionality quickly <a href="#source-1" class="citation" title="View source">1</a><a href="#source-2" class="citation" title="View source">2</a>.<h2>THE ROOT CAUSE</h2>Public postmortem notes that no immediate root cause was published; RCA information was slated to be provided within 5 business days, indicating the root cause was under investigation at the time and that it could be related to an upstream provider affecting the OK6 cell. This pointed to a cell-specific fault with external dependencies as a likely contributor rather than a global platform failure <a href="#source-1" class="citation" title="View source">1</a>.<h2>THE FIX</h2>Immediate actions focused on containment and recovery: the OK6 cell was isolated and switched to read-only mode to prevent further writes while preserving login capability. Over the course of the outage (approximately 136 minutes), engineers worked to restore write operations and re-enable dashboard functionality for affected users, and to clear the path for a formal RCA once upstream factors were clarified <a href="#source-1" class="citation" title="View source">1</a>.<h2>THE LESSONS</h2>Key takeaways emphasize isolating cell-level faults quickly, communicating RCA timelines clearly, and ensuring rapid, cross-team collaboration for faster recovery. These lessons align with established SRE guidance on incident containment, structured postmortems, and timely stakeholder updates during partial outages <a href="#source-2" class="citation" title="View source">2</a>.<h2>PREVENTION</h2>To prevent recurrence, the postmortem advocates stronger per-cell fault isolation, proactive cross-team drills, and a documented, faster RCA process. Enhancing granular monitoring and fault containment mechanisms helps limit blast radii to individual cells and reduces time-to-recovery in future incidents <a href="#source-2" class="citation" title="View source">2</a><a href="#source-6" class="citation" title="View source">6</a>.
+    <figure class="article-image">
+      <img src="/images/pixel-q-14465.svg" alt="Latency with Heart: How a Real-Time Fraud Engine Split Fast Path from HITL - Pixel Art Illustration" loading="lazy">
+      <figcaption>deploy scene (16-bit pixel art)</figcaption>
+    </figure><h2>Two‑Tier Routing: Fast Path and HITL</h2>Building on the Forter blueprint <a href="#source-1" class="citation" title="View source">1</a>, the architecture uses a fast-path inference for baseline risk and a gated path for edge cases. A private data feed is accessed over PrivateLink <a href="#source-2" class="citation" title="View source">2</a> to keep data in a private network while minimizing cross‑region latency. The fast path targets sub‑200 ms latency at the 95th percentile, while the HITL path catches edge cases that resist automation, allowing a human reviewer to finalize the decision before returning the result <a href="#source-4" class="citation" title="View source">4</a>. The routing uses a real-time endpoint for baseline scoring and a Step Functions workflow for HITL escalation <a href="#source-3" class="citation" title="View source">3</a>.<h2>Gating Logic and SLAs</h2>Gating logic sets a clear boundary between automated decisions and human review. A common pattern uses a confidence threshold to decide whether to return immediately or escalate: if the model’s confidence exceeds a threshold, the system returns the score; otherwise, it routes to HITL. This provides predictable latency while preserving protection for borderline cases. Coupled with explainability and provenance checks (Clarify) to keep track of feature origins and potential biases, this approach also preserves an auditable trail for each decision, which is critical for compliance <a href="#source-5" class="citation" title="View source">5</a>. Additionally, the architecture relies on private data access and sandboxed environments to ensure tenant isolation and privacy is preserved end‑to‑end via PrivateLink <a href="#source-2" class="citation" title="View source">2</a>.<h2>Drift Monitoring Plan</h2>Drift is treated as a first‑class risk. Data drift is monitored continuously with model monitoring tooling and explainability signals. A drift-aware plan uses Clarify for feature provenance and bias checks, while a data‑quality monitor flags shifts in feature distributions. When drift is detected, the plan escalates into retraining or feature adjustments, with predefined rollback criteria and remediation steps <a href="#source-5" class="citation" title="View source">5</a><a href="#source-6" class="citation" title="View source">6</a><a href="#source-8" class="citation" title="View source">8</a>.<h2>Rollback, Cost, and Migration</h2>Rollback plans are baked into the pipeline: canary releases slowly ramp traffic from the canary to prod, with automatic rollback triggered by latency or drift thresholds. Cost is managed by keeping the fast path on a low‑latency endpoint while only invoking HITL and heavier analysis on a minority of requests, supported by cost-aware routing and autoscaling. The architecture maps well to canonical release patterns in the cloud, including canary deployments and staged rollouts, which are described in canonical sources on canary releases and real‑time deployments <a href="#source-7" class="citation" title="View source">7</a><a href="#source-9" class="citation" title="View source">9</a><a href="#source-10" class="citation" title="View source">10</a>. The migration path from canary to prod follows a measured, metric‑driven rollout with rollback gates and post‑deployment monitoring, ensuring that the system remains responsive under burst traffic <a href="#source-9" class="citation" title="View source">9</a>.
     <div class="real-world-example">
       <h3><i data-lucide="building-2"></i> Real-World Case Study</h3>
-      <div class="company"><i data-lucide="briefcase"></i> Okta</div>
-      <p class="scenario">Okta reported a service disruption impacting the OK6 cell where end users could log in but could not create or modify data; the cell was switched to read-only mode during the incident and recovered later.</p>
-      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> Isolate cell-level failures quickly and communicate RCA timelines clearly; improve per-cell fault isolation and rapid, cross-team collaboration for faster recovery.</div>
-    </div><h2>OK6 Outage Failure Point Diagram</h2><div class="mermaid">graph TD
-A[End User] --> B[OK6 Cell]
-B --> C[Authentication Succeeds]
-C --> D[Data Writes Fail / Modify Blocked]
-D --> E[Dashboard Features Restricted]
-E --> F[Incident Detected & Alerted]
-F --> G[Cross-Team Investigation]
-G --> H[Root Cause Suspected: Upstream Provider Affecting OK6 Cell]
-H --> I[Immediate Fix: Isolate OK6 Cell, Enable Read-Only]
-I --> J[Writes Restored]
-J --> K[RCA Timeline: 5 Business Days]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Okta operates a highly distributed identity platform; even a single cell outage requires precise containment to prevent wider impact.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Isolate per-cell faults quickly</li><li>Communicate RCA timelines clearly</li><li>Coordinate cross-team incident response</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://status.okta.com/incidents/I-9905" target="_blank" rel="noopener">OK6 Okta Dashboard Access</a><span class="source-type">postmortem</span></li><li id="source-2"><span class="source-num">2</span><a href="https://sre.google/sre-book/table-of-contents/" target="_blank" rel="noopener">Site Reliability Engineering</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://sre.google/workbook/table-of-contents/" target="_blank" rel="noopener">The Site Reliability Workbook</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://google.github.io/building-secure-and-reliable-systems/raw/toc.html" target="_blank" rel="noopener">Building Secure &amp; Reliable Systems</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://goo.gle/sre-20-ll" target="_blank" rel="noopener">Twenty Years of SRE Lessons Learned</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://csrc.nist.gov/publications/detail/sp/800-61/rev-2/final" target="_blank" rel="noopener">NIST SP 800-61 Rev. 2: Computer Security Incident Handling Guide</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://www.nist.gov/news-events/news/2012/08/updated-nist-guide-how-dealing-computer-security-incidents" target="_blank" rel="noopener">NIST Press Release: Updated NIST Guide on Dealing with Computer Security Incidents</a><span class="source-type">documentation</span></li></ul></div>
+      <div class="company"><i data-lucide="briefcase"></i> Forter</div>
+      <p class="scenario">Forter operates a global real-time fraud decision platform used by thousands of merchants. To preserve a fast checkout experience while maintaining strong fraud protection, Forter engineered a real-time, low-latency decision engine capable of handling massive transaction volumes across many countries, enabling fast automatic decisions with escalations for edge cases.</p>
+      <div class="lesson"><i data-lucide="lightbulb"></i> <strong>Key Takeaway:</strong> High-volume real-time fraud systems can achieve dramatic latency and cost benefits by separating fast-path risk scoring from heavier analysis, ensuring global reach with predictable performance, and designing for drift, scale, and cost from the outset.</div>
+    </div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> Some fraud decision engines run more than 100,000 inferences per second across global endpoints.</p></div><div class="quick-ref"><h3><i data-lucide="bookmark"></i> Key Takeaways</h3><ul><li>Split routing: fast-path real-time scoring + HITL for edge cases</li><li>Use PrivateLink to keep data in private networks</li><li>Drift monitoring plus model explainability to guard long-term accuracy</li></ul></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="http://www.aerospike.com/blog/forter-real-time-fraud-decision-engine" target="_blank" rel="noopener">Forter Built a Real-time Fraud Decision Engine with Predictable Latency | Aerospike</a><span class="source-type">article</span></li><li id="source-2"><span class="source-num">2</span><a href="https://docs.aws.amazon.com/vpc/latest/userguide/privatelink-how-it-works.html" target="_blank" rel="noopener">PrivateLink overview</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://docs.aws.amazon.com/step-functions/latest/dg/welcome.html" target="_blank" rel="noopener">Amazon States Language (Step Functions)</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://docs.aws.amazon.com/sagemaker/latest/dg/real-time-endpoints.html" target="_blank" rel="noopener">Amazon SageMaker Real-time Inference</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://docs.aws.amazon.com/sagemaker/latest/dg/model-clarify.html" target="_blank" rel="noopener">SageMaker Clarify</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://docs.aws.amazon.com/sagemaker/latest/dg/model-monitor.html" target="_blank" rel="noopener">SageMaker Model Monitor</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://en.wikipedia.org/wiki/Canary_release" target="_blank" rel="noopener">Canary release</a><span class="source-type">encyclopedia</span></li><li id="source-8"><span class="source-num">8</span><a href="https://en.wikipedia.org/wiki/Concept_drift" target="_blank" rel="noopener">Concept drift</a><span class="source-type">encyclopedia</span></li><li id="source-9"><span class="source-num">9</span><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html" target="_blank" rel="noopener">Amazon CloudWatch documentation</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://docs.aws.amazon.com/sagemaker/latest/dg/pipelines.html" target="_blank" rel="noopener">Amazon SageMaker Pipelines</a><span class="source-type">documentation</span></li><li id="source-11"><span class="source-num">11</span><a href="https://github.com/awslabs/amazon-sagemaker-examples" target="_blank" rel="noopener">AWS SageMaker Examples</a><span class="source-type">repository</span></li><li id="source-12"><span class="source-num">12</span><a href="https://en.wikipedia.org/wiki/Real-time_computing" target="_blank" rel="noopener">Real-time computing</a><span class="source-type">encyclopedia</span></li></ul></div>
     <div class="share-snippet">
       <div class="share-snippet-header">
         <span class="share-icon"><i data-lucide="share-2"></i></span>
         <h3>Share This</h3>
         <div class="share-buttons">
-          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Frca-okta-mk12r0d7-ll7e%2Foktas-ok6-outage-a-136-minute-dashboards-read-only-postmortem%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
+          <a href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-14465%2Flatency-with-heart-how-a-real-time-fraud-engine-split-fast-path-from-hitl%2F" target="_blank" rel="noopener" class="share-btn linkedin" title="Share on LinkedIn">
             <i data-lucide="linkedin"></i>
           </a>
-          <a href="https://twitter.com/intent/tweet?text=The%20dashboard%20turned%20red%20at%203am%20%F0%9F%98%B1%20%E2%80%94%20Okta%E2%80%99s%20OK6%20outage%20sprint%0A%0AEnd%20users%20could%20log%20in%2C%20but%20couldn%E2%80%99t%20create%20or%20modify%20data%20in%20the%20OK6%20cell%2CPublic%20postmortem%20indicated%20RCA%20to%20be%20published%20within%205%20business%20days%2CTeamwork%20and%20rapid%20isolation%20limited%20blast%20radius%20during%20the%20136-minute%20outage%0A%0ARead%20the%20full%20postmortem%20for%20risk-reduction%20lessons%20and%20prevention%20strategies%0A%0A%23Engineering%20%23Postmortem%20%23SRE%20%23Okta%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Frca-okta-mk12r0d7-ll7e%2Foktas-ok6-outage-a-136-minute-dashboards-read-only-postmortem%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
+          <a href="https://twitter.com/intent/tweet?text=Ever%20wondered%20how%20to%20keep%20fraud%20checks%20fast%20and%20private%20at%20global%20scale%3F%20%F0%9F%94%90%E2%9A%A1%0A%0ASplit%20routing%20unlocks%20sub-200ms%20latency%20at%20the%2095th%20percentile.%2CHITL%20catches%20edge%20cases%20without%20delaying%20most%20users.%2CDrift%20monitoring%20keeps%20the%20model%20honest%20across%20regions.%0A%0ADive%20into%20the%20real-world%20blueprint%20behind%20Forter's%20approach.%0A%0A%23SoftwareEngineering%20%23SystemDesign%20%23TechCareers%20%23CodingInterview%20%23BackendDevelopment%20%23CloudComputing%0A%0A%F0%9F%94%97%20&url=https%3A%2F%2Fopenstackdaily.github.io%2Fposts%2Fq-14465%2Flatency-with-heart-how-a-real-time-fraud-engine-split-fast-path-from-hitl%2F" target="_blank" rel="noopener" class="share-btn twitter" title="Share on X/Twitter">
             <i data-lucide="twitter"></i>
           </a>
           <button class="share-btn copy" onclick="copySnippet(this)" title="Copy to clipboard">
@@ -84,11 +75,11 @@ J --> K[RCA Timeline: 5 Business Days]</div><div class="fun-fact"><span class="f
         </div>
       </div>
       <div class="share-snippet-content" id="shareSnippet">
-        <p class="snippet-hook">The dashboard turned red at 3am 😱 — Okta’s OK6 outage sprint</p>
-        <p class="snippet-body">End users could log in, but couldn’t create or modify data in the OK6 cell,Public postmortem indicated RCA to be published within 5 business days,Teamwork and rapid isolation limited blast radius during the 136-minute outage</p>
-        <p class="snippet-cta">Read the full postmortem for risk-reduction lessons and prevention strategies</p>
-        <p class="snippet-hashtags">#Engineering #Postmortem #SRE #Okta</p>
-        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/rca-okta-mk12r0d7-ll7e/oktas-ok6-outage-a-136-minute-dashboards-read-only-postmortem/</p>
+        <p class="snippet-hook">Ever wondered how to keep fraud checks fast and private at global scale? 🔐⚡</p>
+        <p class="snippet-body">Split routing unlocks sub-200ms latency at the 95th percentile.,HITL catches edge cases without delaying most users.,Drift monitoring keeps the model honest across regions.</p>
+        <p class="snippet-cta">Dive into the real-world blueprint behind Forter's approach.</p>
+        <p class="snippet-hashtags">#SoftwareEngineering #SystemDesign #TechCareers #CodingInterview #BackendDevelopment #CloudComputing</p>
+        <p class="snippet-link"><i data-lucide="link"></i> https://openstackdaily.github.io/posts/q-14465/latency-with-heart-how-a-real-time-fraud-engine-split-fast-path-from-hitl/</p>
       </div>
     </div>
     <script>
@@ -104,7 +95,7 @@ J --> K[RCA Timeline: 5 Business Days]</div><div class="fun-fact"><span class="f
     </script>
     
     <h2>Wrapping Up</h2>
-    <p>Engineers should design with granular per-cell isolation, publish clear RCA timelines, and practice cross-team incident drills to reduce blast radius and time-to-recovery.</p>
+    <p>The journey from a fast path to a trusted, private, drift-aware fraud platform is a deliberate design choice—start with a fast, private core, then layer in human insight and continuous learning. The takeaway: plan for latency, privacy, and drift from day one, and roll out with measured gates that keep users flowing smoothly.</p>
   </div>
   
   <div class="author-card">
@@ -129,30 +120,9 @@ J --> K[RCA Timeline: 5 Business Days]</div><div class="fun-fact"><span class="f
     </div>
   </div>
   
-    <div class="related-articles">
-      <h3>Continue Reading</h3>
-      <div class="related-grid">
-        
-          <a href="/posts/q-26400/durable-workflows-in-practice-how-coinbases-saga-turned-into-a-saga-of-reliabili/" class="related-card">
-            <span class="related-title">Durable Workflows in Practice: How Coinbase’s Saga turned into a saga of reliability</span>
-            <span class="related-meta">intermediate</span>
-          </a>
-        
-          <a href="/posts/q-8937/when-retries-turn-nightmares-a-resilience-journey-through-microservices/" class="related-card">
-            <span class="related-title">When Retries Turn Nightmares: A Resilience Journey Through Microservices</span>
-            <span class="related-meta">intermediate</span>
-          </a>
-        
-          <a href="/posts/rca-airbnb-mk1332mb-uont/airbnbs-2019-elasticsearch-outage-the-rolling-upgrade-that-silenced-search-for-h/" class="related-card">
-            <span class="related-title">Airbnb's 2019 Elasticsearch Outage: The Rolling Upgrade That Silenced Search for Hours</span>
-            <span class="related-meta">advanced</span>
-          </a>
-        
-      </div>
-    </div>
   <div class="cta-box">
     <p>Ready to put this into practice?</p>
-    <a href="https://open-interview.github.io/#/channel/system-design" class="cta-button">Practice Questions →</a>
+    <a href="https://open-interview.github.io/#/channel/aws-ml-specialty" class="cta-button">Practice Questions →</a>
   </div>
 </div></article></main>
 
