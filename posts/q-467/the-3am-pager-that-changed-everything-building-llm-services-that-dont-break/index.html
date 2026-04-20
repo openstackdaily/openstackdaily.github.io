@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The 3AM Pager That Changed Everything: Building LLM Services That Don't Break | DevInsights</title>
-  <meta name="description" content="">
+  <meta name="description" content="It was 3:17 AM when the pager went off. Our 'unbreakable' LLM service was melting down, costing us $47,000 in unexpected GPU bills while users stared at loading">
+  <meta property="og:title" content="The 3AM Pager That Changed Everything: Building LLM Services That Don't Break">
+  <meta property="og:description" content="It was 3:17 AM when the pager went off. Our 'unbreakable' LLM service was melting down, costing us $47,000 in unexpected GPU bills while users stared at loading">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
@@ -60,7 +64,12 @@
     G --> H[Model Parallelism]
     H --> I[Batch Processing]
     I --> J[Response Cache]
-    J --> K[User Response]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The first LLM service at Google (BERT) was so expensive to run that they initially limited it to just 1% of search queries. It took them 2 years of engineering work to make it cost-effective for full deployment.</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://openai.com/blog/chatgpt" target="_blank" rel="noopener">OpenAI Engineering Blog</a><span class="source-type">blog</span></li><li id="source-2"><span class="source-num">2</span><a href="https://docs.nvidia.com/deeplearning/performance/" target="_blank" rel="noopener">NVIDIA GPU Optimization Guide</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://arxiv.org/abs/2104.07857" target="_blank" rel="noopener">Google AI Infrastructure Paper</a><span class="source-type">paper</span></li><li id="source-4"><span class="source-num">4</span><a href="https://engineering.fb.com/2023/03/14/data-infrastructure/llm-inference/" target="_blank" rel="noopener">Meta LLM Infrastructure Talk</a><span class="source-type">blog</span></li></ul></div>
+    J --> K[User Response]
+    
+    L[Monitoring] --> M{Scale Trigger?}
+    M -->|GPU >80%| G
+    M -->|Queue >1000| G
+    M -->|Latency >100ms| G</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The first LLM service at Google (BERT) was so expensive to run that they initially limited it to just 1% of search queries. It took them 2 years of engineering work to make it cost-effective for full deployment.</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://openai.com/blog/chatgpt" target="_blank" rel="noopener">OpenAI Engineering Blog</a><span class="source-type">blog</span></li><li id="source-2"><span class="source-num">2</span><a href="https://docs.nvidia.com/deeplearning/performance/" target="_blank" rel="noopener">NVIDIA GPU Optimization Guide</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://arxiv.org/abs/2104.07857" target="_blank" rel="noopener">Google AI Infrastructure Paper</a><span class="source-type">paper</span></li><li id="source-4"><span class="source-num">4</span><a href="https://engineering.fb.com/2023/03/14/data-infrastructure/llm-inference/" target="_blank" rel="noopener">Meta LLM Infrastructure Talk</a><span class="source-type">blog</span></li></ul></div>
     
     <h2>Wrapping Up</h2>
     <p>Building production LLM services isn't about having the biggest GPUs or the fanciest models. It's about being smart with batching, aggressive with caching, and conservative with scaling. Start with request batching—it'll give you 60% cost savings overnight. Then add intelligent caching. Finally, implement predictive autoscaling. The companies that survive the AI gold rush won't be those with the best models, but those with the most efficient infrastructure.</p>

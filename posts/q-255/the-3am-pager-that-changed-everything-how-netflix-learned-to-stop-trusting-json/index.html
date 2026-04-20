@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The 3am Pager That Changed Everything: How Netflix Learned to Stop Trusting JSON | DevInsights</title>
-  <meta name="description" content="">
+  <meta name="description" content="It was 3am when the pager went off. Again. Netflix's streaming service was buckling under a wave of malformed JSON payloads that were slipping through their 'go">
+  <meta property="og:title" content="The 3am Pager That Changed Everything: How Netflix Learned to Stop Trusting JSON">
+  <meta property="og:description" content="It was 3am when the pager went off. Again. Netflix's streaming service was buckling under a wave of malformed JSON payloads that were slipping through their 'go">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
@@ -59,7 +63,12 @@
     F -->|All Valid| G[Business Logic]
     F -->|Invalid| H[400 Response]
     G --> I[Database]
-    I --> J[Response]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The first JSON Schema specification was created in 2009 by Kris Zyp, who was inspired by XML Schema but wanted something simpler for JavaScript. Today, it's used by companies like Google, Microsoft, and Amazon to validate trillions of API requests daily.</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://owasp.org/www-project-application-security-verification-standard/" target="_blank" rel="noopener">OWASP Application Security Verification Standard</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://netflixtechblog.com/building-resilient-microservices-3a2d1b3e5b5a" target="_blank" rel="noopener">Netflix Tech Blog: Building Resilient Microservices</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://json-schema.org/" target="_blank" rel="noopener">JSON Schema Specification</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://www.regular-expressions.info/catastrophic.html" target="_blank" rel="noopener">Regular Expression Performance</a><span class="source-type">documentation</span></li></ul></div>
+    I --> J[Response]
+    
+    style B fill:#ff6b6b
+    style D fill:#4ecdc4
+    style F fill:#45b7d1
+    style G fill:#96ceb4</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The first JSON Schema specification was created in 2009 by Kris Zyp, who was inspired by XML Schema but wanted something simpler for JavaScript. Today, it's used by companies like Google, Microsoft, and Amazon to validate trillions of API requests daily.</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://owasp.org/www-project-application-security-verification-standard/" target="_blank" rel="noopener">OWASP Application Security Verification Standard</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://netflixtechblog.com/building-resilient-microservices-3a2d1b3e5b5a" target="_blank" rel="noopener">Netflix Tech Blog: Building Resilient Microservices</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://json-schema.org/" target="_blank" rel="noopener">JSON Schema Specification</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://www.regular-expressions.info/catastrophic.html" target="_blank" rel="noopener">Regular Expression Performance</a><span class="source-type">documentation</span></li></ul></div>
     
     <h2>Wrapping Up</h2>
     <p>The 3am pager doesn't have to be your wake-up call. Start implementing OWASP ASVS L3 validation today, and you'll sleep better tonight. Your future self—wide awake at 3am because your validation caught an attack instead of your pager going off—will thank you. Remember: good validation isn't about being paranoid; it's about being prepared.</p>

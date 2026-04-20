@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The Million-Dollar Grid: How Netflix Solved the Path Problem That Saved Them Millions | DevInsights</title>
-  <meta name="description" content="">
+  <meta name="description" content="Ever had your API crash at 3am because your routing algorithm went haywire? Netflix faced exactly this nightmare when their content delivery network started tak">
+  <meta property="og:title" content="The Million-Dollar Grid: How Netflix Solved the Path Problem That Saved Them Millions">
+  <meta property="og:description" content="Ever had your API crash at 3am because your routing algorithm went haywire? Netflix faced exactly this nightmare when their content delivery network started tak">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
@@ -60,7 +64,10 @@
     F -->|Yes| G[Parent Pointer Method]
     F -->|No| H[Return Minimum Cost]
     G --> I[Backtrack from End]
-    I --> J[Return Cost + Path]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The same DP algorithm that powers Netflix's content delivery is used in protein folding analysis and even in some video game pathfinding systems. The mathematics behind it was discovered in the 1940s but didn't see widespread use until computers became powerful enough in the 1990s!</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://netflixtechblog.com/" target="_blank" rel="noopener">Netflix Engineering Blog: Content Delivery Optimization</a><span class="source-type">blog</span></li><li id="source-2"><span class="source-num">2</span><a href="https://mitpress.mit.edu/book/introduction-algorithms" target="_blank" rel="noopener">Introduction to Algorithms (CLRS) - Dynamic Programming Chapter</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://www.geeksforgeeks.org/minimum-path-sum/" target="_blank" rel="noopener">GeeksforGeeks: Minimum Path Sum Problem</a><span class="source-type">blog</span></li><li id="source-4"><span class="source-num">4</span><a href="https://www.uber.com/blog/" target="_blank" rel="noopener">Uber Engineering: Route Optimization Algorithms</a><span class="source-type">blog</span></li></ul></div>
+    I --> J[Return Cost + Path]
+    
+    style A fill:#e1f5fe
+    style J fill:#c8e6c9</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The same DP algorithm that powers Netflix's content delivery is used in protein folding analysis and even in some video game pathfinding systems. The mathematics behind it was discovered in the 1940s but didn't see widespread use until computers became powerful enough in the 1990s!</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://netflixtechblog.com/" target="_blank" rel="noopener">Netflix Engineering Blog: Content Delivery Optimization</a><span class="source-type">blog</span></li><li id="source-2"><span class="source-num">2</span><a href="https://mitpress.mit.edu/book/introduction-algorithms" target="_blank" rel="noopener">Introduction to Algorithms (CLRS) - Dynamic Programming Chapter</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://www.geeksforgeeks.org/minimum-path-sum/" target="_blank" rel="noopener">GeeksforGeeks: Minimum Path Sum Problem</a><span class="source-type">blog</span></li><li id="source-4"><span class="source-num">4</span><a href="https://www.uber.com/blog/" target="_blank" rel="noopener">Uber Engineering: Route Optimization Algorithms</a><span class="source-type">blog</span></li></ul></div>
     
     <h2>Wrapping Up</h2>
     <p>Ready to level up your algorithm game? Start by implementing the basic DP solution, then optimize for space using rolling arrays. Practice path reconstruction with both parent pointers and backtracking. Next time you're designing a routing system or optimization algorithm, remember: the grid-based DP approach that saved Netflix millions could be exactly what your system needs. Your future self (and your cloud bill) will thank you.</p>

@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The RecyclerView Crisis That Almost Broke LinkedIn's Android App | DevInsights</title>
-  <meta name="description" content="">
+  <meta name="description" content="Picture this: LinkedIn's Android team was staring at analytics showing users abandoning the feed after just 3 seconds. The culprit? Janky scrolling performance ">
+  <meta property="og:title" content="The RecyclerView Crisis That Almost Broke LinkedIn's Android App">
+  <meta property="og:description" content="Picture this: LinkedIn's Android team was staring at analytics showing users abandoning the feed after just 3 seconds. The culprit? Janky scrolling performance ">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
@@ -55,7 +59,28 @@
     B -->|Post| C[PostViewHolder]
     B -->|Article| D[ArticleViewHolder]
     B -->|Video| E[VideoViewHolder]
-    B -->|Ad| F[AdViewHolder]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> RecyclerView was originally called ListView before Google completely rewrote it in 2014. The 'Recycler' name emphasizes its focus on view recycling, a concept that can reduce memory usage by up to 90% compared to simple ListView implementations.</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://developer.android.com/guide/topics/ui/layout/recyclerview" target="_blank" rel="noopener">RecyclerView Official Documentation</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://developer.android.com/topic/performance" target="_blank" rel="noopener">Android Performance Patterns</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://developer.android.com/training/improving-layouts/smooth-scrolling" target="_blank" rel="noopener">ViewHolder Pattern Best Practices</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://developer.android.com/topic/performance/memory" target="_blank" rel="noopener">Memory Management in Android</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://developer.android.com/reference/androidx/recyclerview/widget/DiffUtil" target="_blank" rel="noopener">DiffUtil Android Documentation</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://developer.android.com/topic/performance/threads" target="_blank" rel="noopener">Android Background Threading</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://developer.android.com/topic/libraries/architecture/paging/v3-overview" target="_blank" rel="noopener">Paging3 Library Documentation</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://developer.android.com/topic/libraries/architecture/paging" target="_blank" rel="noopener">Android Paging Best Practices</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://developer.android.com/reference/androidx/recyclerview/widget/ConcatAdapter" target="_blank" rel="noopener">ConcatAdapter Documentation</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.Adapter" target="_blank" rel="noopener">RecyclerView Adapter Patterns</a><span class="source-type">documentation</span></li><li id="source-11"><span class="source-num">11</span><a href="https://developer.android.com/topic/performance/vitals/render" target="_blank" rel="noopener">Android Performance Optimization</a><span class="source-type">documentation</span></li></ul></div>
+    B -->|Ad| F[AdViewHolder]
+    
+    C --> G[View Pool Check]
+    D --> G
+    E --> G
+    F --> G
+    
+    G -->|Available| H[Reuse Existing View]
+    G -->|Not Available| I[Create New View]
+    
+    H --> J[Bind Data]
+    I --> J
+    
+    J --> K[Background DiffUtil]
+    K --> L[Update UI]
+    
+    L --> M{View Recycled?}
+    M -->|Yes| N[Cleanup Heavy Objects]
+    M -->|No| O[Keep in Pool]
+    
+    N --> O
+    O --> P[Ready for Next Scroll]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> RecyclerView was originally called ListView before Google completely rewrote it in 2014. The 'Recycler' name emphasizes its focus on view recycling, a concept that can reduce memory usage by up to 90% compared to simple ListView implementations.</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://developer.android.com/guide/topics/ui/layout/recyclerview" target="_blank" rel="noopener">RecyclerView Official Documentation</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://developer.android.com/topic/performance" target="_blank" rel="noopener">Android Performance Patterns</a><span class="source-type">documentation</span></li><li id="source-3"><span class="source-num">3</span><a href="https://developer.android.com/training/improving-layouts/smooth-scrolling" target="_blank" rel="noopener">ViewHolder Pattern Best Practices</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://developer.android.com/topic/performance/memory" target="_blank" rel="noopener">Memory Management in Android</a><span class="source-type">documentation</span></li><li id="source-5"><span class="source-num">5</span><a href="https://developer.android.com/reference/androidx/recyclerview/widget/DiffUtil" target="_blank" rel="noopener">DiffUtil Android Documentation</a><span class="source-type">documentation</span></li><li id="source-6"><span class="source-num">6</span><a href="https://developer.android.com/topic/performance/threads" target="_blank" rel="noopener">Android Background Threading</a><span class="source-type">documentation</span></li><li id="source-7"><span class="source-num">7</span><a href="https://developer.android.com/topic/libraries/architecture/paging/v3-overview" target="_blank" rel="noopener">Paging3 Library Documentation</a><span class="source-type">documentation</span></li><li id="source-8"><span class="source-num">8</span><a href="https://developer.android.com/topic/libraries/architecture/paging" target="_blank" rel="noopener">Android Paging Best Practices</a><span class="source-type">documentation</span></li><li id="source-9"><span class="source-num">9</span><a href="https://developer.android.com/reference/androidx/recyclerview/widget/ConcatAdapter" target="_blank" rel="noopener">ConcatAdapter Documentation</a><span class="source-type">documentation</span></li><li id="source-10"><span class="source-num">10</span><a href="https://developer.android.com/reference/androidx/recyclerview/widget/RecyclerView.Adapter" target="_blank" rel="noopener">RecyclerView Adapter Patterns</a><span class="source-type">documentation</span></li><li id="source-11"><span class="source-num">11</span><a href="https://developer.android.com/topic/performance/vitals/render" target="_blank" rel="noopener">Android Performance Optimization</a><span class="source-type">documentation</span></li></ul></div>
     
     <h2>Wrapping Up</h2>
     <p>The journey from janky scrolling to buttery-smooth performance isn't about finding a silver bullet—it's about understanding how each optimization compounds. LinkedIn's experience shows that proper ViewHolder lifecycle management, background DiffUtil calculations, and strategic adapter architecture can transform a user experience from frustrating to delightful. Tomorrow, audit your RecyclerView implementations: are you cleaning up ViewHolders properly? Is your DiffUtil blocking the main thread? Could ConcatAdapter simplify your complex adapter logic? These small changes might just be the difference between users staying engaged or abandoning your app.</p>

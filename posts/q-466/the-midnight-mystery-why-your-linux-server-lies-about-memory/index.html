@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>The Midnight Mystery: Why Your Linux Server Lies About Memory | DevInsights</title>
-  <meta name="description" content="">
+  <meta name="description" content="It was 3am when the pager went off. Production services were crashing, but `free -m` showed 8GB available RAM. I stared at the screen, confused. How could proce">
+  <meta property="og:title" content="The Midnight Mystery: Why Your Linux Server Lies About Memory">
+  <meta property="og:description" content="It was 3am when the pager went off. Production services were crashing, but `free -m` showed 8GB available RAM. I stared at the screen, confused. How could proce">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
@@ -60,7 +64,15 @@
     F -->|No| H[OOM Killer Activates]
     H --> I[Kill Process]
     I --> J[Memory Freed]
-    J --> K[Service Continues]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The Linux OOM killer has a 'badness score' algorithm that decides which process to kill. It considers factors like memory usage, runtime, and whether the process is root. The algorithm is so complex that it's been rewritten multiple times, and engineers still debate its effectiveness!</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://www.kernel.org/doc/html/latest/vm/overcommit-accounting.html" target="_blank" rel="noopener">Linux Memory Management Documentation</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://lwn.net/Articles/317814/" target="_blank" rel="noopener">Understanding the Linux OOM Killer</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://netflixtechblog.com/" target="_blank" rel="noopener">Netflix Tech Blog: Memory Management at Scale</a><span class="source-type">blog</span></li><li id="source-4"><span class="source-num">4</span><a href="https://www.kernel.org/doc/html/latest/accounting/psi.html" target="_blank" rel="noopener">Linux Kernel Memory Pressure Interface</a><span class="source-type">documentation</span></li></ul></div>
+    J --> K[Service Continues]
+    
+    L[Kernel Memory] --> M[Hidden from free]
+    N[Memory Fragmentation] --> O[Blocks Large Allocations]
+    P[Overcommit] --> Q[Promises More Than Available]
+    
+    M --> B
+    O --> B
+    Q --> B</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The Linux OOM killer has a 'badness score' algorithm that decides which process to kill. It considers factors like memory usage, runtime, and whether the process is root. The algorithm is so complex that it's been rewritten multiple times, and engineers still debate its effectiveness!</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://www.kernel.org/doc/html/latest/vm/overcommit-accounting.html" target="_blank" rel="noopener">Linux Memory Management Documentation</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://lwn.net/Articles/317814/" target="_blank" rel="noopener">Understanding the Linux OOM Killer</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://netflixtechblog.com/" target="_blank" rel="noopener">Netflix Tech Blog: Memory Management at Scale</a><span class="source-type">blog</span></li><li id="source-4"><span class="source-num">4</span><a href="https://www.kernel.org/doc/html/latest/accounting/psi.html" target="_blank" rel="noopener">Linux Kernel Memory Pressure Interface</a><span class="source-type">documentation</span></li></ul></div>
     
     <h2>Wrapping Up</h2>
     <p>The next time you see 'Out of memory' errors with plenty of free RAM, don't trust your eyes. Linux memory management is a complex dance between visible and hidden memory, fragmentation, and overcommit policies. The real lesson? Monitor `/proc/meminfo` instead of `free`, tune your overcommit settings, and always have swap space as a safety net. Your 3am self will thank you.</p>

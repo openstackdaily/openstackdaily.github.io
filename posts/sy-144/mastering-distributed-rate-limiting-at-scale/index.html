@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Mastering Distributed Rate Limiting at Scale | DevInsights</title>
-  <meta name="description" content="">
+  <meta name="description" content="In today's hyper-connected world, protecting your services from overload while maintaining fair access is crucial. A robust distributed rate limiting system can">
+  <meta property="og:title" content="Mastering Distributed Rate Limiting at Scale">
+  <meta property="og:description" content="In today's hyper-connected world, protecting your services from overload while maintaining fair access is crucial. A robust distributed rate limiting system can">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
@@ -64,7 +68,22 @@
     J -->|No| L[Reject Request]
     K --> M[Update Local Cache]
     M --> N[Forward Request]
-    E --> J</div>
+    E --> J
+    
+    subgraph Redis Cluster
+        H1[Redis Master 1]
+        H2[Redis Master 2]
+        H3[Redis Master 3]
+        H1 -.-> H2
+        H2 -.-> H3
+        H3 -.-> H1
+    end
+    
+    subgraph Multi-DC
+        DC1[Data Center 1]
+        DC2[Data Center 2]
+        DC1 -.->|Async Replication| DC2
+    end</div>
     
     <h2>Wrapping Up</h2>
     <p>Building a distributed rate limiting system that can handle millions of requests per second requires careful attention to architecture, consistency, and failure modes. By combining Redis Cluster with sliding window algorithms, multi-level caching, and robust failure protection, you can create a system that scales horizontally while maintaining the reliability your users depend on. Start with the core components and gradually add the consistency and availability layers as your traffic grows.</p>

@@ -4,14 +4,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Docker Diets: How to Shrink Your 850MB Container Without Losing Your Mind | DevInsights</title>
-  <meta name="description" content="">
+  <meta name="description" content="Ever had your CI/CD pipeline fail at 3am because your Docker image hit the registry size limit? We've all been there - staring at that bloated 850MB container w">
+  <meta property="og:title" content="Docker Diets: How to Shrink Your 850MB Container Without Losing Your Mind">
+  <meta property="og:description" content="Ever had your CI/CD pipeline fail at 3am because your Docker image hit the registry size limit? We've all been there - staring at that bloated 850MB container w">
+  <meta property="og:type" content="article">
+  <meta name="twitter:card" content="summary">
   <meta name="theme-color" content="#0d1117">
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-47MSM57H95"></script>
   <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-47MSM57H95');</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
   <script>mermaid.initialize({startOnLoad:true,theme:'base',themeVariables:{primaryColor:'#e8f4f8',primaryTextColor:'#1a1a1a',primaryBorderColor:'#2c3e50',lineColor:'#2c3e50',secondaryColor:'#ffeaa7',tertiaryColor:'#dfe6e9',background:'#ffffff',mainBkg:'#e8f4f8',nodeBorder:'#2c3e50',clusterBkg:'#f5f5f5',titleColor:'#1a1a1a',edgeLabelBackground:'#ffffff',nodeTextColor:'#1a1a1a',fontSize:'16px'},flowchart:{curve:'basis',padding:20,nodeSpacing:60,rankSpacing:60,htmlLabels:true,useMaxWidth:true}});</script>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
   <link rel="stylesheet" href="/style.css">
@@ -57,7 +61,11 @@
     D --> E[Runtime Stage]
     E --> F[Alpine Base]
     F --> G[Copy Artifacts Only]
-    G --> H[Production Container]</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The smallest Docker image ever created is 'hello-world' at just 1.84KB - proving that containers don't have to be bloated!</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://docs.docker.com/build/building/multi-stage/" target="_blank" rel="noopener">Docker Multi-Stage Builds Official Documentation</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://netflixtechblog.com/optimizing-docker-images-size-" target="_blank" rel="noopener">Netflix Engineering Blog: Container Optimization</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://cloud.google.com/blog/products/containers-kubernetes/container-best-practices" target="_blank" rel="noopener">Google Container Best Practices</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://github.com/GoogleContainerTools/distroless" target="_blank" rel="noopener">Distroless Images by Google</a><span class="source-type">documentation</span></li></ul></div>
+    G --> H[Production Container]
+    
+    style B fill:#e1f5fe
+    style E fill:#f3e5f5
+    style H fill:#e8f5e8</div><div class="fun-fact"><span class="fun-fact-icon"><i data-lucide="sparkles"></i></span><p><strong>Did you know?</strong> The smallest Docker image ever created is 'hello-world' at just 1.84KB - proving that containers don't have to be bloated!</p></div><div class="sources"><h3><i data-lucide="book-open"></i> References</h3><ul><li id="source-1"><span class="source-num">1</span><a href="https://docs.docker.com/build/building/multi-stage/" target="_blank" rel="noopener">Docker Multi-Stage Builds Official Documentation</a><span class="source-type">documentation</span></li><li id="source-2"><span class="source-num">2</span><a href="https://netflixtechblog.com/optimizing-docker-images-size-" target="_blank" rel="noopener">Netflix Engineering Blog: Container Optimization</a><span class="source-type">blog</span></li><li id="source-3"><span class="source-num">3</span><a href="https://cloud.google.com/blog/products/containers-kubernetes/container-best-practices" target="_blank" rel="noopener">Google Container Best Practices</a><span class="source-type">documentation</span></li><li id="source-4"><span class="source-num">4</span><a href="https://github.com/GoogleContainerTools/distroless" target="_blank" rel="noopener">Distroless Images by Google</a><span class="source-type">documentation</span></li></ul></div>
     
     <h2>Wrapping Up</h2>
     <p>Start optimizing today: add a .dockerignore file, switch to Alpine base, and implement multi-stage builds. Your future self (and your cloud bill) will thank you. Remember: the best optimization is the one you actually implement, not the perfect one you plan for someday.</p>
