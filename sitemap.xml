@@ -2,6 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url><loc>https://openstackdaily.github.io/</loc><changefreq>daily</changefreq><priority>1.0</priority></url>
 <url><loc>https://openstackdaily.github.io/posts/aws-solutions-architect-tips/aws-solutions-architect-tips/</loc><lastmod></lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://openstackdaily.github.io/posts/b99842b9-60d7-4daf-99e0-f18ed18879e8/what-netflix-learned-about-tail-latency-on-numa-a-linux-toolkit-driven-debugging/</loc><lastmod>2026-04-21</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://openstackdaily.github.io/posts/blog-1766674305590-ncl9qn/rest-vs-graphql-choose-the-right-api-for-your-app/</loc><lastmod>2026-03-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://openstackdaily.github.io/posts/blog-1766675309405-7p8k4s/api-rate-limiting-protect-your-services-from-ddos/</loc><lastmod>2026-03-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
 <url><loc>https://openstackdaily.github.io/posts/blog-1766676477930-9i8oki/docker-containers-revolutionize-your-development-workflow/</loc><lastmod>2026-03-16</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
